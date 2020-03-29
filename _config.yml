@@ -1,22 +1,40 @@
 title: ryanhenderson.dev
+logo: /assets/images/htxryan-logo-square.png
 #email: htxryan@gmail.com
 description: >-
-  Various musings in tech from Ryan Henderson
+  Hello, I'm Ryan Henderson.<br/>I do things with computers and occasionally leave a note.<br/>I work for Pariveda in Houston, Texas.
 baseurl: ""
 permalink: /:title/
 url: "https://ryanhenderson.dev"
 twitter_username: htxryan
 github_username:  htxryan
 
-jekyll_analytics:
-  GoogleAnalytics:
-    id: UA-162098969-1
-    anonymizeIp: false
+# jekyll_analytics:
+#   GoogleAnalytics:
+#     id: UA-162098969-1
+#     anonymizeIp: false
 
 # Build settings
 build: 20200328
 # theme: jekyll-theme-clean-blog
-theme: minima
+theme: jekyll-theme-so-simple
 plugins:
   - jekyll-feed
   - jekyll-analytics
+
+# Theme Options (so-simple)
+# skin: "/assets/css/skins/dark.css"
+skin: "/assets/css/skins/light.css"
+read_time: true
+words_per_minute: 200
+google_fonts:
+  - name: "Source Sans Pro"
+    weights: "400,400i,700,700i"
+  - name: "Lora"
+    weights: "400,400i,700,700i"
+paginate: 10  # amount of posts to show per page
+paginate_path: /page:num/
+search_full_content: true
+category_archive_path: "/categories/#"
+tag_archive_path: "/tags/#"
+google_analytics: UA-162098969-1
