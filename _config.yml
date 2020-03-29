@@ -3,7 +3,7 @@ title: ryanhenderson.dev
 description: >-
   Various musings in tech from Ryan Henderson
 baseurl: ""
-permalink: /:title
+permalink: /:title/
 url: "https://ryanhenderson.dev"
 twitter_username: htxryan
 github_username:  htxryan

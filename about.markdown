@@ -1,7 +1,7 @@
 ---
 layout: page
 title: About
-permalink: /about
+permalink: /about/
 ---
 
 Hi! My name is Ryan Henderson, and I'm a consultant and software developer. I have been in this industry since graduating college in 2010. I live and work in Houston, Texas.

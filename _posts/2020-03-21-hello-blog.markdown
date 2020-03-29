@@ -3,7 +3,7 @@ layout: post
 title:  "Hello Blog"
 date:   2020-03-21 00:00:00 -0500
 tags: meta
-permalink: /hello-blog
+permalink: /hello-blog/
 ---
 ![Hello World](/assets/images/hello-world.png)
 
