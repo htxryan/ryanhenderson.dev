@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-# gem "jekyll", "~> 4.0.0"
+gem "jekyll", "~> 4.0.0"
 
 # Themes
 gem "minima", "~> 2.5"
@@ -8,7 +8,7 @@ gem "minima", "~> 2.5"
 
 # Plugins
 group :jekyll_plugins do
-  gem "github-pages"
+  # gem "github-pages"
   gem "jekyll-feed", "~> 0.12"
   gem "jekyll-admin"
   gem "jekyll-analytics"
