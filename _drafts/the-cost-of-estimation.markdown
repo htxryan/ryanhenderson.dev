@@ -5,6 +5,7 @@ date:   2020-03-28 00:00:00 -0500
 tags: [estimation, project management]
 permalink: /estimates-vs-no-estimates-a-false-dichotomy
 ---
+
 ![Photo by [Icons8 Team](https://unsplash.com/@icons8?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)](/assets/images/the-cost-of-estimation.jpg)
 
 **Yes, another "software estimates good/bad" rant &mdash; but hear me out.**
