@@ -27,6 +27,9 @@ webmaster_verifications:
 #   yandex: 1234
 #   baidu: 1234
 
+feed:
+  excerpt_only: false
+
 # Build settings
 build: 20200328
 # theme: jekyll-theme-clean-blog
@@ -35,6 +38,7 @@ plugins:
   - jekyll-feed
   - jekyll-analytics
   - jekyll-seo-tag
+  - jekyll-target-blank
 
 # Theme Options (so-simple)
 # skin: "/assets/css/skins/dark.css"
@@ -52,3 +56,16 @@ search_full_content: true
 category_archive_path: "/categories/#"
 tag_archive_path: "/tags/#"
 google_analytics: UA-162098969-1
+footer_links:
+  - title: Twitter
+    url: https://twitter.com/htxryan
+    icon: fab fa-twitter-square
+  - title: GitHub
+    url: https://github.com/htxryan
+    icon: fab fa-github-square
+  - title: LinkedIn
+    url: https://linkedin.com/in/htxryan
+    icon: fab fa-linkedin
+  - title: RSS
+    url: feed.xml
+    icon: fas fa-rss-square
