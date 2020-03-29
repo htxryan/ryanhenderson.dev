@@ -1,0 +1,22 @@
+title: ryanhenderson.dev
+#email: htxryan@gmail.com
+description: >-
+  Various musings in tech from Ryan Henderson
+baseurl: ""
+permalink: /:title
+url: "https://ryanhenderson.dev"
+twitter_username: htxryan
+github_username:  htxryan
+
+jekyll_analytics:
+  GoogleAnalytics:
+    id: UA-162098969-1
+    anonymizeIp: false
+
+# Build settings
+build: 20200328
+# theme: jekyll-theme-clean-blog
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-analytics
