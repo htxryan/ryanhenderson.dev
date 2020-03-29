@@ -1,0 +1,2 @@
+bundle install
+jekyll build
