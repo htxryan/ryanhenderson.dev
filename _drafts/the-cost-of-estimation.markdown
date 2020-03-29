@@ -1,15 +1,16 @@
 ---
 layout: post
-title:  "Estimates vs. #NoEstimates: A False Dichotomy"
+title:  "Estimates vs. #NoEstimates is a False Dichotomy"
+description: It's not "estimates vs. no estimates". This is a false dichotomy, and it leads to misguided arguments on both sides. "Estimates are a waste of time" and "estimates are a necessary, critical part of the business process" are both *valid* and *invalid* arguments, depending on the context.
 date:   2020-03-28 00:00:00 -0500
 tags: [estimation, project management]
-permalink: /estimates-vs-no-estimates-a-false-dichotomy
+permalink: /estimates-vs-no-estimates-is-a-false-dichotomy
 image:
   path: /assets/images/the-cost-of-estimation-header-small.jpg
   caption: Photo by [Icons8 Team](https://unsplash.com/@icons8?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)
 ---
 
-**Yes, another "software estimates good/bad" rant &mdash; but hear me out.** It's not "estimates vs. [no estimates](https://ronjeffries.com/xprog/articles/the-noestimates-movement/)". This is a false dichotomy, and it leads to misguided arguments on both sides. "Estimates are a waste of time" and "estimates are a necessary, critical part of the business process" are both *valid* and *invalid* arguments, depending on the context. Allow me to explain.
+**Yes, another "software estimates good/bad" rant &mdash; but hear me out.** It's not "estimates vs. [no estimates](https://ronjeffries.com/xprog/articles/the-noestimates-movement/)". This is a false choice, and it leads to misguided arguments on both sides. "Estimates are a waste of time" and "estimates are a necessary, critical part of the business process" are both *valid* and *invalid* arguments, depending on the context. Allow me to explain.
 
 ## The Problem with Not Estimating
 
