@@ -29,6 +29,7 @@ webmaster_verifications:
 
 feed:
   excerpt_only: false
+  
 
 # Build settings
 build: 20200328
@@ -39,6 +40,7 @@ plugins:
   - jekyll-analytics
   - jekyll-seo-tag
   - jekyll-target-blank
+
 
 # Theme Options (so-simple)
 # skin: "/assets/css/skins/dark.css"
