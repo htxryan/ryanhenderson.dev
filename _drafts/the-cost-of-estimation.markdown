@@ -1,4 +1,4 @@
----
+﻿---
 layout: post
 title:  "Estimates vs. #NoEstimates is a False Dichotomy"
 description: It's not "estimates vs. no estimates". This is a false dichotomy, and it leads to misguided arguments on both sides. "Estimates are a waste of time" and "estimates are a necessary, critical part of the business process" are both *valid* and *invalid* arguments, depending on the context.
@@ -101,7 +101,7 @@ By providing your confidence level alongside any estimate you provide, you can s
 
 **Provide estimates for multiple confidence levels**
 
-By providing multiple estimates &mdash; one for each confidence level, as in the illustration above &mdash; you can accomplish two things at once: 1) you can communicate the level of uncertainty in the given task (high uncertainty indicated by a wide CL band, low uncertainty indicated by a narrow CL band), and 2) you can hopefully avoid having the takeaway from an estimation conversation be a single number.
+By providing multiple estimates &mdash; one for each confidence level, as in the illustration above &mdash; you can accomplish two things at once: 1) you can communicate the level of uncertainty in the given task (high uncertainty indicated by a wide CL band, low uncertainty indicated by a narrow CL band), and 2) you can hopefully avoid having the takeaway from an estimation conversation be a single number.
 
 **Agree on a target confidence band before spending too much time on an estimate**
 
