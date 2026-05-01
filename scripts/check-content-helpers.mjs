@@ -24,7 +24,13 @@ const ALLOWED = new Set([
 const SKIP_DIRS = new Set(["node_modules", ".astro", "dist", ".git"]);
 const EXTS = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".astro"]);
 
-const PATTERN = /getCollection\(\s*["'`](blog|projects)["'`]\s*[,)]/;
+// Whole-file scan with [\s\S]* lets the regex span newlines so a multi-line
+// `getCollection(\n  "blog"\n)` doesn't slip through.
+const PATTERN = /getCollection\s*\(\s*["'`](?:blog|projects)["'`]\s*[,)]/g;
+// Catch alias re-imports: `import { getCollection as gc }` or
+// `export { getCollection } from "astro:content"` outside the helper module.
+const ALIAS_PATTERN =
+  /(?:import|export)[\s\S]*?\bgetCollection\b[\s\S]*?from\s*["'`]astro:content["'`]/g;
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -40,15 +46,34 @@ function* walk(dir) {
   }
 }
 
+function lineOf(text, index) {
+  let n = 1;
+  for (let i = 0; i < index && i < text.length; i++) {
+    if (text.charCodeAt(i) === 10) n++;
+  }
+  return n;
+}
+
 const offenders = [];
 for (const file of walk(SRC)) {
   if (ALLOWED.has(file)) continue;
   const text = readFileSync(file, "utf8");
-  text.split(/\r?\n/).forEach((line, i) => {
-    if (PATTERN.test(line)) {
-      offenders.push({ file: relative(ROOT, file), lineNo: i + 1, line: line.trim() });
-    }
-  });
+  for (const m of text.matchAll(PATTERN)) {
+    offenders.push({
+      file: relative(ROOT, file),
+      lineNo: lineOf(text, m.index ?? 0),
+      line: text.slice(m.index ?? 0, (m.index ?? 0) + (m[0]?.length ?? 0)).replace(/\s+/g, " "),
+      kind: "call",
+    });
+  }
+  for (const m of text.matchAll(ALIAS_PATTERN)) {
+    offenders.push({
+      file: relative(ROOT, file),
+      lineNo: lineOf(text, m.index ?? 0),
+      line: text.slice(m.index ?? 0, (m.index ?? 0) + (m[0]?.length ?? 0)).replace(/\s+/g, " "),
+      kind: "import/export",
+    });
+  }
 }
 
 if (offenders.length > 0) {

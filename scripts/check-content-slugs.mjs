@@ -12,12 +12,19 @@
  * but identical slugs — that's a downstream URL collision waiting to
  * happen. This script catches it pre-build.
  */
-import { readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { basename, extname, join, relative, resolve } from "node:path";
 
 const ROOT = resolve(process.cwd());
 const COLLECTIONS = ["blog", "projects"];
 const SLUG_RE = /^[a-z0-9-]+$/;
+
+if (!existsSync(join(ROOT, "src", "content"))) {
+  console.error(
+    `[content-slugs] FAIL: src/content/ not found at ${ROOT}. Run from project root.`,
+  );
+  process.exit(1);
+}
 
 function* walkMdx(dir) {
   for (const name of readdirSync(dir)) {
