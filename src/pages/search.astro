@@ -179,3 +179,77 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     font-size: 0.9375rem;
   }
 </style>
+
+{/* Brutalist overrides for Pagefind drop-in UI (which ships its own
+    sans-serif theme). Mounts under `#search`; we lift it into our token
+    palette without forking the bundle. */}
+<style is:global>
+  #search .pagefind-ui {
+    --pagefind-ui-primary: var(--ink);
+    --pagefind-ui-text: var(--ink);
+    --pagefind-ui-background: var(--paper);
+    --pagefind-ui-border: var(--rule-color);
+    --pagefind-ui-tag: var(--paper);
+    --pagefind-ui-border-width: var(--rule-hairline);
+    --pagefind-ui-border-radius: 0;
+    --pagefind-ui-image-border-radius: 0;
+    --pagefind-ui-font: var(--font-mono);
+    font-family: var(--font-mono);
+    color: var(--ink);
+  }
+  #search .pagefind-ui__form,
+  #search .pagefind-ui__search-input,
+  #search .pagefind-ui__button,
+  #search .pagefind-ui__message,
+  #search .pagefind-ui__result-title,
+  #search .pagefind-ui__result-excerpt,
+  #search .pagefind-ui__result-link,
+  #search .pagefind-ui__filter-name,
+  #search .pagefind-ui__filter-value,
+  #search .pagefind-ui__suppressed {
+    font-family: var(--font-mono);
+  }
+  #search .pagefind-ui__search-input {
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 0;
+  }
+  #search .pagefind-ui__result {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding-block: calc(var(--space-unit) * 2);
+  }
+  #search .pagefind-ui__result-link {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  #search .pagefind-ui__result-link:hover,
+  #search .pagefind-ui__result-link:focus-visible {
+    color: var(--accent);
+  }
+  #search .pagefind-ui__result-excerpt {
+    color: var(--muted);
+  }
+  #search .pagefind-ui__result mark,
+  #search .pagefind-ui__suppressed mark {
+    background: transparent;
+    color: var(--accent);
+    font-weight: 700;
+    padding: 0;
+  }
+  #search .pagefind-ui__button {
+    background: var(--paper);
+    color: var(--ink);
+    border: var(--rule-hairline) solid var(--rule-color);
+    border-radius: 0;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+  }
+  #search .pagefind-ui__button:hover,
+  #search .pagefind-ui__button:focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  #search .pagefind-ui__search-clear {
+    color: var(--muted);
+  }
+</style>
