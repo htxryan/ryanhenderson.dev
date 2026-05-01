@@ -1,0 +1,227 @@
+---
+/**
+ * E3 — Home (S-1).
+ *
+ * Brutalist composition:
+ *   - Hairline-ruled hero block with name + one-line positioning
+ *   - Asymmetric two-column grid below: "recent" (posts) | "work" (projects)
+ *   - Each list item is a row with hairline separators, mono type, no chrome
+ *
+ * Data: pulled exclusively through E1's helpers (C-2). No direct
+ * `getCollection` here — the build will fail via `pnpm check:content-source`
+ * if anyone reverts that.
+ *
+ * Performance: zero client JS shipped from this page (W-1). The only script
+ * on first load is the inline ThemeBoot inside <head>.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import {
+  getPublishedPosts,
+  getPublishedProjects,
+} from "~/lib/content";
+
+const recentPosts = await getPublishedPosts({ limit: 5 });
+const featuredProjects = (await getPublishedProjects()).slice(0, 4);
+
+const fmt = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+});
+---
+<BaseLayout
+  title="ryanhenderson.dev"
+  description="Ryan Henderson — consultant and software developer in Houston, Texas. Writing on consulting, software, and the work."
+  canonicalPath="/"
+>
+  <section class="hero" aria-labelledby="hero-name">
+    <p class="hero-eyebrow">writing &amp; work · est. 2020</p>
+    <h1 id="hero-name" class="hero-name">Ryan Henderson</h1>
+    <p class="hero-tag">
+      Consultant and software developer in Houston, Texas. Generalist by
+      training, problem solver by trade. This is where I park what I learn.
+    </p>
+  </section>
+
+  <div class="grid">
+    <section class="column" aria-labelledby="recent-heading">
+      <header class="column-header">
+        <h2 id="recent-heading">Recent writing</h2>
+        <a class="column-more" href="/posts/">all posts →</a>
+      </header>
+      {recentPosts.length === 0 ? (
+        <p class="empty">No posts yet.</p>
+      ) : (
+        <ul class="rows">
+          {recentPosts.map((post) => (
+            <li class="row">
+              <a class="row-link" href={`/posts/${post.id}/`}>
+                <time class="row-meta" datetime={post.data.pubDate.toISOString()}>
+                  {fmt.format(post.data.pubDate)}
+                </time>
+                <span class="row-title">{post.data.title}</span>
+              </a>
+              <p class="row-summary">{post.data.summary}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+
+    <section class="column" aria-labelledby="work-heading">
+      <header class="column-header">
+        <h2 id="work-heading">Featured work</h2>
+        <a class="column-more" href="/work/">all work →</a>
+      </header>
+      {featuredProjects.length === 0 ? (
+        <p class="empty">No projects yet.</p>
+      ) : (
+        <ul class="rows">
+          {featuredProjects.map((project) => (
+            <li class="row">
+              <a class="row-link" href={`/work/${project.id}/`}>
+                <span class="row-meta" data-status={project.data.status}>
+                  {project.data.status}
+                </span>
+                <span class="row-title">{project.data.name}</span>
+              </a>
+              <p class="row-summary">{project.data.oneLiner}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    border-top: var(--rule-hairline) solid var(--rule-color);
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 6) 0;
+    margin-bottom: calc(var(--space-unit) * 4);
+  }
+  .hero-eyebrow {
+    margin: 0 0 calc(var(--space-unit) * 2);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .hero-name {
+    margin: 0 0 calc(var(--space-unit) * 2);
+    font-size: clamp(2.5rem, 6vw + 1rem, 4.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+  }
+  .hero-tag {
+    margin: 0;
+    max-width: var(--measure);
+    color: var(--muted);
+  }
+
+  /* Asymmetric grid: the writing column is wider; "work" gets the visual
+     anchor of being narrower (less common = more emphasis). */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--space-unit) * 5);
+  }
+  @media (min-width: 56rem) {
+    .grid {
+      grid-template-columns: 3fr 2fr;
+      gap: calc(var(--space-unit) * 6);
+    }
+  }
+
+  .column-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-unit);
+    border-bottom: 2px solid var(--rule-color);
+    padding-bottom: var(--space-unit);
+    margin-bottom: calc(var(--space-unit) * 2);
+  }
+  .column-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .column-more {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: lowercase;
+  }
+  .column-more:hover,
+  .column-more:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .row {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 2) 0;
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  .row-link {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, auto) 1fr;
+    gap: calc(var(--space-unit) * 2);
+    align-items: baseline;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .row-link:hover .row-title,
+  .row-link:focus-visible .row-title {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .row-meta {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+  .row-meta[data-status="active"] {
+    color: var(--accent);
+  }
+  .row-title {
+    font-weight: 700;
+    font-size: 1.0625rem;
+  }
+  .row-summary {
+    margin: calc(var(--space-unit) * 0.5) 0 0;
+    padding-left: calc(8.5rem + var(--space-unit) * 2);
+    font-size: 0.9375rem;
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+  .empty {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+  }
+  @media (max-width: 40rem) {
+    .row-link {
+      grid-template-columns: 1fr;
+      gap: calc(var(--space-unit) * 0.5);
+    }
+    .row-summary {
+      padding-left: 0;
+    }
+  }
+</style>

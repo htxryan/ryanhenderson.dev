@@ -1,0 +1,68 @@
+---
+/**
+ * E3 — Primary navigation.
+ *
+ * Global landmarks (Lynch): Home, Writing, Work, About — flat, four nodes,
+ * each is a district hub. Search lands in E6 (added then; not in v1 chrome).
+ *
+ * Sets `aria-current="page"` on the active link. Comparison is path-prefix
+ * for `/posts/` and `/work/` so deep links highlight their parent.
+ */
+const path = Astro.url.pathname;
+
+type Link = { href: string; label: string; matchPrefix?: string };
+const links: Link[] = [
+  { href: "/", label: "home" },
+  { href: "/posts/", label: "writing", matchPrefix: "/posts/" },
+  { href: "/work/", label: "work", matchPrefix: "/work/" },
+  { href: "/about/", label: "about" },
+];
+
+function isActive(link: Link): boolean {
+  if (link.matchPrefix) return path.startsWith(link.matchPrefix);
+  return path === link.href;
+}
+---
+<nav aria-label="Primary" class="nav">
+  <ul class="nav-list">
+    {links.map((link) => (
+      <li>
+        <a
+          href={link.href}
+          aria-current={isActive(link) ? "page" : undefined}
+        >
+          {link.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .nav {
+    font-family: var(--font-mono);
+  }
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .nav-list a {
+    text-transform: lowercase;
+    text-decoration: none;
+    color: var(--ink);
+    border-bottom: var(--rule-hairline) solid transparent;
+    padding-bottom: 2px;
+  }
+  .nav-list a:hover,
+  .nav-list a:focus-visible {
+    border-bottom-color: var(--ink);
+  }
+  .nav-list a[aria-current="page"] {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

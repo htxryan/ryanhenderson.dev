@@ -1,0 +1,72 @@
+---
+/**
+ * E3 — Global footer.
+ *
+ * Brutalist: hairline rule + colophon. No client JS. Provides:
+ *   - copyright with a stable "current year" computed at build time
+ *   - colophon link (about) and feed link (E6 will produce /feed.xml)
+ *   - external profiles (twitter / linkedin / github)
+ *
+ * The feed link points at /feed.xml even though E6 owns the route — the chrome
+ * is allowed to advertise the feed; if a reader hits it before E6 ships, they
+ * see a 404 from the same BaseLayout, which is acceptable in pre-launch dev.
+ */
+const year = new Date().getFullYear();
+---
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer-inner">
+    <p class="colophon">
+      © {year} Ryan Henderson · <a href="/about/">about</a> · <a href="/feed.xml">rss</a>
+    </p>
+    <ul class="links" aria-label="External profiles">
+      <li><a href="https://twitter.com/htxryan" rel="me noopener noreferrer">twitter</a></li>
+      <li><a href="https://www.linkedin.com/in/htxryan" rel="me noopener noreferrer">linkedin</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: var(--rule-hairline) solid var(--rule-color);
+    margin-top: calc(var(--space-unit) * 6);
+  }
+  .site-footer-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--space-unit) * 2);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .colophon {
+    margin: 0;
+  }
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .links a {
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: lowercase;
+  }
+  .links a:hover,
+  .links a:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  @media (max-width: 40rem) {
+    .site-footer-inner {
+      padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 2);
+    }
+  }
+</style>
