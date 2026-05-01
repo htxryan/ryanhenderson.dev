@@ -45,6 +45,10 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
 
 const canonicalPath = `/posts/${post.id}/`;
 const description = summary;
+// E7 — per-slug OG card (BaseLayout resolves to absolute URL against
+// `Astro.site`). Path matches the dynamic endpoint at
+// `src/pages/og/[slug].png.ts`.
+const ogImage = `/og/${post.id}.png`;
 ---
 <BaseLayout
   title={title}
@@ -52,6 +56,7 @@ const description = summary;
   canonicalPath={canonicalPath}
   pubDate={pubDate}
   articleType="post"
+  ogImage={ogImage}
 >
   <article class="post prose">
     <header class="post-header">

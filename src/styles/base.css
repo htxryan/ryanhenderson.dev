@@ -14,6 +14,26 @@
 
 @import "./tokens.css";
 
+/* ---------- Vendored mono webfont (E7 contract) ---------- */
+/* JetBrains Mono is the canonical face for both CSS (here) and Satori
+   (scripts/og/render.ts reads the .woff sibling from src/assets/fonts/).
+   `font-display: swap` so the system fallback in --font-mono renders
+   immediately and the page does not block on the woff2 download. */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
+}
+
 /* ---------- Reset (modern, minimal) ---------- */
 
 *,

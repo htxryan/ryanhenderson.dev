@@ -27,12 +27,17 @@ interface Props {
 const { project } = Astro.props;
 const { name, oneLiner, status, marketingUrl, repoUrl, tags } = project.data;
 const canonicalPath = `/work/${project.id}/`;
+// E7 — per-slug OG card. Path matches the dynamic endpoint at
+// `src/pages/og/[slug].png.ts`. Slug collisions across collections are
+// flagged at build time by that endpoint's getStaticPaths.
+const ogImage = `/og/${project.id}.png`;
 ---
 <BaseLayout
   title={`${name} — Ryan Henderson`}
   description={oneLiner}
   canonicalPath={canonicalPath}
   articleType="project"
+  ogImage={ogImage}
 >
   <article class="project prose">
     <header class="project-header">
