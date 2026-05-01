@@ -35,6 +35,9 @@ jobs:
       - name: install (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      - name: lockfile dedupe check
+        run: pnpm dedupe --check
+
       - name: type-check
         run: pnpm check
 

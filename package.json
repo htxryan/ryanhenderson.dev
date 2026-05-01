@@ -22,8 +22,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:iv": "vitest run && playwright test",
-    "test:lhci": "lhci autorun --config=lighthouserc.cjs",
-    "lint": "astro check"
+    "test:lhci": "lhci autorun --config=lighthouserc.cjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
