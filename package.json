@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "pnpm check:content-source && pnpm check:content-slugs && pnpm gen:tokens && astro build",

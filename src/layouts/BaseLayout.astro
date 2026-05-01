@@ -84,7 +84,7 @@ const ogType = articleType ? "article" : "website";
     <meta name="twitter:description" content={description} />
 
     <link rel="alternate" type="application/rss+xml" title="ryanhenderson.dev" href="/feed.xml" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
+    {/* favicon ships in E7 (assets) — don't reference one before public/ exists. */}
 
     <slot name="head" />
   </head>
@@ -117,11 +117,6 @@ const ogType = articleType ? "article" : "website";
   }
   .skip-link:focus {
     transform: translateY(0);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .skip-link {
-      transition: none;
-    }
   }
   .main {
     /* Page-level container; per-route layouts decide their own grid. */

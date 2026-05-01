@@ -29,8 +29,11 @@ const EXTS = new Set([".ts", ".tsx", ".js", ".mjs", ".cjs", ".astro"]);
 const PATTERN = /getCollection\s*\(\s*["'`](?:blog|projects)["'`]\s*[,)]/g;
 // Catch alias re-imports: `import { getCollection as gc }` or
 // `export { getCollection } from "astro:content"` outside the helper module.
+// Anchored per-line (m flag, [^\n]*) so unrelated imports earlier in the file
+// can't span-match into a later getCollection reference and produce a
+// false-positive (or a misleading line number) on a clean file.
 const ALIAS_PATTERN =
-  /(?:import|export)[\s\S]*?\bgetCollection\b[\s\S]*?from\s*["'`]astro:content["'`]/g;
+  /^[^\n]*(?:import|export)[^\n]*\bgetCollection\b[^\n]*from\s*["'`]astro:content["'`]/gm;
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {

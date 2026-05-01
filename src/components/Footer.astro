@@ -5,7 +5,7 @@
  * Brutalist: hairline rule + colophon. No client JS. Provides:
  *   - copyright with a stable "current year" computed at build time
  *   - colophon link (about) and feed link (E6 will produce /feed.xml)
- *   - external profiles (twitter / linkedin / github)
+ *   - external profiles (twitter / linkedin)
  *
  * The feed link points at /feed.xml even though E6 owns the route — the chrome
  * is allowed to advertise the feed; if a reader hits it before E6 ships, they
@@ -19,8 +19,8 @@ const year = new Date().getFullYear();
       © {year} Ryan Henderson · <a href="/about/">about</a> · <a href="/feed.xml">rss</a>
     </p>
     <ul class="links" aria-label="External profiles">
-      <li><a href="https://twitter.com/htxryan" rel="me noopener noreferrer">twitter</a></li>
-      <li><a href="https://www.linkedin.com/in/htxryan" rel="me noopener noreferrer">linkedin</a></li>
+      <li><a href="https://twitter.com/htxryan" rel="me">twitter</a></li>
+      <li><a href="https://www.linkedin.com/in/htxryan" rel="me">linkedin</a></li>
     </ul>
   </div>
 </footer>
