@@ -1,0 +1,92 @@
+---
+/**
+ * E2 — Theme toggle.
+ *
+ * A button that flips `data-theme` on `<html>` and persists the choice in
+ * `localStorage["theme"]`. Hydration-free: ships ~30 lines of JS, attached
+ * via `addEventListener` on DOMContentLoaded — no framework runtime.
+ *
+ * The button label updates in place (text-only, brutalist). It always
+ * announces the *target* mode ("dark" when light, "light" when dark) so
+ * screen readers and sighted users see the same affordance.
+ *
+ * Contract C-5: writes `localStorage["theme"]` and sets the dataset attribute.
+ * No custom events are dispatched — CSS variable cascade does the rest.
+ */
+interface Props {
+  /** Optional class for layout placement. */
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+<button
+  type="button"
+  class:list={["theme-toggle", className]}
+  data-theme-toggle
+  aria-label="Toggle color theme"
+>
+  <span data-theme-toggle-label>theme</span>
+</button>
+
+<style>
+  .theme-toggle {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    text-transform: lowercase;
+    padding: calc(var(--space-unit) * 0.5) var(--space-unit);
+    border: var(--rule-hairline) solid var(--rule-color);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .theme-toggle:hover,
+  .theme-toggle:focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+  }
+</style>
+
+<script>
+  (function () {
+    function currentTheme() {
+      const t = document.documentElement.dataset.theme;
+      return t === "dark" ? "dark" : "light";
+    }
+    function targetLabel(mode: "light" | "dark"): string {
+      return mode === "dark" ? "light" : "dark";
+    }
+    function syncLabels() {
+      const mode = currentTheme();
+      document
+        .querySelectorAll<HTMLElement>("[data-theme-toggle-label]")
+        .forEach((el) => {
+          el.textContent = targetLabel(mode);
+        });
+    }
+    function onClick(e: Event) {
+      const btn = (e.currentTarget as HTMLElement) ?? null;
+      if (!btn) return;
+      const next = currentTheme() === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem("theme", next);
+      } catch {
+        // localStorage unavailable (private mode, quota) — non-fatal.
+      }
+      syncLabels();
+    }
+    function attach() {
+      document
+        .querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")
+        .forEach((btn) => {
+          btn.addEventListener("click", onClick);
+        });
+      syncLabels();
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", attach);
+    } else {
+      attach();
+    }
+  })();
+</script>

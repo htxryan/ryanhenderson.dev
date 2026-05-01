@@ -1,0 +1,44 @@
+---
+/**
+ * E2 — FOUC-proof theme boot.
+ *
+ * Renders a synchronous inline `<script>` that MUST be the first executable
+ * element inside `<head>` (after `<meta charset>` and `<meta viewport>`).
+ * It runs before first paint and sets `document.documentElement.dataset.theme`
+ * to either `"light"` or `"dark"` based on:
+ *
+ *   1. `localStorage["theme"]` if present and valid  (explicit user pref)
+ *   2. `prefers-color-scheme: dark` media query     (system pref)
+ *   3. `"light"` as the irreducible default          (no JS / no match)
+ *
+ * Contract C-5:
+ *   - localStorage key = "theme"
+ *   - valid values     = "light" | "dark" (anything else is ignored)
+ *   - matchMedia is queried ONCE at boot; the script does NOT subscribe to
+ *     change events — once the user toggles, their pref freezes.
+ *
+ * CSP (E9 owns the SHA-256 hash in `_headers`): when this script body
+ * changes, the hash must be regenerated. Keep the body terse and stable.
+ *
+ * Usage:
+ *   <head>
+ *     <meta charset="utf-8" />
+ *     <meta name="viewport" content="..." />
+ *     <ThemeBoot />
+ *     ...
+ *   </head>
+ */
+---
+<script is:inline>
+  (function () {
+    try {
+      var s = localStorage.getItem("theme");
+      var t = s === "light" || s === "dark"
+        ? s
+        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.dataset.theme = t;
+    } catch (e) {
+      document.documentElement.dataset.theme = "light";
+    }
+  })();
+</script>

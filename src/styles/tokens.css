@@ -1,0 +1,44 @@
+/* GENERATED FROM src/styles/tokens.ts — DO NOT HAND-EDIT. */
+/* Run `pnpm gen:tokens` to regenerate after changing tokens.ts. */
+
+:root {
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", "SF Mono", ui-monospace, "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+  --font-sans: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --scale-base: 16px;
+  --space-unit: 8px;
+  --rule-hairline: 1px;
+  --measure: 70ch;
+
+  /* Light is the default; --ink/--paper/--muted/--accent/--rule-color
+     are overridden under [data-theme="dark"] below. */
+  --ink: #111111;
+  --paper: #ffffff;
+  --muted: #4a4a4a;
+  --accent: #b1240b;
+  --rule-color: #111111;
+
+  /* Shiki cssVariables surface (E4 contract). Reserved by E2. */
+  --shiki-fg: var(--ink);
+  --shiki-bg: var(--paper);
+  --shiki-token-keyword: #b1240b;
+  --shiki-token-string: #4a4a4a;
+  --shiki-token-comment: #4a4a4a;
+  --shiki-token-function: #111111;
+  --shiki-token-constant: #b1240b;
+  --shiki-token-punctuation: #4a4a4a;
+}
+
+:root[data-theme="dark"] {
+  --ink: #f4f4f4;
+  --paper: #0e0e0e;
+  --muted: #a8a8a8;
+  --accent: #ff8a80;
+  --rule-color: #f4f4f4;
+
+  --shiki-token-keyword: #ff8a80;
+  --shiki-token-string: #a8a8a8;
+  --shiki-token-comment: #a8a8a8;
+  --shiki-token-function: #f4f4f4;
+  --shiki-token-constant: #ff8a80;
+  --shiki-token-punctuation: #a8a8a8;
+}
