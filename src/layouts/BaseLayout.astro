@@ -84,6 +84,7 @@ const ogType = articleType ? "article" : "website";
     <meta name="twitter:description" content={description} />
 
     <link rel="alternate" type="application/rss+xml" title="ryanhenderson.dev" href="/feed.xml" />
+    <link rel="alternate" type="application/atom+xml" title="ryanhenderson.dev" href="/atom.xml" />
     {/* favicon ships in E7 (assets) — don't reference one before public/ exists. */}
 
     <slot name="head" />

@@ -374,6 +374,32 @@ describe("Search page (/search/)", () => {
   });
 });
 
+describe("Feed discoverability (BaseLayout <head>)", () => {
+  // Feed readers find feeds by scanning for <link rel="alternate"> in <head>.
+  // Both feed formats MUST be advertised, otherwise readers default to RSS
+  // only and the Atom build is undiscoverable in practice.
+  test("every page advertises BOTH /feed.xml (RSS) and /atom.xml (Atom)", () => {
+    const all = listAllHtml(DIST);
+    expect(all.length).toBeGreaterThan(0);
+    for (const file of all) {
+      const html = read(file);
+      const rel = file.replace(DIST, "");
+      expect(
+        html,
+        `${rel} missing RSS alternate link`,
+      ).toMatch(
+        /<link[^>]+rel="alternate"[^>]+type="application\/rss\+xml"[^>]+href="\/feed\.xml"/,
+      );
+      expect(
+        html,
+        `${rel} missing Atom alternate link`,
+      ).toMatch(
+        /<link[^>]+rel="alternate"[^>]+type="application\/atom\+xml"[^>]+href="\/atom\.xml"/,
+      );
+    }
+  });
+});
+
 describe("CRITICAL — pagefind asset bytes do NOT load on non-search routes", () => {
   // Per advisory P1 #10 / implicit contract: pagefind WASM + shards MUST NOT
   // load on any non-search route. We verify the static HTML contract: no

@@ -149,3 +149,58 @@ describe("projectSchema", () => {
     ).toThrow();
   });
 });
+
+describe("tag normalization (shared)", () => {
+  const valid = {
+    title: "x",
+    pubDate: "2026-04-30",
+    summary: "x",
+  };
+
+  test("lowercases tags so /tags/<tag>/ links match the archive route slug", () => {
+    const result = blogSchema.parse({ ...valid, tags: ["TypeScript", "MDX"] });
+    expect(result.tags).toEqual(["typescript", "mdx"]);
+  });
+
+  test("rejects tags with characters that would produce malformed URLs", () => {
+    // `.`, `+`, `/`, whitespace are all common author mistakes for "node.js"
+    // / "c++" / "front end" — fail loud, don't emit broken hrefs.
+    expect(() =>
+      blogSchema.parse({ ...valid, tags: ["node.js"] }),
+    ).toThrow();
+    expect(() =>
+      blogSchema.parse({ ...valid, tags: ["c++"] }),
+    ).toThrow();
+    expect(() =>
+      blogSchema.parse({ ...valid, tags: ["front end"] }),
+    ).toThrow();
+    expect(() =>
+      blogSchema.parse({ ...valid, tags: ["a/b"] }),
+    ).toThrow();
+  });
+
+  test("accepts hyphens (the conventional slug separator)", () => {
+    const result = blogSchema.parse({
+      ...valid,
+      tags: ["case-study", "deep-dive"],
+    });
+    expect(result.tags).toEqual(["case-study", "deep-dive"]);
+  });
+
+  test("rejects empty-string tags", () => {
+    expect(() =>
+      blogSchema.parse({ ...valid, tags: [""] }),
+    ).toThrow();
+  });
+
+  test("project tags are normalised the same way", () => {
+    const result = projectSchema.parse({
+      name: "Acme",
+      oneLiner: "x",
+      status: "active",
+      marketingUrl: "https://x.example",
+      tags: ["SaaS", "Software"],
+    });
+    expect(result.tags).toEqual(["saas", "software"]);
+  });
+});

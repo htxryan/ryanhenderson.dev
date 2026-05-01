@@ -74,22 +74,25 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     async function boot() {
       if (booted) return;
       booted = true;
+      // Pull in the stylesheet in parallel with the JS chunk so the rendered
+      // PagefindUI is styled on first paint.
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "/pagefind/pagefind-ui.css";
+      document.head.appendChild(link);
       const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
-      // Empty the host and let PagefindUI re-render its own inputs/results.
-      host.innerHTML = "";
+      // Hide the placeholder via class FIRST (synchronously) so the empty
+      // host never paints. Clearing innerHTML before PagefindUI mounts left a
+      // visible empty container during the async mount on slower devices.
+      host.classList.add("pagefind-booted");
       new PagefindUI({
         element: "#search",
         showSubResults: true,
         showImages: false,
       });
       // Forward focus to the freshly-mounted input.
-      const input = host.querySelector("input");
+      const input = host.querySelector(".pagefind-ui input");
       if (input) input.focus();
-      // Also pull in the stylesheet.
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = "/pagefind/pagefind-ui.css";
-      document.head.appendChild(link);
     }
     // Boot on focus, click, or keystroke anywhere in the search host.
     const events = ["focus", "click", "keydown", "focusin"];
@@ -129,6 +132,9 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   }
   .pagefind-host {
     min-height: 4rem;
+  }
+  .pagefind-host.pagefind-booted .pagefind-placeholder {
+    display: none;
   }
   .pagefind-placeholder {
     display: block;

@@ -39,4 +39,33 @@ describe("readingMetrics", () => {
     const body = Array(300).fill("w").join(" ");
     expect(readingMetrics(body, 100).minutes).toBe(3);
   });
+
+  test("strips MDX/JSX component tags before counting", () => {
+    // The tag must NOT count as words, but the slot content MUST.
+    expect(readingMetrics("<Callout>three little words</Callout>").words).toBe(3);
+  });
+
+  test("strips self-closing JSX tags", () => {
+    expect(readingMetrics("intro <Figure src='x.png' /> outro").words).toBe(2);
+  });
+
+  test("strips paired HTML tags surrounding prose", () => {
+    expect(readingMetrics("<p>just some prose here</p>").words).toBe(4);
+  });
+
+  test("strips JSX tags with attribute expressions", () => {
+    // `prop={expr}` braces are common in MDX; the regex must consume them.
+    expect(
+      readingMetrics('before <Component prop={count} other="x">body word</Component>')
+        .words,
+    ).toBe(3);
+  });
+
+  test("strips multiple stacked tags without leaving residue", () => {
+    expect(
+      readingMetrics(
+        "<Callout><Footnote id='1'>note</Footnote>tail</Callout>",
+      ).words,
+    ).toBe(2);
+  });
 });
