@@ -1,0 +1,16 @@
+---
+interface Props {
+  id: string;
+  ref?: string;
+}
+const { id, ref } = Astro.props;
+const anchorId = `fn-${id}`;
+const refId = ref ?? `fnref-${id}`;
+---
+<sup class="footnote-ref" id={refId}>
+  <a href={`#${anchorId}`} aria-describedby={anchorId}><slot name="ref">[{id}]</slot></a>
+</sup>
+<aside class="footnote" id={anchorId} role="note">
+  <slot />
+  <a href={`#${refId}`} class="footnote-back" aria-label="Back to reference">↩</a>
+</aside>

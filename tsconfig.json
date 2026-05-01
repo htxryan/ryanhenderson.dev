@@ -1,0 +1,12 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"]
+    },
+    "types": ["astro/client", "vitest/globals"]
+  },
+  "include": [".astro/types.d.ts", "**/*", "tests/**/*.ts"],
+  "exclude": ["dist", "node_modules", ".astro", "_site", "_posts", "_drafts", "_data"]
+}

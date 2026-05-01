@@ -1,0 +1,12 @@
+---
+type Variant = "note" | "warn" | "info";
+interface Props {
+  variant?: Variant;
+  title?: string;
+}
+const { variant = "note", title } = Astro.props;
+---
+<aside class="callout" data-variant={variant} role="note">
+  {title ? <p class="callout-title">{title}</p> : null}
+  <div class="callout-body"><slot /></div>
+</aside>

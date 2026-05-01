@@ -2,6 +2,6 @@
   "database": "dolt",
   "backend": "dolt",
   "dolt_mode": "embedded",
-  "dolt_database": "ryanhenderson.dev",
+  "dolt_database": "ryanhenderson_dev",
   "project_id": "1300b236-b5e3-4caa-8528-ea48ef529285"
 }
