@@ -20,9 +20,16 @@
 # scoped <style> blocks whose contents vary with content, so style-src uses
 # 'unsafe-inline'. Inline styles are not a meaningful XSS vector for a
 # static site with no untrusted runtime input.
+#
+# `'wasm-unsafe-eval'` (CSP Level 3) is required for Pagefind, which
+# compiles its WebAssembly engine at runtime when the user opens /search/.
+# wasm-unsafe-eval is narrower than 'unsafe-eval': it permits
+# WebAssembly.compile/instantiate but does NOT permit eval() or
+# new Function(). Pagefind's WASM is build-time-fingerprinted (lives at
+# /pagefind/wasm.<lang>.pagefind), so the threat model is unchanged.
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-jOl8mv2VZrXH3kX4vo6dLUYmHHGzdoMtg6AY7YBAOxc=' 'sha256-7xrQWIERox+JpgxLbDENjEKIzD0/Rh2BvrjbuIVDBdg=' 'sha256-a/s1+3skblaUp+YsKg9HLWooMU5mbeFEt3cKCuAHK6M=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com 'sha256-7xrQWIERox+JpgxLbDENjEKIzD0/Rh2BvrjbuIVDBdg=' 'sha256-YPBJns7Zs7jQJaAUaZ4u14xAjdubt4FULj+1oCnIRqE=' 'sha256-jOl8mv2VZrXH3kX4vo6dLUYmHHGzdoMtg6AY7YBAOxc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()

@@ -80,7 +80,16 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
       link.rel = "stylesheet";
       link.href = "/pagefind/pagefind-ui.css";
       document.head.appendChild(link);
-      const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
+      // pagefind-ui.js is an IIFE that attaches a constructor to
+      // `window.PagefindUI`; it does NOT expose a named module export. We
+      // await the side-effect import, then read the constructor off
+      // `window`. Using `pagefind-modular-ui.js` would be the ESM
+      // alternative but ships the same WASM core, so this stays simpler.
+      await import("/pagefind/pagefind-ui.js");
+      const PagefindUI = window.PagefindUI;
+      if (!PagefindUI) {
+        throw new Error("Pagefind UI constructor missing on window");
+      }
       // Hide the placeholder via class FIRST (synchronously) so the empty
       // host never paints. Clearing innerHTML before PagefindUI mounts left a
       // visible empty container during the async mount on slower devices.

@@ -33,3 +33,7 @@ pnpm-debug.log*
 .vscode/
 *.swp
 .DS_Store
+
+# Playwright
+test-results/
+playwright-report/
