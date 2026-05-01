@@ -211,10 +211,11 @@ describe("home empty-state markup", () => {
   // This test grounds the contract: the home page tolerates 0 posts/projects
   // without throwing, by reading the raw HTML for either real rows or the
   // empty-state strings — one of the two must be present in each column.
-  test("home has either a row list or an empty-state in each column", () => {
+  test("home has either a row/card list or an empty-state in each column", () => {
     const html = read(paths().home);
     const hasRecentList = /aria-labelledby="recent-heading"[\s\S]*?<ul class="rows"|aria-labelledby="recent-heading"[\s\S]*?No posts yet\./.test(html);
-    const hasWorkList = /aria-labelledby="work-heading"[\s\S]*?<ul class="rows"|aria-labelledby="work-heading"[\s\S]*?No projects yet\./.test(html);
+    // E5 swapped the work column to ProjectCards in `<ul class="cards">`.
+    const hasWorkList = /aria-labelledby="work-heading"[\s\S]*?<ul class="cards"|aria-labelledby="work-heading"[\s\S]*?No projects yet\./.test(html);
     expect(hasRecentList).toBe(true);
     expect(hasWorkList).toBe(true);
   });

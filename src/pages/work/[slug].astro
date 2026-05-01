@@ -1,0 +1,27 @@
+---
+/**
+ * E5 — Dynamic project route.
+ *
+ * `getStaticPaths` enumerates projects via `getPublishedProjects()` (C-2) —
+ * the single filter authority. Private projects are excluded automatically,
+ * so no `/work/<slug>/` page is ever produced for them.
+ */
+import { getPublishedProjects } from "~/lib/content";
+import { render } from "astro:content";
+import ProjectLayout from "~/layouts/ProjectLayout.astro";
+import { Callout, Figure, Footnote } from "~/components/mdx";
+
+export async function getStaticPaths() {
+  const projects = await getPublishedProjects();
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+<ProjectLayout project={project}>
+  <Content components={{ Callout, Figure, Footnote }} />
+</ProjectLayout>

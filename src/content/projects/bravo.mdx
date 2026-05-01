@@ -1,0 +1,12 @@
+---
+name: "Bravo"
+oneLiner: "Active project fixture without a public repo — exercises the conditional repo button."
+status: active
+marketingUrl: "https://bravo.example"
+tags: ["consulting"]
+pubDate: "2026-01-15"
+---
+
+Bravo deliberately omits `repoUrl` so the implicit contract can be exercised:
+a project with no repo MUST render only the marketing button — no placeholder,
+no greyed-out repo link, nothing in the DOM that hints a missing button.

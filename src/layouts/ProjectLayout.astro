@@ -1,0 +1,226 @@
+---
+/**
+ * E5 — ProjectLayout.
+ *
+ * Wraps an MDX project body with the case-study chrome the spec mandates:
+ *   - status badge, name, oneLiner
+ *   - marketing link (always), conditional repo link (E-3)
+ *   - tag list
+ *
+ * Composition contract C-6: this layout sits inside BaseLayout and supplies
+ * the per-project `title`, `description`, `canonicalPath`, and
+ * `articleType="project"` inputs. The MDX body slot goes inside an
+ * `<article>` so the 60–75ch reading measure from `base.css` applies.
+ *
+ * Implicit contract enforcement:
+ *   - W-1: zero client JS shipped from this layout.
+ *   - E-3: project with no `repoUrl` renders zero repo UI — no placeholder,
+ *     no greyed button. The conditional `{repoUrl ? … : null}` is the gate.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { name, oneLiner, status, marketingUrl, repoUrl, tags } = project.data;
+const canonicalPath = `/work/${project.id}/`;
+---
+<BaseLayout
+  title={`${name} — Ryan Henderson`}
+  description={oneLiner}
+  canonicalPath={canonicalPath}
+  articleType="project"
+>
+  <article class="project prose">
+    <header class="project-header">
+      <p class="project-eyebrow">work</p>
+      <h1 class="project-title">{name}</h1>
+      <p class="project-oneliner">{oneLiner}</p>
+      <dl class="project-meta" aria-label="Project metadata">
+        <div class="meta-row">
+          <dt>status</dt>
+          <dd>
+            <span class="status-badge" data-status={status}>{status}</span>
+          </dd>
+        </div>
+        <div class="meta-row">
+          <dt>links</dt>
+          <dd>
+            <ul class="link-list">
+              <li>
+                <a
+                  class="action primary"
+                  href={marketingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  visit →
+                </a>
+              </li>
+              {repoUrl ? (
+                <li>
+                  <a
+                    class="action secondary"
+                    href={repoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-repo-link
+                  >
+                    repo →
+                  </a>
+                </li>
+              ) : null}
+            </ul>
+          </dd>
+        </div>
+        {tags.length > 0 ? (
+          <div class="meta-row">
+            <dt>tags</dt>
+            <dd>
+              <ul class="tag-list">
+                {tags.map((tag: string) => (
+                  <li><a href={`/tags/${tag}/`} rel="tag">#{tag}</a></li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+    </header>
+
+    <div class="project-body">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .project {
+    margin: 0 auto;
+  }
+  .project-header {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding-bottom: calc(var(--space-unit) * 3);
+    margin-bottom: calc(var(--space-unit) * 4);
+  }
+  .project-eyebrow {
+    margin: 0 0 var(--space-unit);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .project-title {
+    margin: 0 0 calc(var(--space-unit) * 2);
+    font-size: clamp(2rem, 4.5vw + 1rem, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .project-oneliner {
+    margin: 0 0 calc(var(--space-unit) * 3);
+    color: var(--muted);
+    max-width: var(--measure);
+    font-size: 1.0625rem;
+  }
+  .project-meta {
+    margin: 0;
+    display: grid;
+    gap: calc(var(--space-unit) * 0.75);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .meta-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: var(--space-unit);
+    align-items: baseline;
+  }
+  .meta-row dt {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .meta-row dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .status-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: 0.1em 0.5em;
+    color: var(--muted);
+  }
+  .status-badge[data-status="active"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .status-badge[data-status="archived"] {
+    color: var(--muted);
+    border-color: var(--rule-color);
+  }
+  .link-list,
+  .tag-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-unit);
+  }
+  .tag-list a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .tag-list a:hover,
+  .tag-list a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .action {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: lowercase;
+    text-decoration: none;
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 0.5) var(--space-unit);
+  }
+  .action.primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .action.primary:hover,
+  .action.primary:focus-visible {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper);
+  }
+  .action.secondary {
+    color: var(--ink);
+    background: transparent;
+  }
+  .action.secondary:hover,
+  .action.secondary:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .project-body {
+    margin: 0 0 calc(var(--space-unit) * 6);
+  }
+
+  @media (max-width: 40rem) {
+    .meta-row {
+      grid-template-columns: 5rem 1fr;
+    }
+  }
+</style>

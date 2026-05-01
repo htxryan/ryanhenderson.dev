@@ -15,6 +15,7 @@
  * on first load is the inline ThemeBoot inside <head>.
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import ProjectCard from "~/components/ProjectCard.astro";
 import {
   getPublishedPosts,
   getPublishedProjects,
@@ -79,16 +80,10 @@ const fmt = new Intl.DateTimeFormat("en-US", {
       {featuredProjects.length === 0 ? (
         <p class="empty">No projects yet.</p>
       ) : (
-        <ul class="rows">
+        <ul class="cards" role="list">
           {featuredProjects.map((project) => (
-            <li class="row">
-              <a class="row-link" href={`/work/${project.id}/`}>
-                <span class="row-meta" data-status={project.data.status}>
-                  {project.data.status}
-                </span>
-                <span class="row-title">{project.data.name}</span>
-              </a>
-              <p class="row-summary">{project.data.oneLiner}</p>
+            <li class="cards-item">
+              <ProjectCard project={project} />
             </li>
           ))}
         </ul>
@@ -217,6 +212,17 @@ const fmt = new Intl.DateTimeFormat("en-US", {
     color: var(--muted);
     font-family: var(--font-mono);
     font-size: 0.9375rem;
+  }
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .cards-item {
+    display: block;
   }
   @media (max-width: 40rem) {
     .row-link {

@@ -1,0 +1,176 @@
+---
+/**
+ * E5 — ProjectCard.
+ *
+ * Reused on the home page (E3 "Featured work" column) and on `/work/`
+ * (E5 portfolio index). Single source of truth for project preview markup —
+ * no divergence between contexts.
+ *
+ * Composition:
+ *   - Status badge (data-status="active|archived") for E2 token-driven styling
+ *   - Title links to `/work/<slug>/` (the case-study route)
+ *   - One-liner sits inside the card so the row stays self-describing
+ *   - Action row holds the marketing link (always) and a conditional repo link
+ *
+ * Implicit contract (E-3): a project with NO `repoUrl` renders only the
+ * marketing button — no placeholder, no disabled repo link, nothing in the
+ * DOM that gestures at a missing button.
+ *
+ * Outbound links: `target="_blank"` with `rel="noreferrer"` so the destination
+ * cannot read the referrer. (No tracking; this is the safe default.)
+ */
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { name, oneLiner, status, marketingUrl, repoUrl, tags } = project.data;
+const detailHref = `/work/${project.id}/`;
+---
+<article class="project-card" data-status={status}>
+  <header class="project-card-header">
+    <span class="project-card-status" data-status={status}>{status}</span>
+    <h3 class="project-card-title">
+      <a href={detailHref}>{name}</a>
+    </h3>
+  </header>
+  <p class="project-card-oneliner">{oneLiner}</p>
+  {tags.length > 0 ? (
+    <ul class="project-card-tags" aria-label="Project tags">
+      {tags.map((tag: string) => (
+        <li><a href={`/tags/${tag}/`} rel="tag">#{tag}</a></li>
+      ))}
+    </ul>
+  ) : null}
+  <div class="project-card-actions">
+    <a
+      class="project-card-action primary"
+      href={marketingUrl}
+      target="_blank"
+      rel="noreferrer"
+    >
+      visit →
+    </a>
+    {repoUrl ? (
+      <a
+        class="project-card-action secondary"
+        href={repoUrl}
+        target="_blank"
+        rel="noreferrer"
+        data-repo-link
+      >
+        repo →
+      </a>
+    ) : null}
+  </div>
+</article>
+
+<style>
+  .project-card {
+    display: grid;
+    gap: var(--space-unit);
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 2);
+    background: var(--paper);
+  }
+  .project-card-header {
+    display: grid;
+    gap: calc(var(--space-unit) * 0.5);
+  }
+  .project-card-status {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    align-self: start;
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: 0.1em 0.5em;
+    width: max-content;
+  }
+  .project-card-status[data-status="active"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .project-card-status[data-status="archived"] {
+    color: var(--muted);
+    border-color: var(--rule-color);
+  }
+  .project-card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    line-height: 1.1;
+  }
+  .project-card-title a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .project-card-title a:hover,
+  .project-card-title a:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .project-card-oneliner {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    max-width: var(--measure);
+  }
+  .project-card-tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-unit);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .project-card-tags a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .project-card-tags a:hover,
+  .project-card-tags a:focus-visible {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .project-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-unit);
+    margin-top: calc(var(--space-unit) * 0.5);
+  }
+  .project-card-action {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: lowercase;
+    text-decoration: none;
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 0.5) var(--space-unit);
+  }
+  .project-card-action.primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .project-card-action.primary:hover,
+  .project-card-action.primary:focus-visible {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--paper);
+  }
+  .project-card-action.secondary {
+    color: var(--ink);
+    background: transparent;
+  }
+  .project-card-action.secondary:hover,
+  .project-card-action.secondary:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+</style>
