@@ -12,7 +12,7 @@
   /* Light is the default; --ink/--paper/--muted/--accent/--rule-color
      are overridden under [data-theme="dark"] below. */
   --ink: #111111;
-  --paper: #ffffff;
+  --paper: #f5f5f5;
   --muted: #4a4a4a;
   --accent: #b1240b;
   --rule-color: #111111;
@@ -29,16 +29,16 @@
 }
 
 :root[data-theme="dark"] {
-  --ink: #f4f4f4;
-  --paper: #0e0e0e;
-  --muted: #a8a8a8;
+  --ink: #cdd9e5;
+  --paper: #22272e;
+  --muted: #909dab;
   --accent: #ff8a80;
-  --rule-color: #f4f4f4;
+  --rule-color: #768390;
 
   --shiki-token-keyword: #ff8a80;
-  --shiki-token-string: #a8a8a8;
-  --shiki-token-comment: #a8a8a8;
-  --shiki-token-function: #f4f4f4;
+  --shiki-token-string: #909dab;
+  --shiki-token-comment: #909dab;
+  --shiki-token-function: #cdd9e5;
   --shiki-token-constant: #ff8a80;
-  --shiki-token-punctuation: #a8a8a8;
+  --shiki-token-punctuation: #909dab;
 }

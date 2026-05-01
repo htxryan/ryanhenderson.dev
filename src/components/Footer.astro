@@ -1,26 +1,80 @@
 ---
 /**
- * E3 — Global footer.
+ * Global footer.
  *
  * Brutalist: hairline rule + colophon. No client JS. Provides:
  *   - copyright with a stable "current year" computed at build time
- *   - colophon link (about) and feed link (E6 will produce /feed.xml)
+ *   - secondary nav mirroring the header (home / work / about). Kept
+ *     inline (rather than reusing Nav.astro) because the footer styling
+ *     is muted vs. the header's ink-on-paper treatment.
  *   - external profiles (twitter / linkedin)
  *
- * The feed link points at /feed.xml even though E6 owns the route — the chrome
- * is allowed to advertise the feed; if a reader hits it before E6 ships, they
- * see a 404 from the same BaseLayout, which is acceptable in pre-launch dev.
+ * Blog hidden — `writing` link and rss feed link are suppressed in both
+ * navs. Restore alongside BLOG_VISIBLE.
+ *
+ * All external links open in a new tab with `rel="noreferrer"` (so the
+ * destination cannot read the referrer). The `me` token preserves the
+ * identity-claim relationship for IndieAuth-style discovery.
  */
 const year = new Date().getFullYear();
+const path = Astro.url.pathname;
+
+type Link = { href: string; label: string; matchPrefix?: string };
+const navLinks: Link[] = [
+  { href: "/", label: "home" },
+  { href: "/work/", label: "work", matchPrefix: "/work/" },
+  { href: "/about/", label: "about" },
+];
+function isActive(link: Link): boolean {
+  if (link.matchPrefix) return path.startsWith(link.matchPrefix);
+  return path === link.href;
+}
 ---
 <footer class="site-footer" role="contentinfo">
   <div class="site-footer-inner">
-    <p class="colophon">
-      © {year} Ryan Henderson · <a href="/about/">about</a> · <a href="/feed.xml">rss</a>
-    </p>
+    <p class="colophon">© {year} Ryan Henderson</p>
+    <nav class="footer-nav" aria-label="Footer">
+      <ul>
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={isActive(link) ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
     <ul class="links" aria-label="External profiles">
-      <li><a href="https://twitter.com/htxryan" rel="me">twitter</a></li>
-      <li><a href="https://www.linkedin.com/in/htxryan" rel="me">linkedin</a></li>
+      <li>
+        <a
+          href="https://github.com/htxryan"
+          target="_blank"
+          rel="me noreferrer"
+        >
+          github
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://twitter.com/htxryan"
+          target="_blank"
+          rel="me noreferrer"
+        >
+          twitter
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://www.linkedin.com/in/htxryan/"
+          target="_blank"
+          rel="me noreferrer"
+        >
+          linkedin
+        </a>
+      </li>
     </ul>
   </div>
 </footer>
@@ -46,6 +100,7 @@ const year = new Date().getFullYear();
   .colophon {
     margin: 0;
   }
+  .footer-nav ul,
   .links {
     list-style: none;
     margin: 0;
@@ -53,16 +108,24 @@ const year = new Date().getFullYear();
     display: flex;
     gap: calc(var(--space-unit) * 2);
   }
+  .footer-nav a,
   .links a {
     color: var(--muted);
     text-decoration: none;
     text-transform: lowercase;
+    border-bottom: var(--rule-hairline) solid transparent;
+    padding-bottom: 2px;
   }
+  .footer-nav a:hover,
+  .footer-nav a:focus-visible,
   .links a:hover,
   .links a:focus-visible {
     color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    border-bottom-color: var(--accent);
+  }
+  .footer-nav a[aria-current="page"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
   }
   @media (max-width: 40rem) {
     .site-footer-inner {

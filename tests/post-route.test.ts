@@ -50,14 +50,16 @@ function listPostHtml(): string[] {
     .filter((p) => existsSync(p));
 }
 
-describe("post route — at least one post exists", () => {
+// SKIP: blog is currently hidden — /posts/<slug>/ pages are not built. See
+// BLOG_VISIBLE in src/lib/content.ts and src/pages/_blog/ to restore.
+describe.skip("post route — at least one post exists", () => {
   test("build produced posts/<slug>/index.html files", () => {
     const files = listPostHtml();
     expect(files.length).toBeGreaterThan(0);
   });
 });
 
-describe("U-4 — post metadata required on every rendered post", () => {
+describe.skip("U-4 — post metadata required on every rendered post", () => {
   test("title rendered as <h1>", () => {
     for (const file of listPostHtml()) {
       const html = read(file);
@@ -115,7 +117,7 @@ describe("U-4 — post metadata required on every rendered post", () => {
   });
 });
 
-describe("U-5 — Shiki cssVariables surface", () => {
+describe.skip("U-5 — Shiki cssVariables surface", () => {
   test("post route emits Shiki-rendered <pre class=\"astro-code\"> block", () => {
     // The seed post includes a code fence so we can verify Shiki output;
     // every post route must inherit the same renderer config.
@@ -155,7 +157,7 @@ describe("U-5 — Shiki cssVariables surface", () => {
   });
 });
 
-describe("U-6 — reading measure declared in CSS", () => {
+describe.skip("U-6 — reading measure declared in CSS", () => {
   test("the prose/article rule exists in a build CSS asset and uses --measure", () => {
     // Walk the dist/_astro CSS files and check at least one carries the
     // `max-width:var(--measure)` rule — the source of the 60–75ch measure.
@@ -174,7 +176,7 @@ describe("U-6 — reading measure declared in CSS", () => {
   });
 });
 
-describe("U-20 — first-load HTML budget on post route", () => {
+describe.skip("U-20 — first-load HTML budget on post route", () => {
   test("each post HTML <50KB gzipped", () => {
     for (const file of listPostHtml()) {
       const bytes = gzipBytes(read(file));
@@ -183,7 +185,7 @@ describe("U-20 — first-load HTML budget on post route", () => {
   });
 });
 
-describe("C-6 — BaseLayout composition on post route", () => {
+describe.skip("C-6 — BaseLayout composition on post route", () => {
   const expectedAttrs: Array<[string, RegExp]> = [
     ["charset utf-8", /<meta charset="utf-8">/i],
     ["viewport meta", /<meta name="viewport"/i],
@@ -207,7 +209,7 @@ describe("C-6 — BaseLayout composition on post route", () => {
   });
 });
 
-describe("W-1 — no external client JS bundles on post route", () => {
+describe.skip("W-1 — no external client JS bundles on post route", () => {
   // The W-1 contract bans first-party JS bundles, not the sanctioned CF
   // Web Analytics beacon (W-2). In production builds with
   // CF_WEB_ANALYTICS_TOKEN set, BaseLayout emits exactly one external
@@ -224,7 +226,7 @@ describe("W-1 — no external client JS bundles on post route", () => {
   });
 });
 
-describe("prev/next contract", () => {
+describe.skip("prev/next contract", () => {
   // Four published posts after E8 migration:
   //   hello-world  (2026-04-30, newest)
   //   mid-post     (2026-02-20)
@@ -300,7 +302,7 @@ describe("prev/next contract", () => {
   });
 });
 
-describe("optional `updated` date rendering", () => {
+describe.skip("optional `updated` date rendering", () => {
   test("post with `updated` frontmatter renders the updated meta row", () => {
     // mid-post fixture carries `updated: 2026-03-05`.
     const html = read(join(DIST, "posts", "mid-post", "index.html"));
@@ -317,7 +319,7 @@ describe("optional `updated` date rendering", () => {
   });
 });
 
-describe("MDX components render with brutalist styling hooks", () => {
+describe.skip("MDX components render with brutalist styling hooks", () => {
   test("Callout component emits .callout root with data-variant", () => {
     // hello-world contains <Callout variant="note" title="Placeholder">…
     const html = read(join(DIST, "posts", "hello-world", "index.html"));
@@ -327,7 +329,7 @@ describe("MDX components render with brutalist styling hooks", () => {
   });
 });
 
-describe("posts archive (/posts/)", () => {
+describe.skip("posts archive (/posts/)", () => {
   const archive = join(DIST, "posts", "index.html");
 
   test("archive page exists", () => {

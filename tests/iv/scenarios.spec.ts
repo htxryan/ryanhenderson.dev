@@ -105,21 +105,32 @@ test.describe("S-6 — Pagefind search lazy-loads and returns results", () => {
     expect(pagefindRequests.length, "expected pagefind to load after interaction")
       .toBeGreaterThan(beforeInteract);
 
-    // Type a query that should match content. "hello" appears in
-    // hello-world + hello-blog post bodies and titles.
-    await liveInput.fill("hello");
-    // Pagefind debounces by 300ms then renders. Wait for any result link
-    // pointing into /posts/ or /work/ inside the UI host.
+    // Type a query that should match content. While the blog is hidden
+    // and project detail pages are removed, the index covers shell pages
+    // (home, work index, about) and tag archives. "butverify" matches
+    // the project card on /work/ and on the home page. When the blog
+    // returns, restore a query like "hello" that exercises post bodies.
+    await liveInput.fill("butverify");
+    // Pagefind debounces by 300ms then renders. Wait for any pagefind
+    // result anchor in the UI host (links may point at /work/ or / since
+    // both surfaces show the same card).
     const resultLink = page
-      .locator('#search a[href*="/posts/"], #search a[href*="/work/"]')
+      .locator('#search .pagefind-ui__result a')
       .first();
     await resultLink.waitFor({ state: "visible", timeout: 15_000 });
     const href = await resultLink.getAttribute("href");
-    expect(href).toMatch(/\/(posts|work)\/[a-z0-9-]+\/?$/);
+    // Result must be a same-origin path on this site. The exact URL set
+    // varies as content is added/removed; we only assert pagefind found
+    // something and emitted a usable link.
+    expect(href).toMatch(/^\//);
   });
 });
 
-test.describe("S-7 — /hello-blog/ legacy URL", () => {
+// SKIP: blog hidden — /posts/hello-blog/ is not built, so the legacy
+// redirect lands on a 404. The redirect rule still ships in _redirects;
+// restore this test (and the same in tests/migration.test.ts) when
+// BLOG_VISIBLE flips back on.
+test.describe.skip("S-7 — /hello-blog/ legacy URL", () => {
   test("redirects to /posts/hello-blog/ with 301 and the new page renders", async ({ request, page }) => {
     const r = await request.get("/hello-blog/", { maxRedirects: 0 });
     expect(r.status()).toBe(301);
@@ -131,12 +142,14 @@ test.describe("S-7 — /hello-blog/ legacy URL", () => {
   });
 });
 
-test.describe("S-11 — conditional repo button", () => {
+// SKIP: detail pages removed (`/work/<slug>/` no longer built); the
+// alpha/bravo fixtures it relied on were also deleted. Every visible
+// project (butverify/c3p/pearl) ships with a repoUrl, so the "no repo"
+// half of the contract has no fixture to exercise. The card-level
+// markup guard still lives in ProjectCard.astro.
+test.describe.skip("S-11 — conditional repo button", () => {
   test("alpha (has repoUrl) shows the repo link; bravo (no repoUrl) does not", async ({ page }) => {
     await page.goto("/work/alpha/");
-    // The repo link is marked with data-repo-link in ProjectCard, but
-    // detail pages use a different surface. We assert the rendered
-    // link by host + path pattern.
     const alphaRepo = page.locator('a[href*="github.com"]');
     await expect(alphaRepo.first()).toBeVisible();
 
@@ -146,7 +159,9 @@ test.describe("S-11 — conditional repo button", () => {
   });
 });
 
-test.describe("S-3 — publish flow end-to-end (post route renders + RSS reachable)", () => {
+// SKIP: blog hidden — /posts/<slug>/ pages and /feed.xml are not built.
+// Restore via BLOG_VISIBLE in src/lib/content.ts and src/pages/_blog/.
+test.describe.skip("S-3 — publish flow end-to-end (post route renders + RSS reachable)", () => {
   test("post page renders with title + content; /feed.xml reachable and includes the post", async ({ page, request }) => {
     await page.goto("/posts/hello-world/");
     await expect(page.locator("h1.post-title")).toContainText("Hello, World");
@@ -171,7 +186,11 @@ test.describe("CSP — global _headers apply on every response (preview-server e
   });
 });
 
-test.describe("Draft posts MUST NOT be reachable in browser navigation", () => {
+// SKIP: blog hidden — every /posts/* URL 404s right now, so the
+// "drafts excluded from a published blog" contract this asserts is
+// vacuously true. Restore when BLOG_VISIBLE flips back on; the
+// assertions still capture the right behaviour at that point.
+test.describe.skip("Draft posts MUST NOT be reachable in browser navigation", () => {
   test("/posts/draft-fixture/ returns 404", async ({ request }) => {
     const r = await request.get("/posts/draft-fixture/");
     expect(r.status()).toBe(404);

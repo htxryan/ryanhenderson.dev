@@ -24,13 +24,18 @@ const ROOT = resolve(__dirname, "..");
 const DIST = resolve(ROOT, "dist");
 
 beforeAll(() => {
-  if (!existsSync(join(DIST, "feed.xml"))) {
-    throw new Error("Expected globalSetup to produce dist/feed.xml");
-  }
+  // Blog is currently hidden — feed.xml is intentionally not built.
+  // Once the blog returns, restore: `if (!existsSync(...)) throw new Error(...)`.
 });
 
 function read(rel: string): string {
-  return readFileSync(join(DIST, rel), "utf-8");
+  // Blog hidden — feed.xml/atom.xml are not built. Returning an empty
+  // string here keeps the (skipped) describe-time `const xml = read(...)`
+  // from throwing during test collection. The describes themselves are
+  // `.skip`-ed and never assert against the value.
+  const full = join(DIST, rel);
+  if (!existsSync(full)) return "";
+  return readFileSync(full, "utf-8");
 }
 
 const parser = new XMLParser({
@@ -49,7 +54,10 @@ const RFC_822 = /^[A-Z][a-z]{2}, \d{2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2}:\d{2} (GM
 // RFC 3339 (Atom + sitemap lastmod) — example: "2026-04-30T00:00:00.000Z"
 const RFC_3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
 
-describe("RSS 2.0 (/feed.xml) — structural validation", () => {
+// SKIP: blog is currently hidden — /feed.xml and /atom.xml are not built.
+// Restore by flipping BLOG_VISIBLE in src/lib/content.ts and moving the route
+// files out of src/pages/_blog/.
+describe.skip("RSS 2.0 (/feed.xml) — structural validation", () => {
   const xml = read("feed.xml");
 
   test("XML parses without error (well-formed)", () => {
@@ -124,7 +132,7 @@ describe("RSS 2.0 (/feed.xml) — structural validation", () => {
   });
 });
 
-describe("Atom 1.0 (/atom.xml) — structural validation", () => {
+describe.skip("Atom 1.0 (/atom.xml) — structural validation", () => {
   const xml = read("atom.xml");
 
   test("XML parses without error", () => {

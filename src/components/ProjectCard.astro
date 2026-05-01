@@ -1,20 +1,19 @@
 ---
 /**
- * E5 — ProjectCard.
+ * ProjectCard.
  *
- * Reused on the home page (E3 "Featured work" column) and on `/work/`
- * (E5 portfolio index). Single source of truth for project preview markup —
- * no divergence between contexts.
+ * Reused on the home page ("Featured work") and on `/work/` (portfolio
+ * index). Single source of truth for project preview markup — no divergence
+ * between contexts.
  *
  * Composition:
- *   - Status badge (data-status="active|archived") for E2 token-driven styling
- *   - Title links to `/work/<slug>/` (the case-study route)
+ *   - Status badge (data-status="active|archived") for token-driven styling
+ *   - Title links DIRECTLY to the project's marketing site (or repo, if no
+ *     marketing site). Opens in a new tab. There is no `/work/<slug>/`
+ *     detail route — see src/pages/work/_[slug].astro for the disabled file.
  *   - One-liner sits inside the card so the row stays self-describing
- *   - Action row holds the marketing link (always) and a conditional repo link
- *
- * Implicit contract (E-3): a project with NO `repoUrl` renders only the
- * marketing button — no placeholder, no disabled repo link, nothing in the
- * DOM that gestures at a missing button.
+ *   - A secondary "repo →" button appears only when the project has BOTH a
+ *     marketing site (where the title points) AND a repo (separate target).
  *
  * Outbound links: `target="_blank"` with `rel="noreferrer"` so the destination
  * cannot read the referrer. (No tracking; this is the safe default.)
@@ -26,34 +25,25 @@ interface Props {
 }
 
 const { project } = Astro.props;
-const { name, oneLiner, status, marketingUrl, repoUrl, tags } = project.data;
-const detailHref = `/work/${project.id}/`;
+const { name, oneLiner, status, marketingUrl, repoUrl } = project.data;
+// Title prefers the marketing site; falls back to the repo. The schema
+// requires marketingUrl for non-private projects, so the fallback only
+// matters if a future schema change makes marketingUrl optional.
+const primaryUrl = marketingUrl ?? repoUrl ?? "#";
+// Show the secondary repo button only when the title and the repo are
+// pointing at different things — otherwise the button duplicates the title.
+const showRepoButton = !!repoUrl && primaryUrl !== repoUrl;
 ---
 <article class="project-card" data-status={status}>
   <header class="project-card-header">
     <span class="project-card-status" data-status={status}>{status}</span>
     <h3 class="project-card-title">
-      <a href={detailHref}>{name}</a>
+      <a href={primaryUrl} target="_blank" rel="noreferrer">{name} ↗</a>
     </h3>
   </header>
   <p class="project-card-oneliner">{oneLiner}</p>
-  {tags.length > 0 ? (
-    <ul class="project-card-tags" aria-label="Project tags">
-      {tags.map((tag: string) => (
-        <li><a href={`/tags/${tag}/`} rel="tag">#{tag}</a></li>
-      ))}
-    </ul>
-  ) : null}
-  <div class="project-card-actions">
-    <a
-      class="project-card-action primary"
-      href={marketingUrl}
-      target="_blank"
-      rel="noreferrer"
-    >
-      visit →
-    </a>
-    {repoUrl ? (
+  {showRepoButton ? (
+    <div class="project-card-actions">
       <a
         class="project-card-action secondary"
         href={repoUrl}
@@ -63,8 +53,8 @@ const detailHref = `/work/${project.id}/`;
       >
         repo →
       </a>
-    ) : null}
-  </div>
+    </div>
+  ) : null}
 </article>
 
 <style>
@@ -118,26 +108,6 @@ const detailHref = `/work/${project.id}/`;
     color: var(--muted);
     font-size: 0.9375rem;
     max-width: var(--measure);
-  }
-  .project-card-tags {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-unit);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-  }
-  .project-card-tags a {
-    color: var(--muted);
-    text-decoration: none;
-  }
-  .project-card-tags a:hover,
-  .project-card-tags a:focus-visible {
-    color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
   }
   .project-card-actions {
     display: flex;

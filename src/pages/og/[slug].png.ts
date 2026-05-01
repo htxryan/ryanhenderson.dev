@@ -1,22 +1,22 @@
 /**
- * E7 — Per-slug OG card endpoint.
+ * Per-slug OG card endpoint.
  *
- * Astro emits one PNG per published post AND per visible project under
- * `/og/<slug>.png`. Path enumeration consumes the SAME `getPublishedPosts`
- * / `getPublishedProjects` helpers as the human-facing routes (C-2 single
- * filter authority — drafts and `private` projects never get a card).
+ * Currently emits NO per-slug cards. Both consumers are turned off:
+ *   - blog post pages live under src/pages/_blog/ (Astro skips that dir)
+ *   - project detail pages live under src/pages/work/_[slug].astro
+ *     (underscore-prefix excludes them)
+ * Without a `/posts/<slug>/` or `/work/<slug>/` page to host the meta tag,
+ * a per-slug card has no consumer; the shell routes (home/about/work-index/
+ * 404/search) reference `/og-default.png` directly.
  *
- * Slug collisions across collections: posts and projects share the
- * `/og/<slug>/` namespace by spec (C-10). If two collections produce the
- * same slug, the post wins (because we add posts first); a build-time log
- * flags the collision so the author can rename one. This is acceptable for
- * v1 — adding namespaces would deviate from the C-10 contract.
+ * To re-enable per-slug cards: restore the enumeration over
+ * `getPublishedPosts()` and/or `getPublishedProjects()` here, AND restore
+ * the matching detail-page routes.
  *
  * Render-failure policy (spec): a single slug whose Satori render throws
  * MUST fall back to the default card; the build does not abort.
  */
 import type { APIRoute } from "astro";
-import { getPublishedPosts, getPublishedProjects } from "~/lib/content";
 import { renderCardPng, renderFallbackPng } from "../../../scripts/og/render";
 import type { CardInput } from "../../../scripts/og/template";
 
@@ -25,52 +25,7 @@ interface OgPathProps {
 }
 
 export async function getStaticPaths() {
-  const [posts, projects] = await Promise.all([
-    getPublishedPosts(),
-    getPublishedProjects(),
-  ]);
-
-  const seen = new Set<string>();
-  const out: { params: { slug: string }; props: OgPathProps }[] = [];
-
-  for (const post of posts) {
-    if (seen.has(post.id)) continue;
-    seen.add(post.id);
-    out.push({
-      params: { slug: post.id },
-      props: {
-        card: {
-          kind: "writing",
-          title: post.data.title,
-          kicker: post.data.summary,
-          mode: "light",
-        },
-      },
-    });
-  }
-
-  for (const project of projects) {
-    if (seen.has(project.id)) {
-      console.warn(
-        `[og] slug collision: project '${project.id}' shares the OG namespace with a post — keeping the post card.`,
-      );
-      continue;
-    }
-    seen.add(project.id);
-    out.push({
-      params: { slug: project.id },
-      props: {
-        card: {
-          kind: "work",
-          title: project.data.name,
-          kicker: project.data.oneLiner,
-          mode: "light",
-        },
-      },
-    });
-  }
-
-  return out;
+  return [] as { params: { slug: string }; props: OgPathProps }[];
 }
 
 export const GET: APIRoute = async ({ props, params }) => {

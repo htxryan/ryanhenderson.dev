@@ -68,17 +68,17 @@ export type Tokens = {
  * Concrete token values. Hex strings (no CSS vars) — Satori cannot resolve
  * CSS custom properties.
  *
- * Light palette:
- *   ink     #111111 on #ffffff = 18.88:1  (AAA)
- *   muted   #4a4a4a on #ffffff =  8.86:1  (AAA)
- *   accent  #b1240b on #ffffff =  6.72:1  (AA normal, AAA large)
- *   rule    #111111 on #ffffff = 18.88:1  (structural, used at 1px)
+ * Light palette (soft off-white canvas, not pure white):
+ *   ink     #111111 on #f5f5f5 = 17.3:1   (AAA)
+ *   muted   #4a4a4a on #f5f5f5 =  8.1:1   (AAA)
+ *   accent  #b1240b on #f5f5f5 =  6.2:1   (AA normal, AAA large)
+ *   rule    #111111 on #f5f5f5 = 17.3:1   (structural, used at 1px)
  *
- * Dark palette:
- *   ink     #f4f4f4 on #0e0e0e = 17.55:1  (AAA)
- *   muted   #a8a8a8 on #0e0e0e =  8.12:1  (AAA)
- *   accent  #ff8a80 on #0e0e0e =  8.46:1  (AAA)
- *   rule    #f4f4f4 on #0e0e0e = 17.55:1  (structural, used at 1px)
+ * Dark palette (GitHub "dark dimmed" — soft canvas, not pure black):
+ *   ink     #cdd9e5 on #22272e = 10.3:1   (AAA)
+ *   muted   #909dab on #22272e =  5.4:1   (AA)
+ *   accent  #ff8a80 on #22272e =  6.5:1   (AA)
+ *   rule    #768390 on #22272e =  3.8:1   (structural, used at 1px — soft border)
  *
  * Contrast ratios are verified by `tests/tokens.test.ts` — any change to a
  * color must keep the AA threshold for body text (4.5:1) and link/accent (3:1
@@ -104,17 +104,17 @@ export const tokens: Tokens = {
   },
   light: {
     ink: "#111111",
-    paper: "#ffffff",
+    paper: "#f5f5f5",
     muted: "#4a4a4a",
     accent: "#b1240b",
     rule: "#111111",
   },
   dark: {
-    ink: "#f4f4f4",
-    paper: "#0e0e0e",
-    muted: "#a8a8a8",
+    ink: "#cdd9e5",
+    paper: "#22272e",
+    muted: "#909dab",
     accent: "#ff8a80",
-    rule: "#f4f4f4",
+    rule: "#768390",
   },
 };
 

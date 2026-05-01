@@ -32,10 +32,14 @@ interface Route {
   path: string;
 }
 
+// Blog hidden — `post (hello-world)` route omitted (no /posts/ pages
+// built). Project detail pages removed — `project (alpha)` route swapped
+// for the `/work/` index (only project-related route still built).
+// Restore the post + project-detail routes when their respective pages
+// return.
 const routes: Route[] = [
   { name: "home", path: "index.html" },
-  { name: "post (hello-world)", path: "posts/hello-world/index.html" },
-  { name: "project (alpha)", path: "work/alpha/index.html" },
+  { name: "work index", path: "work/index.html" },
   { name: "search", path: "search/index.html" },
 ];
 

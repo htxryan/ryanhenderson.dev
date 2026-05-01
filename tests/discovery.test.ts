@@ -51,7 +51,10 @@ const SITEMAP_0 = join(DIST, "sitemap-0.xml");
 const ROBOTS = join(DIST, "robots.txt");
 const SEARCH = join(DIST, "search", "index.html");
 
-describe("RSS feed (/feed.xml)", () => {
+// SKIP: blog is currently hidden — /feed.xml and /atom.xml routes live
+// under src/pages/_blog/ and are not built. See BLOG_VISIBLE in
+// src/lib/content.ts to restore.
+describe.skip("RSS feed (/feed.xml)", () => {
   test("file exists at /feed.xml", () => {
     expect(existsSync(FEED)).toBe(true);
   });
@@ -121,7 +124,7 @@ describe("RSS feed (/feed.xml)", () => {
   });
 });
 
-describe("Atom feed (/atom.xml)", () => {
+describe.skip("Atom feed (/atom.xml)", () => {
   test("file exists at /atom.xml", () => {
     expect(existsSync(ATOM)).toBe(true);
   });
@@ -187,18 +190,13 @@ describe("Sitemap (sitemap-index.xml + sitemap-0.xml)", () => {
   test("sitemap-0.xml lists every published route", () => {
     expect(existsSync(SITEMAP_0)).toBe(true);
     const xml = read(SITEMAP_0);
+    // Blog hidden — /posts/ entries are not built. Project detail pages
+    // removed — /work/<slug>/ entries are not built either. Restore both
+    // groups when their respective pages return.
     const required = [
       "https://ryanhenderson.dev/",
       "https://ryanhenderson.dev/about/",
-      "https://ryanhenderson.dev/posts/",
-      "https://ryanhenderson.dev/posts/hello-world/",
-      "https://ryanhenderson.dev/posts/mid-post/",
-      "https://ryanhenderson.dev/posts/early-post/",
-      "https://ryanhenderson.dev/posts/hello-blog/",
       "https://ryanhenderson.dev/work/",
-      "https://ryanhenderson.dev/work/alpha/",
-      "https://ryanhenderson.dev/work/bravo/",
-      "https://ryanhenderson.dev/work/charlie/",
       "https://ryanhenderson.dev/search/",
     ];
     for (const url of required) {
@@ -235,56 +233,45 @@ describe("robots.txt", () => {
 
 describe("Tag archives (/tags/<tag>/)", () => {
   test("a /tags/<tag>/ page exists for every tag in the union of collections", () => {
-    // Posts contribute: meta, fixture
-    // Projects contribute: software, saas, archive (charlie has 'archive' tag),
-    //                      consulting (depending on fixtures)
-    // We iterate published fixtures' tag set and assert each archive exists.
-    const expected = ["meta", "fixture", "software", "saas"];
+    // Blog hidden: post tags (meta, fixture) drop out of the union.
+    // Fixtures (alpha/bravo/charlie) removed: software/consulting/archive
+    // also drop out. Real projects contribute: ai, developer-tools, saas,
+    // cli, oss, issue-tracking.
+    const expected = ["ai", "developer-tools", "saas", "cli", "oss"];
     for (const tag of expected) {
       const file = join(DIST, "tags", tag, "index.html");
       expect(existsSync(file), `expected /tags/${tag}/ to exist`).toBe(true);
     }
   });
 
-  test("/tags/meta/ lists posts using #meta", () => {
-    const html = read(join(DIST, "tags", "meta", "index.html"));
-    // hello-world, early-post, and hello-blog all carry the 'meta' tag.
-    expect(html).toMatch(/href="\/posts\/hello-world\/"/);
-    expect(html).toMatch(/href="\/posts\/early-post\/"/);
-    expect(html).toMatch(/href="\/posts\/hello-blog\/"/);
-    expect(html).toMatch(/<h1[^>]*>#meta<\/h1>/);
+  test.skip("/tags/meta/ lists posts using #meta", () => {
+    // SKIP: blog hidden — #meta tag only exists on posts. Restore when
+    // BLOG_VISIBLE flips back on.
   });
 
-  test("/tags/software/ lists the project that uses #software", () => {
-    const html = read(join(DIST, "tags", "software", "index.html"));
-    // alpha has 'software' tag.
-    expect(html).toMatch(/href="\/work\/alpha\/"/);
+  test("/tags/ai/ lists the projects that use #ai", () => {
+    const html = read(join(DIST, "tags", "ai", "index.html"));
+    // ButVerify and C3P both carry the 'ai' tag. Title links go to the
+    // project's marketing site (project detail pages were removed), so we
+    // assert presence by name rather than internal href.
+    expect(html).toMatch(/ButVerify/);
+    expect(html).toMatch(/C3P/);
     // ProjectCard markup is reused.
     expect(html).toMatch(/<article[^>]*class="project-card"/);
   });
 
-  test("a tag used by BOTH a post and a project lists both sections", () => {
-    // Walk all archives and find one (if any) where both Posts and Projects
-    // headings co-exist. The fixtures may not cover this; if not, we at least
-    // assert the page CAN list both — checked via shape on the markup.
-    // Pick `meta` (posts only) as a control case to confirm that the Projects
-    // block is correctly absent when no project carries the tag.
-    const meta = read(join(DIST, "tags", "meta", "index.html"));
-    expect(meta).toMatch(/<h2[^>]*id="posts-heading"/);
-    expect(meta).not.toMatch(/<h2[^>]*id="projects-heading"/);
-
-    const software = read(join(DIST, "tags", "software", "index.html"));
-    expect(software).toMatch(/<h2[^>]*id="projects-heading"/);
-    // If fixtures gain a post tagged 'software' later, the Posts section must
-    // appear too — but not enforced here so we don't over-constrain fixtures.
+  test("a tag-only-on-projects archive omits the posts heading", () => {
+    // Blog hidden — every built tag is project-only. The Projects block
+    // appears; the Posts block is correctly absent.
+    const ai = read(join(DIST, "tags", "ai", "index.html"));
+    expect(ai).toMatch(/<h2[^>]*id="projects-heading"/);
+    expect(ai).not.toMatch(/<h2[^>]*id="posts-heading"/);
   });
 
-  test("tag pages do not include drafts or private projects", () => {
-    // Drafts: the draft fixture has tag 'fixture'. Private project 'delta'
-    // has any tags it might carry. Check /tags/fixture/ excludes drafts.
-    const fixture = read(join(DIST, "tags", "fixture", "index.html"));
-    expect(fixture).not.toMatch(/href="\/posts\/draft-fixture\//);
-    // No /tags/* archive lists /work/delta/
+  test("tag pages do not include private projects", () => {
+    // Private project 'delta' must not surface on any /tags/* archive.
+    // (Draft-post exclusion is covered by post-route tests, which are
+    // skipped while the blog is hidden.)
     for (const tagDir of readdirSync(join(DIST, "tags"))) {
       const html = read(join(DIST, "tags", tagDir, "index.html"));
       expect(
@@ -295,11 +282,11 @@ describe("Tag archives (/tags/<tag>/)", () => {
   });
 
   test("each tag page uses BaseLayout chrome (canonical, header, footer)", () => {
-    const html = read(join(DIST, "tags", "meta", "index.html"));
+    const html = read(join(DIST, "tags", "ai", "index.html"));
     expect(html).toMatch(/<header[^>]*role="banner"/);
     expect(html).toMatch(/<footer[^>]*role="contentinfo"/);
     expect(html).toMatch(
-      /<link rel="canonical" href="https:\/\/ryanhenderson\.dev\/tags\/meta\/"/,
+      /<link rel="canonical" href="https:\/\/ryanhenderson\.dev\/tags\/ai\/"/,
     );
   });
 
@@ -378,7 +365,7 @@ describe("Search page (/search/)", () => {
   });
 });
 
-describe("Feed discoverability (BaseLayout <head>)", () => {
+describe.skip("Feed discoverability (BaseLayout <head>)", () => {
   // Feed readers find feeds by scanning for <link rel="alternate"> in <head>.
   // Both feed formats MUST be advertised, otherwise readers default to RSS
   // only and the Atom build is undiscoverable in practice.

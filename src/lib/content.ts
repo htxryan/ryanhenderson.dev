@@ -29,14 +29,30 @@ import {
 export type { PublishedPostsOptions, PublishedProjectsOptions };
 
 /**
+ * Master switch for the blog. While `false`, `getPublishedPosts()` returns
+ * an empty array, which removes posts from the tags archive, search index,
+ * and OG enumeration without touching their consumer code. The route files
+ * themselves live under `src/pages/_blog/` (Astro skips `_`-prefixed dirs)
+ * so /posts/, /feed.xml, /atom.xml are not built. To restore the blog:
+ * flip this to `true` AND move `src/pages/_blog/*` back to their original
+ * locations (see git history for the move).
+ */
+export const BLOG_VISIBLE = false;
+
+/**
  * Returns published blog posts in stable order.
  *
  * Sort: `pubDate` desc, with `id` (slug) asc as tiebreaker for deterministic
  * order on equal dates.
+ *
+ * Returns [] when `BLOG_VISIBLE` is false — the rest of the site behaves as
+ * if no posts exist (empty tag pages, no post OG cards, no post sitemap
+ * entries, no post links from search).
  */
 export async function getPublishedPosts(
   opts: PublishedPostsOptions = {},
 ): Promise<CollectionEntry<"blog">[]> {
+  if (!BLOG_VISIBLE) return [];
   const includeDrafts = opts.includeDrafts ?? import.meta.env.DEV;
   const all = await getCollection("blog");
   return filterAndSortPosts(all, { ...opts, includeDrafts });

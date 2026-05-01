@@ -1,19 +1,17 @@
 ---
 /**
- * E3 — Primary navigation.
+ * Primary navigation.
  *
- * Global landmarks (Lynch): Home, Writing, Work, About — flat, four nodes,
- * each is a district hub. Search lands in E6 (added then; not in v1 chrome).
- *
- * Sets `aria-current="page"` on the active link. Comparison is path-prefix
- * for `/posts/` and `/work/` so deep links highlight their parent.
+ * Writing/blog is currently hidden — its routes live under `src/pages/_blog/`
+ * (Astro excludes `_`-prefixed directories from the build) and the link is
+ * removed here. To re-enable: move `_blog/` back to `posts/` + `feed.xml.ts`
+ * + `atom.xml.ts` and restore the `writing` link below.
  */
 const path = Astro.url.pathname;
 
 type Link = { href: string; label: string; matchPrefix?: string };
 const links: Link[] = [
   { href: "/", label: "home" },
-  { href: "/posts/", label: "writing", matchPrefix: "/posts/" },
   { href: "/work/", label: "work", matchPrefix: "/work/" },
   { href: "/about/", label: "about" },
 ];

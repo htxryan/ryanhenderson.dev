@@ -128,41 +128,45 @@ describe("404 — error route reuses BaseLayout and is noindex", () => {
   test("contains a 404 indicator and recovery links", () => {
     const html = read(paths().notFound);
     expect(html).toMatch(/404/);
-    // Recovery exits include /, /posts/, /work/.
+    // Recovery exits include /, /work/, /about/. (/posts/ is gated behind
+    // BLOG_VISIBLE and currently not built.)
     expect(html).toMatch(/href="\/"/);
-    expect(html).toMatch(/href="\/posts\/"/);
     expect(html).toMatch(/href="\/work\/"/);
+    expect(html).toMatch(/href="\/about\/"/);
   });
 });
 
-describe("U-25 (partial) — about port preserves legacy content", () => {
-  test("ports the three biographical paragraphs verbatim", () => {
+describe("about page — bio + outbound profile links", () => {
+  // The legacy verbatim port (U-25) was retired when the blog was hidden;
+  // the about page was rewritten as a standalone bio. The two contracts the
+  // page must still satisfy are: (1) it identifies the author and place,
+  // (2) it links out to the canonical profile destinations.
+  test("identifies Ryan Henderson and Houston, TX", () => {
     const html = read(paths().about);
-    // Phrases drawn directly from legacy about.markdown.
-    expect(html).toMatch(/My name is Ryan Henderson/);
-    expect(html).toMatch(/I live and work in Houston, Texas\./);
-    expect(html).toMatch(/Most of my experience is in the \.NET world/);
-    expect(html).toMatch(/My goal for this blog/);
+    expect(html).toMatch(/Ryan Henderson/);
+    expect(html).toMatch(/Houston, Texas/);
   });
 
   test("preserves both outbound profile links", () => {
     const html = read(paths().about);
     expect(html).toMatch(/href="https:\/\/twitter\.com\/htxryan"/);
-    expect(html).toMatch(/href="https:\/\/www\.linkedin\.com\/in\/htxryan"/);
+    expect(html).toMatch(/href="https:\/\/www\.linkedin\.com\/in\/htxryan/);
   });
 });
 
 describe("home composition", () => {
-  test("renders both column headings", () => {
+  test("renders the Featured work heading", () => {
     const html = read(paths().home);
-    expect(html).toMatch(/Recent writing/);
+    // Recent writing column is gated behind BLOG_VISIBLE; only Featured
+    // work renders while the blog is hidden.
     expect(html).toMatch(/Featured work/);
   });
 
   test("renders the wordmark and primary nav links", () => {
     const html = read(paths().home);
     expect(html).toMatch(/ryanhenderson\.dev/);
-    expect(html).toMatch(/href="\/posts\/"/);
+    // /posts/ link is gated behind BLOG_VISIBLE; restore when the blog
+    // returns.
     expect(html).toMatch(/href="\/work\/"/);
     expect(html).toMatch(/href="\/about\/"/);
   });
@@ -207,16 +211,13 @@ describe("baseline a11y/SEO", () => {
 });
 
 describe("home empty-state markup", () => {
-  // Even with content present, the empty-state markup paths exist in source.
-  // This test grounds the contract: the home page tolerates 0 posts/projects
-  // without throwing, by reading the raw HTML for either real rows or the
-  // empty-state strings — one of the two must be present in each column.
-  test("home has either a row/card list or an empty-state in each column", () => {
+  // The home page tolerates 0 projects without throwing — assert either a
+  // ProjectCard list or the empty-state string is present in the work
+  // column. (The Recent writing column is gated behind BLOG_VISIBLE;
+  // restore the recent-list assertion when the blog returns.)
+  test("home has a card list or an empty-state in the work column", () => {
     const html = read(paths().home);
-    const hasRecentList = /aria-labelledby="recent-heading"[\s\S]*?<ul class="rows"|aria-labelledby="recent-heading"[\s\S]*?No posts yet\./.test(html);
-    // E5 swapped the work column to ProjectCards in `<ul class="cards">`.
     const hasWorkList = /aria-labelledby="work-heading"[\s\S]*?<ul class="cards"|aria-labelledby="work-heading"[\s\S]*?No projects yet\./.test(html);
-    expect(hasRecentList).toBe(true);
     expect(hasWorkList).toBe(true);
   });
 });

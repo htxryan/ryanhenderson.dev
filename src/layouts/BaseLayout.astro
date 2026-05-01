@@ -107,8 +107,8 @@ const cfBeaconAttr = JSON.stringify({ token: cfAnalyticsToken });
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
 
-    <link rel="alternate" type="application/rss+xml" title="ryanhenderson.dev" href="/feed.xml" />
-    <link rel="alternate" type="application/atom+xml" title="ryanhenderson.dev" href="/atom.xml" />
+    {/* RSS/Atom alternate links suppressed while the blog is hidden — see
+        Nav.astro for the re-enable note. */}
     {/* favicon ships in E7 (assets) — don't reference one before public/ exists. */}
 
     {showCfAnalytics ? (

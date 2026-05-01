@@ -86,12 +86,7 @@ const archivedCount = projects.length - activeCount;
     display: grid;
     grid-template-columns: 1fr;
     gap: calc(var(--space-unit) * 2);
-  }
-  @media (min-width: 56rem) {
-    .cards {
-      grid-template-columns: 1fr 1fr;
-      gap: calc(var(--space-unit) * 3);
-    }
+    max-width: var(--measure);
   }
   .cards-item {
     display: block;

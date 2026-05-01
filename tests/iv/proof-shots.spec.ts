@@ -25,14 +25,9 @@ test("proof: desktop captures (system-default theme, light, dark)", async ({ bro
   await page.goto("/", { waitUntil: "networkidle" });
   await shot(page, "01-home-light.png");
 
-  await page.goto("/posts/", { waitUntil: "networkidle" });
-  await shot(page, "02-posts-archive-light.png");
-
-  await page.goto("/posts/hello-blog/", { waitUntil: "networkidle" });
-  await shot(page, "03-post-hello-blog-light.png");
-
-  await page.goto("/posts/hello-world/", { waitUntil: "networkidle" });
-  await shot(page, "04-post-hello-world-shiki-light.png");
+  // Blog hidden — /posts/, /posts/<slug>/ shots skipped (02, 03, 04).
+  // Restore the four `await page.goto("/posts/...")` + `shot(...)` calls
+  // when BLOG_VISIBLE flips back on.
 
   await page.goto("/about/", { waitUntil: "networkidle" });
   await shot(page, "05-about-light.png");
@@ -40,16 +35,15 @@ test("proof: desktop captures (system-default theme, light, dark)", async ({ bro
   await page.goto("/work/", { waitUntil: "networkidle" });
   await shot(page, "06-work-index-light.png");
 
-  await page.goto("/work/alpha/", { waitUntil: "networkidle" });
-  await shot(page, "07-work-alpha-light.png");
+  // Project detail pages were removed (titles link out to marketing
+  // sites). Shots 07/08 (alpha detail, bravo "no repo" fixture) were
+  // dropped along with the alpha/bravo fixtures themselves. Restore when
+  // /work/<slug>/ pages return.
 
-  // Bravo has no repoUrl — proves E5 conditional repo button (E-3)
-  await page.goto("/work/bravo/", { waitUntil: "networkidle" });
-  await shot(page, "08-work-bravo-no-repo-light.png");
-
-  // Tag archive — meta is shared across posts
-  await page.goto("/tags/meta/", { waitUntil: "networkidle" });
-  await shot(page, "09-tag-archive-meta-light.png");
+  // Tag archive — `software` is project-only and survives blog-hidden.
+  // Restore `/tags/meta/` (post-shared) when BLOG_VISIBLE flips back on.
+  await page.goto("/tags/software/", { waitUntil: "networkidle" });
+  await shot(page, "09-tag-archive-software-light.png");
 
   // 404
   const r = await page.goto("/no-such-page/", { waitUntil: "domcontentloaded" });
@@ -70,11 +64,11 @@ test("proof: dark mode + theme toggle persistence", async ({ browser }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   await shot(page, "11-home-dark-system.png");
 
-  await page.goto("/posts/hello-world/", { waitUntil: "networkidle" });
-  await shot(page, "12-post-shiki-dark-system.png");
+  // Blog hidden — `/posts/hello-world/` shot (12) skipped. Restore when
+  // BLOG_VISIBLE flips back on.
 
-  await page.goto("/work/alpha/", { waitUntil: "networkidle" });
-  await shot(page, "13-work-alpha-dark-system.png");
+  // Project detail pages removed — `/work/alpha/` shot (13) skipped.
+  // The /work/ index already exercises the dark theme via project cards.
 
   await ctxDark.close();
 });
@@ -117,8 +111,8 @@ test("proof: mobile viewport (375x812)", async ({ browser }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   await shot(page, "16-mobile-home-light.png");
 
-  await page.goto("/posts/hello-blog/", { waitUntil: "networkidle" });
-  await shot(page, "17-mobile-post-light.png");
+  // Blog hidden — `/posts/hello-blog/` mobile shot (17) skipped.
+  // Restore when BLOG_VISIBLE flips back on.
 
   await page.goto("/work/", { waitUntil: "networkidle" });
   await shot(page, "18-mobile-work-light.png");
@@ -152,13 +146,11 @@ test("proof: theme toggle persists across navigation", async ({ browser }) => {
   await ctx.close();
 });
 
-test("proof: feeds + sitemap (XML)", async ({ browser }) => {
+// Blog hidden — /feed.xml and /atom.xml are not built; only the sitemap
+// shot survives. Restore the feed shots when BLOG_VISIBLE flips back on.
+test("proof: sitemap (XML)", async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: desktop, colorScheme: "light" });
   const page = await ctx.newPage();
-  await page.goto("/feed.xml");
-  await shot(page, "21-feed-rss.png");
-  await page.goto("/atom.xml");
-  await shot(page, "22-atom.png");
   await page.goto("/sitemap-index.xml");
   await shot(page, "23-sitemap.png");
   await ctx.close();
@@ -169,13 +161,12 @@ test("proof: OG cards (rendered preview)", async ({ browser }) => {
   const page = await ctx.newPage();
   // Start from an HTML route, then replace content
   await page.goto("/about/", { waitUntil: "load" });
+  // Blog hidden + project detail pages removed → no per-slug OG cards
+  // are generated. Sample only the fallback. Restore per-slug samples
+  // (post + project) when their respective routes return.
   await page.setContent(
     `<!doctype html><meta charset="utf-8"><title>OG cards</title>
      <body style="margin:0;background:#0d0d0d;color:#fff;font-family:monospace">
-       <div style="padding:16px">/og/hello-world.png (1200x630)</div>
-       <img src="http://127.0.0.1:4321/og/hello-world.png" style="width:100%;display:block">
-       <div style="padding:16px">/og/alpha.png (1200x630)</div>
-       <img src="http://127.0.0.1:4321/og/alpha.png" style="width:100%;display:block">
        <div style="padding:16px">/og-default.png (fallback)</div>
        <img src="http://127.0.0.1:4321/og-default.png" style="width:100%;display:block">
      </body>`,

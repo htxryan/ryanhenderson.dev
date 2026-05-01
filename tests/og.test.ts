@@ -54,7 +54,9 @@ describe("E7 — fallback og-default.png", () => {
   });
 });
 
-describe("E7 — per-post OG cards (acceptance criterion #1)", () => {
+// SKIP: blog hidden — no post pages, no per-post OG cards. Restore via
+// BLOG_VISIBLE in src/lib/content.ts and src/pages/_blog/.
+describe.skip("E7 — per-post OG cards (acceptance criterion #1)", () => {
   // Authored posts in this repo after E8 cutover.
   const publishedPostSlugs = [
     "hello-world",
@@ -80,7 +82,11 @@ describe("E7 — per-post OG cards (acceptance criterion #1)", () => {
   }
 });
 
-describe("E7 — per-project OG cards (acceptance criterion #2)", () => {
+// SKIP: project detail pages were removed (titles link to marketing/repo
+// directly). Per-project OG cards have no consumer; OG endpoint now
+// returns []. Restore this block + the og endpoint enumeration when
+// /work/<slug>/ pages return.
+describe.skip("E7 — per-project OG cards (acceptance criterion #2)", () => {
   // Visible (non-private) projects.
   const publishedProjectSlugs = ["alpha", "bravo", "charlie"] as const;
 
@@ -117,11 +123,10 @@ describe("E7 — drafts and private projects produce no OG card (single filter a
   });
 });
 
-describe("E7 — meta tag completeness (acceptance criterion #5)", () => {
-  // Spec lists og:title, og:description, og:image, twitter:card,
-  // twitter:image as required on post + project routes. We also assert the
-  // image dimensions and twitter:card mode because crawlers reject cards
-  // missing those when summary_large_image is declared.
+// SKIP: post pages and project detail pages are both currently absent
+// (blog hidden + work detail removed). The shell-route OG checks below
+// still cover home/about/404 via og-default.png.
+describe.skip("E7 — meta tag completeness (acceptance criterion #5)", () => {
   const routes = [
     { kind: "post", path: "posts/hello-world/index.html" },
     { kind: "project", path: "work/alpha/index.html" },
