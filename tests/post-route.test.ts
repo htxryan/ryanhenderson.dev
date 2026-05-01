@@ -216,6 +216,86 @@ describe("W-1 — no external client JS on post route", () => {
   });
 });
 
+describe("prev/next contract", () => {
+  // Three published posts in the fixture set: hello-world (newest),
+  // mid-post, early-post (oldest). One draft fixture (draft-fixture.mdx)
+  // must NEVER appear on any prev/next link, in any rendered post, or in
+  // the archive — drafts are excluded by `getPublishedPosts()` in prod.
+  const publishedSlugs = ["hello-world", "mid-post", "early-post"] as const;
+  const draftSlug = "draft-fixture";
+
+  test("each published post has its own /posts/<slug>/index.html", () => {
+    for (const slug of publishedSlugs) {
+      const file = join(DIST, "posts", slug, "index.html");
+      expect(existsSync(file), `expected ${file}`).toBe(true);
+    }
+  });
+
+  test("draft post is excluded from the build (no /posts/draft-fixture/)", () => {
+    const draftFile = join(DIST, "posts", draftSlug, "index.html");
+    expect(existsSync(draftFile)).toBe(false);
+  });
+
+  test("middle post links to newer (next) and older (prev) neighbours", () => {
+    const html = read(join(DIST, "posts", "mid-post", "index.html"));
+    // next = newer = hello-world
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/hello-world\/"[^>]*rel="next"/);
+    // prev = older = early-post
+    expect(html).toMatch(/<a[^>]*class="post-nav-link prev"[^>]*href="\/posts\/early-post\/"[^>]*rel="prev"/);
+  });
+
+  test("newest post has no `next` link (placeholder rendered instead)", () => {
+    const html = read(join(DIST, "posts", "hello-world", "index.html"));
+    // Newest in fixture set: hello-world has prev = mid-post, no next.
+    expect(html).toMatch(/<a[^>]*class="post-nav-link prev"[^>]*href="\/posts\/mid-post\/"/);
+    expect(html).not.toMatch(/<a[^>]*class="post-nav-link next"/);
+  });
+
+  test("oldest post has no `prev` link (placeholder rendered instead)", () => {
+    const html = read(join(DIST, "posts", "early-post", "index.html"));
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/mid-post\/"/);
+    expect(html).not.toMatch(/<a[^>]*class="post-nav-link prev"/);
+  });
+
+  test("no rendered post links to the draft via prev/next", () => {
+    for (const slug of publishedSlugs) {
+      const html = read(join(DIST, "posts", slug, "index.html"));
+      // Constrain the search to the post-nav landmark to avoid catching
+      // unrelated link text that might happen to contain the slug.
+      const navMatch = html.match(/<nav class="post-nav"[\s\S]*?<\/nav>/);
+      expect(navMatch).not.toBeNull();
+      expect(navMatch?.[0] ?? "").not.toMatch(new RegExp(`href="/posts/${draftSlug}/"`));
+    }
+  });
+});
+
+describe("optional `updated` date rendering", () => {
+  test("post with `updated` frontmatter renders the updated meta row", () => {
+    // mid-post fixture carries `updated: 2026-03-05`.
+    const html = read(join(DIST, "posts", "mid-post", "index.html"));
+    expect(html).toMatch(/<dt[^>]*>updated<\/dt>/);
+    // Both pubDate and updated render as <time datetime=…>.
+    const times = html.match(/<time datetime="[^"]+"/g) ?? [];
+    expect(times.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test("post without `updated` omits the updated meta row entirely", () => {
+    // hello-world fixture has no `updated`.
+    const html = read(join(DIST, "posts", "hello-world", "index.html"));
+    expect(html).not.toMatch(/<dt[^>]*>updated<\/dt>/);
+  });
+});
+
+describe("MDX components render with brutalist styling hooks", () => {
+  test("Callout component emits .callout root with data-variant", () => {
+    // hello-world contains <Callout variant="note" title="Placeholder">…
+    const html = read(join(DIST, "posts", "hello-world", "index.html"));
+    expect(html).toMatch(/<aside[^>]*class="[^"]*\bcallout\b[^"]*"[^>]*data-variant="note"/);
+    expect(html).toMatch(/class="callout-label"/);
+    expect(html).toMatch(/class="callout-title"/);
+  });
+});
+
 describe("posts archive (/posts/)", () => {
   const archive = join(DIST, "posts", "index.html");
 
@@ -249,5 +329,17 @@ describe("posts archive (/posts/)", () => {
       (tag) => /href="\/posts\/"/.test(tag) && /aria-current="page"/.test(tag),
     );
     expect(navAnchors.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("archive does NOT include the draft fixture", () => {
+    const html = read(archive);
+    expect(html).not.toMatch(/href="\/posts\/draft-fixture\//);
+    expect(html).not.toMatch(/Draft Fixture/);
+  });
+
+  test("archive count matches the number of published posts", () => {
+    const html = read(archive);
+    // Three fixtures are published; count should read "3 posts".
+    expect(html).toMatch(/<p[^>]*class="archive-count"[^>]*>\s*3\s*posts\s*<\/p>/);
   });
 });

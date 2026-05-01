@@ -3,35 +3,36 @@
  * E4 — Footnote (MDX component).
  *
  * Two-piece component: an inline `<sup>` reference at the call site and
- * the footnote body that lives in-flow at the bottom of the post. Clicking
- * the ref jumps to the body anchor; the body's back-link returns focus to
- * the ref. Both ends are bidirectionally identifiable for assistive tech
- * via matched IDs and aria-describedby.
+ * a sidenote body rendered inline immediately after it. Both ends are
+ * bidirectionally linked for assistive tech via matched IDs and
+ * `aria-describedby`.
+ *
+ * Why both pieces are inline (not `<aside>`):
+ *   MDX authors invariably write footnotes inside paragraphs. Emitting
+ *   block-level elements (`<aside>`, `<section>`) inside a `<p>` causes
+ *   the HTML parser to auto-close the paragraph, producing a stray
+ *   `</p>` and breaking the surrounding prose flow. The body is
+ *   therefore a `<span>` styled as a sidenote — closer to the Tufte
+ *   tradition and HTML-valid in any context.
  *
  * Authored from MDX as:
  *   This is a claim<Footnote id="1">backed up by source X</Footnote>.
- *
- * The component renders both the `<sup>` and the `<aside>` body in the
- * order the author writes them — the body is intentionally not deferred to
- * a global "footnotes" section in v1; in-flow placement is closer to the
- * Tufte sidenote tradition and works without server-side reflow.
  */
 interface Props {
   id: string;
-  ref?: string;
 }
-const { id, ref } = Astro.props;
+const { id } = Astro.props;
 const anchorId = `fn-${id}`;
-const refId = ref ?? `fnref-${id}`;
+const refId = `fnref-${id}`;
 ---
 <sup class="footnote-ref" id={refId}>
-  <a href={`#${anchorId}`} aria-describedby={anchorId}><slot name="ref">[{id}]</slot></a>
+  <a href={`#${anchorId}`} aria-describedby={anchorId}>[{id}]</a>
 </sup>
-<aside class="footnote" id={anchorId} role="note">
+<span class="footnote" id={anchorId} role="note">
   <span class="footnote-marker" aria-hidden="true">[{id}]</span>
   <span class="footnote-body"><slot /></span>
   <a href={`#${refId}`} class="footnote-back" aria-label="Back to reference">↩</a>
-</aside>
+</span>
 
 <style>
   .footnote-ref {
@@ -51,27 +52,21 @@ const refId = ref ?? `fnref-${id}`;
   }
 
   .footnote {
-    display: block;
-    margin: calc(var(--space-unit) * 1.5) 0 calc(var(--space-unit) * 2);
-    padding: var(--space-unit) calc(var(--space-unit) * 1.5);
+    display: inline;
+    margin: 0 calc(var(--space-unit) * 0.5);
+    padding: 0 calc(var(--space-unit) * 0.75);
     border-left: 2px solid var(--rule-color);
-    font-size: 0.875rem;
+    font-size: 0.875em;
     color: var(--muted);
   }
   .footnote-marker {
     font-family: var(--font-mono);
     font-weight: 700;
     color: var(--ink);
-    margin-right: var(--space-unit);
-  }
-  .footnote-body :global(:first-child) {
-    margin-top: 0;
-  }
-  .footnote-body :global(:last-child) {
-    margin-bottom: 0;
+    margin-right: 0.4em;
   }
   .footnote-back {
-    margin-left: var(--space-unit);
+    margin-left: 0.4em;
     text-decoration: none;
     color: var(--accent);
   }

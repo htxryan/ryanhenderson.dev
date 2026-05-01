@@ -112,7 +112,7 @@ EARS patterns: **U**biquitous, **E**vent-driven, **S**tate-driven, un**W**anted,
 ### 4.2 Reading experience
 
 - **U-4** Every post page **shall** render: title, pubDate, optional updated date, reading time (200 wpm), word count, tags, MDX body, prev/next links.
-- **U-5** Code blocks **shall** be highlighted at build time via Shiki using a brutalist-compatible theme pair (one for light mode, one for dark).
+- **U-5** Code blocks **shall** be highlighted at build time via Shiki. Light/dark variants **shall** be driven by the `--shiki-*` CSS variable surface (single Shiki invocation, `cssVariables` mode) rather than by bundling two separate themes — see decomposition cross-cutting concern "Single Shiki theme via cssVariables mode" (advisory P2 #15).
 - **U-6** Body typography **shall** maintain a measure of 60–75 characters at the article width.
 - **O-1** Posts **may** include MDX components: `<Callout>`, `<Figure>`, `<Footnote>`.
 

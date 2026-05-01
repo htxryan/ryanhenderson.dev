@@ -189,14 +189,11 @@ article :not(pre) > code {
 }
 
 /* Shiki-rendered code block wrapper. Astro emits `<pre class="astro-code">`
-   with inline `style="background-color:var(--shiki-bg)"`. Override the
-   inline style precedence with our token-based background and matching
-   foreground; padding/border picked up from the global `pre` rule. */
+   with inline `style="background-color:var(--shiki-bg)"`, so the cascade
+   already supplies the right background — we only add typographic
+   sizing here. Border + padding come from the global `pre` rule. */
 .prose pre.astro-code,
 article pre.astro-code {
-  background: var(--shiki-bg) !important;
-  color: var(--shiki-fg);
-  border: var(--rule-hairline) solid var(--rule-color);
   font-size: 0.875rem;
   line-height: 1.6;
 }
