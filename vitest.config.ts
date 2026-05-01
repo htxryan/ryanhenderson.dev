@@ -18,5 +18,17 @@ export default defineConfig({
     // The build itself can be slow (≈4s with content + Shiki); give the
     // hook room without bumping per-test timeouts.
     hookTimeout: 60_000,
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "json-summary", "html"],
+      include: ["src/**", "scripts/**"],
+      exclude: [
+        "tests/**",
+        "dist/**",
+        ".astro/**",
+        "**/*.config.*",
+        "**/*.d.ts",
+      ],
+    },
   },
 });
