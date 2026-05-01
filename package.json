@@ -22,6 +22,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:iv": "vitest run && playwright test",
+    "test:lhci": "lhci autorun --config=lighthouserc.cjs",
     "lint": "astro check"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@fontsource/jetbrains-mono": "^5.2.8",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.59.1",
     "@types/node": "^22.10.5",
     "axe-core": "^4.11.4",

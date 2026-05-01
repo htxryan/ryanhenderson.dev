@@ -37,7 +37,9 @@
  * pins ≥22.18 in package.json#engines).
  */
 
-const API = "https://api.cloudflare.com/client/v4";
+// Base URL is overridable via env so the IV idempotency test can point
+// the script at a local mock server. Production keeps the CF default.
+const API = process.env.CF_API_BASE ?? "https://api.cloudflare.com/client/v4";
 
 interface CfEnvelope<T> {
   success: boolean;
