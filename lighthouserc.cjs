@@ -40,7 +40,11 @@ module.exports = {
         "http://127.0.0.1:4321/work/",
         "http://127.0.0.1:4321/work/alpha/",
       ],
-      numberOfRuns: 1,
+      // 3 runs + median aggregation: single-run mobile Lighthouse on
+      // GH Actions runners is variance-prone (CPU jitter can drop a 100
+      // perf score to 92), and we observed flakes at ≥95 thresholds.
+      // Median across 3 runs is the standard LHCI fix.
+      numberOfRuns: 3,
       settings: {
         preset: "desktop",
         // Override preset to mobile via formFactor + throttling.
@@ -71,17 +75,29 @@ module.exports = {
     },
     assert: {
       assertions: {
-        "categories:performance": ["error", { minScore: 0.95 }],
-        "categories:accessibility": ["error", { minScore: 0.95 }],
-        "categories:best-practices": ["error", { minScore: 0.95 }],
-        "categories:seo": ["error", { minScore: 0.95 }],
+        "categories:performance": [
+          "error",
+          { minScore: 0.95, aggregationMethod: "median" },
+        ],
+        "categories:accessibility": [
+          "error",
+          { minScore: 0.95, aggregationMethod: "median" },
+        ],
+        "categories:best-practices": [
+          "error",
+          { minScore: 0.95, aggregationMethod: "median" },
+        ],
+        "categories:seo": [
+          "error",
+          { minScore: 0.95, aggregationMethod: "median" },
+        ],
         "resource-summary:script:size": [
           "error",
-          { maxNumericValue: 25600 },
+          { maxNumericValue: 25600, aggregationMethod: "median" },
         ],
         "resource-summary:total:size": [
           "error",
-          { maxNumericValue: 92160 },
+          { maxNumericValue: 92160, aggregationMethod: "median" },
         ],
       },
     },
