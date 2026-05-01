@@ -1,10 +1,12 @@
 /**
  * IV-2 — Lighthouse-CI configuration.
  *
- * Mobile-profile gates on the three hottest cross-epic routes:
- *   - /        (home — composition: BaseLayout + ProjectCard + nav)
- *   - /posts/hello-world/   (post route — Shiki + reading time)
- *   - /work/alpha/          (project route — ProjectCard detail surface)
+ * Mobile-profile gates on five cross-epic routes:
+ *   - /                       (home — BaseLayout + ProjectCard + nav)
+ *   - /posts/                 (post index)
+ *   - /posts/hello-world/     (post route — Shiki + reading time)
+ *   - /work/                  (work index)
+ *   - /work/alpha/            (project detail — ProjectCard detail surface)
  *
  * Thresholds: ≥95 for performance, accessibility, best-practices, SEO.
  * Anything <95 fails the run. The numbers track spec §6 S-12 directly.
@@ -15,6 +17,14 @@
  *
  * Server: tests/iv/preview-server.mjs (the same one the Playwright
  * suite uses), so what LHCI scores is exactly what CF Pages would serve.
+ *
+ * Bundle-size budgets (from a clean baseline run, 2026-05-01):
+ *   - resource-summary:script  baseline 0 B (Astro static, no external <script src>)
+ *     budget 25600 B (~25 KB). Effectively a "no-JS" gate — a regression
+ *     adds bytes only if a future component imports a client script bundle.
+ *   - resource-summary:total   baseline max 72,949 B (home).
+ *     budget 92160 B (~90 KB). ~25% headroom over baseline.
+ *   Score-95 alone won't catch slow payload creep; byte budgets do.
  */
 module.exports = {
   ci: {
@@ -25,7 +35,9 @@ module.exports = {
       // matching on that string is the explicit readiness signal.
       url: [
         "http://127.0.0.1:4321/",
+        "http://127.0.0.1:4321/posts/",
         "http://127.0.0.1:4321/posts/hello-world/",
+        "http://127.0.0.1:4321/work/",
         "http://127.0.0.1:4321/work/alpha/",
       ],
       numberOfRuns: 1,
@@ -63,6 +75,14 @@ module.exports = {
         "categories:accessibility": ["error", { minScore: 0.95 }],
         "categories:best-practices": ["error", { minScore: 0.95 }],
         "categories:seo": ["error", { minScore: 0.95 }],
+        "resource-summary:script:size": [
+          "error",
+          { maxNumericValue: 25600 },
+        ],
+        "resource-summary:total:size": [
+          "error",
+          { maxNumericValue: 92160 },
+        ],
       },
     },
     upload: {

@@ -1,0 +1,5 @@
+# Lychee URL ignore list (regex per line).
+# Used by .github/workflows/ci.yml `links` job to suppress known-noisy
+# externals (e.g. rate-limited LinkedIn, archive.org, social hosts) so
+# they don't fail the run. Internal 4xx/5xx still fail.
+# Populate as needed.

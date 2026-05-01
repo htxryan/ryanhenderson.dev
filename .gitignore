@@ -40,3 +40,6 @@ playwright-report/
 
 # Lighthouse CI
 .lighthouseci/
+
+# Vitest coverage
+coverage/

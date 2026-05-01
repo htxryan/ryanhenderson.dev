@@ -35,14 +35,27 @@ jobs:
       - name: install (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
+      - name: lockfile dedupe check
+        run: pnpm dedupe --check
+
+      - name: pnpm audit (high+critical)
+        run: pnpm audit --audit-level=high
+
       - name: type-check
         run: pnpm check
 
       - name: build (content checks + tokens + astro + pagefind + CSP hashes)
         run: pnpm build
 
-      - name: unit tests (vitest)
-        run: pnpm test
+      - name: unit tests (vitest) + coverage
+        run: pnpm test --coverage
+
+      - name: upload coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 7
 
       - name: upload dist
         uses: actions/upload-artifact@v7
@@ -84,10 +97,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: install Playwright (chromium only)
-        run: pnpm exec playwright install --with-deps chromium
+      - name: install Playwright (chromium + webkit)
+        run: pnpm exec playwright install --with-deps chromium webkit
 
-      - name: run IV scenarios
+      - name: run IV scenarios (chromium + webkit)
+        # No --project filter: both projects defined in playwright.config.ts run.
+        # Roughly doubles wall time vs chromium-only; intentional — webkit
+        # catches Safari/iOS-specific regressions chromium can't see.
         run: pnpm exec playwright test tests/iv/scenarios.spec.ts --reporter=list
         env:
           CI: "true"
@@ -142,3 +158,25 @@ jobs:
         run: pnpm test:lhci
         env:
           CI: "true"
+
+  links:
+    name: broken-link sweep (lychee)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: verify
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --root-dir must be absolute; resolves root-relative hrefs like
+          # /posts/foo/ against dist/. Action runs from the workspace root.
+          args: --no-progress --root-dir ${{ github.workspace }}/dist 'dist/**/*.html'
+          fail: true
