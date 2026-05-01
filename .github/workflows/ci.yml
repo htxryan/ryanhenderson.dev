@@ -97,8 +97,8 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-      - name: install Playwright (chromium only)
-        run: pnpm exec playwright install --with-deps chromium
+      - name: install Playwright (chromium + webkit)
+        run: pnpm exec playwright install --with-deps chromium webkit
 
       - name: run IV scenarios
         run: pnpm exec playwright test tests/iv/scenarios.spec.ts --reporter=list
