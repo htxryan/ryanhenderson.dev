@@ -1,0 +1,166 @@
+---
+/**
+ * E6 — Search (`/search/`).
+ *
+ * Pagefind-driven static site search. The shipped HTML for this route
+ * deliberately includes ZERO `<script src="...pagefind...">` references,
+ * because pagefind's WASM + index shards (~50–200 KB) MUST NOT load on
+ * any non-search route — and since shards are addressed relative to the
+ * page that loads them, they should not load on this route either until
+ * the user actually interacts with the search box.
+ *
+ * Lazy-load contract (advisory P1 #10):
+ *   1. The HTML serves an idle `<input type="search">` and an empty results
+ *      container. No external script tags.
+ *   2. An inline IIFE attaches a one-shot `focus`/`input` listener to the
+ *      input. On first interaction, it dynamically `import("/pagefind/pagefind-ui.js")`
+ *      and instantiates `PagefindUI` against the same containers.
+ *   3. Subsequent keystrokes feed the live PagefindUI; the boot listener
+ *      detaches itself after first import.
+ *
+ * The build script chains pagefind explicitly:
+ *   `astro build && pagefind --site dist`
+ * so a failed index step fails the deploy.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Search — Ryan Henderson"
+  description="Search posts and projects on ryanhenderson.dev."
+  canonicalPath="/search/"
+>
+  <section class="search-page" aria-labelledby="search-heading">
+    <header class="search-header">
+      <p class="search-eyebrow">search</p>
+      <h1 id="search-heading">Search</h1>
+      <p class="search-tag">
+        Type to search posts and work. Index loads on first keystroke — no
+        bytes shipped to the rest of the site.
+      </p>
+    </header>
+
+    {/* Pagefind UI mounts inside this container. We render a static
+        placeholder <input> so the page is interactive at first paint;
+        focusing or typing in it triggers the lazy import below, which
+        replaces the host's contents with the live Pagefind UI. */}
+    <div id="search" class="pagefind-host" data-pagefind-host>
+      <label class="pagefind-placeholder">
+        <span class="visually-hidden">Search</span>
+        <input
+          type="search"
+          placeholder="Search posts and work…"
+          autocomplete="off"
+          spellcheck="false"
+          data-pagefind-placeholder
+        />
+      </label>
+      <noscript>
+        <p class="noscript">Search requires JavaScript. Try the
+          <a href="/posts/">writing archive</a> or the
+          <a href="/work/">work index</a> instead.
+        </p>
+      </noscript>
+    </div>
+  </section>
+</BaseLayout>
+
+{/* Inline boot script: zero external bytes until first interaction.
+    Uses dynamic import so the pagefind UI bundle is fetched lazily. */}
+<script is:inline>
+  (function () {
+    const host = document.getElementById("search");
+    if (!host) return;
+    let booted = false;
+    async function boot() {
+      if (booted) return;
+      booted = true;
+      const { PagefindUI } = await import("/pagefind/pagefind-ui.js");
+      // Empty the host and let PagefindUI re-render its own inputs/results.
+      host.innerHTML = "";
+      new PagefindUI({
+        element: "#search",
+        showSubResults: true,
+        showImages: false,
+      });
+      // Forward focus to the freshly-mounted input.
+      const input = host.querySelector("input");
+      if (input) input.focus();
+      // Also pull in the stylesheet.
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "/pagefind/pagefind-ui.css";
+      document.head.appendChild(link);
+    }
+    // Boot on focus, click, or keystroke anywhere in the search host.
+    const events = ["focus", "click", "keydown", "focusin"];
+    function once() {
+      events.forEach((ev) => host.removeEventListener(ev, once, true));
+      boot();
+    }
+    events.forEach((ev) => host.addEventListener(ev, once, true));
+  })();
+</script>
+
+<style>
+  .search-header {
+    border-bottom: calc(var(--rule-hairline) * 2) solid var(--rule-color);
+    padding-bottom: calc(var(--space-unit) * 2);
+    margin-bottom: calc(var(--space-unit) * 4);
+  }
+  .search-eyebrow {
+    margin: 0 0 var(--space-unit);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .search-header h1 {
+    margin: 0 0 calc(var(--space-unit) * 2);
+    font-size: clamp(2rem, 4vw + 1rem, 3rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-family: var(--font-mono);
+  }
+  .search-tag {
+    margin: 0;
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+  .pagefind-host {
+    min-height: 4rem;
+  }
+  .pagefind-placeholder {
+    display: block;
+  }
+  .pagefind-placeholder input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: calc(var(--space-unit) * 1.25) calc(var(--space-unit) * 1.5);
+    border: var(--rule-hairline) solid var(--rule-color);
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+  }
+  .pagefind-placeholder input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .noscript {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+  }
+</style>
