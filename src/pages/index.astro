@@ -3,55 +3,41 @@
  * Home (S-1).
  *
  * Brutalist composition:
- *   - Hairline-ruled hero block with name + one-line positioning
- *   - Featured work grid below
+ *   - Hairline-ruled hero block with name + one-line tagline
+ *   - Two big landing-style cards: about + work. Whole card is a link;
+ *     this is the page's job — point at one of two destinations.
  *
- * Writing/blog is currently hidden — when it returns, restore the
- * asymmetric two-column grid (Recent writing | Featured work) from git.
+ * Used to list featured projects under the hero, but that duplicated the
+ * content of /work/. Restoring that grid is a one-import change (see git
+ * history for the prior version). Writing/blog is also currently hidden.
  *
- * Data: pulled exclusively through E1's helpers (C-2). No direct
- * `getCollection` here — the build will fail via `pnpm check:content-source`
- * if anyone reverts that.
- *
- * Performance: zero client JS shipped from this page (W-1). The only script
- * on first load is the inline ThemeBoot inside <head>.
+ * Performance: zero client JS shipped from this page (W-1).
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
-import ProjectCard from "~/components/ProjectCard.astro";
-import { getPublishedProjects } from "~/lib/content";
 import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
-
-const featuredProjects = (await getPublishedProjects()).slice(0, 6);
 ---
 <BaseLayout
   title="ryanhenderson.dev"
-  description={`${SITE_NAME} — ${SITE_TAGLINE}. Selected work and projects.`}
+  description={`${SITE_NAME} — ${SITE_TAGLINE}.`}
   canonicalPath="/"
 >
   <section class="hero" aria-labelledby="hero-name">
     <h1 id="hero-name" class="hero-name">{SITE_NAME}</h1>
-    <p class="hero-tag">
-      {SITE_TAGLINE}. <a href="/about/">More about me →</a>
-    </p>
+    <p class="hero-tag">{SITE_TAGLINE}.</p>
   </section>
 
-  <section class="column" aria-labelledby="work-heading">
-    <header class="column-header">
-      <h2 id="work-heading">Featured work</h2>
-      <a class="column-more" href="/work/">all work →</a>
-    </header>
-    {featuredProjects.length === 0 ? (
-      <p class="empty">No projects yet.</p>
-    ) : (
-      <ul class="cards" role="list">
-        {featuredProjects.map((project) => (
-          <li class="cards-item">
-            <ProjectCard project={project} />
-          </li>
-        ))}
-      </ul>
-    )}
-  </section>
+  <nav class="landing" aria-label="Primary destinations">
+    <a class="landing-card" href="/about/">
+      <span class="landing-card-eyebrow">about</span>
+      <span class="landing-card-tag">Who I am, what I do, how to reach me.</span>
+      <span class="landing-card-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="landing-card" href="/work/">
+      <span class="landing-card-eyebrow">work</span>
+      <span class="landing-card-tag">Projects I'm building.</span>
+      <span class="landing-card-arrow" aria-hidden="true">→</span>
+    </a>
+  </nav>
 </BaseLayout>
 
 <style>
@@ -73,57 +59,62 @@ const featuredProjects = (await getPublishedProjects()).slice(0, 6);
     color: var(--muted);
   }
 
-  .column-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-unit);
-    border-bottom: 2px solid var(--rule-color);
-    padding-bottom: var(--space-unit);
-    margin-bottom: calc(var(--space-unit) * 2);
-  }
-  .column-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .column-more {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    color: var(--muted);
-    text-decoration: none;
-    text-transform: lowercase;
-  }
-  .column-more:hover,
-  .column-more:focus-visible {
-    color: var(--accent);
-    text-decoration: underline;
-  }
-
-  .empty {
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: 0.9375rem;
-  }
-  .cards {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .landing {
     display: grid;
     grid-template-columns: 1fr;
     gap: calc(var(--space-unit) * 2);
   }
   @media (min-width: 56rem) {
-    .cards {
+    .landing {
       grid-template-columns: 1fr 1fr;
       gap: calc(var(--space-unit) * 3);
     }
   }
-  .cards-item {
-    display: block;
+  .landing-card {
+    display: grid;
+    gap: calc(var(--space-unit) * 1.5);
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 4);
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    min-height: 14rem;
+    align-content: start;
+    position: relative;
   }
-  .hero-tag a {
+  .landing-card:hover,
+  .landing-card:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .landing-card-eyebrow {
+    font-family: var(--font-mono);
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 2.5rem);
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .landing-card-tag {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    max-width: var(--measure);
+  }
+  .landing-card:hover .landing-card-tag,
+  .landing-card:focus-visible .landing-card-tag {
+    color: var(--accent);
+  }
+  .landing-card-arrow {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    color: var(--muted);
+    align-self: end;
+    justify-self: end;
+    position: absolute;
+    right: calc(var(--space-unit) * 4);
+    bottom: calc(var(--space-unit) * 3);
+  }
+  .landing-card:hover .landing-card-arrow,
+  .landing-card:focus-visible .landing-card-arrow {
     color: var(--accent);
   }
 </style>

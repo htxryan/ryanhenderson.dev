@@ -1,14 +1,16 @@
 ---
 /**
- * E5 — Portfolio index (`/work/`).
+ * Portfolio index (`/work/`).
  *
- * Lists every published project, ordered active → archived. `private` is
- * filtered out by `getPublishedProjects()` (the single filter authority,
- * C-2). The build gate `pnpm check:content-source` enforces that this
- * route never bypasses the helper.
+ * Lists every published project, ordered by status (active → coming-soon
+ * → archived → private). `private` is filtered out by
+ * `getPublishedProjects()` (the single filter authority, C-2). The build
+ * gate `pnpm check:content-source` enforces that this route never bypasses
+ * the helper.
  *
- * Composition reuses <ProjectCard /> exactly as the home page does, so the
- * card markup has one source of truth (epic acceptance: no divergence).
+ * Card markup is shared with the home page via <ProjectCard />, but the
+ * home page no longer lists projects (it shows only landing-style links to
+ * /about/ and /work/), so this is currently the sole consumer.
  *
  * Performance: zero client JS shipped from this route (W-1).
  */
@@ -17,21 +19,15 @@ import ProjectCard from "~/components/ProjectCard.astro";
 import { getPublishedProjects } from "~/lib/content";
 
 const projects = await getPublishedProjects();
-const activeCount = projects.filter((p) => p.data.status === "active").length;
-const archivedCount = projects.length - activeCount;
 ---
 <BaseLayout
   title="Work — Ryan Henderson"
-  description="Portfolio of projects — solo OSS and SaaS work, active and archived."
+  description="Projects I'm building — solo OSS and SaaS work."
   canonicalPath="/work/"
 >
   <section class="archive" aria-labelledby="archive-heading">
     <header class="archive-header">
-      <p class="archive-eyebrow">work</p>
-      <h1 id="archive-heading">All work</h1>
-      <p class="archive-count">
-        {activeCount} active · {archivedCount} archived
-      </p>
+      <h1 id="archive-heading">Work</h1>
     </header>
     {projects.length === 0 ? (
       <p class="empty">No projects yet.</p>
@@ -52,32 +48,12 @@ const archivedCount = projects.length - activeCount;
     border-bottom: calc(var(--rule-hairline) * 2) solid var(--rule-color);
     padding-bottom: calc(var(--space-unit) * 2);
     margin-bottom: calc(var(--space-unit) * 4);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: calc(var(--space-unit) * 2);
-    align-items: baseline;
-  }
-  .archive-eyebrow {
-    grid-column: 1 / -1;
-    margin: 0 0 var(--space-unit);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
   }
   .archive-header h1 {
     margin: 0;
     font-size: clamp(2rem, 4vw + 1rem, 3rem);
     line-height: 1;
     letter-spacing: -0.02em;
-  }
-  .archive-count {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
-    color: var(--muted);
-    text-transform: lowercase;
   }
   .cards {
     list-style: none;

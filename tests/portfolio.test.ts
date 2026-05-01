@@ -75,11 +75,14 @@ describe("/work/ index — basic shape", () => {
     expect(navAnchors.length).toBeGreaterThanOrEqual(1);
   });
 
-  test("emits a heading and an active/archived count", () => {
+  test("emits a heading", () => {
     const html = read(WORK_INDEX);
-    expect(html).toMatch(/<h1[^>]*>All work<\/h1>/);
-    expect(html).toMatch(/active/);
-    expect(html).toMatch(/archived/);
+    // Heading dropped from "All work" to just "Work" once the page
+    // contained a single coming-soon group; the active/archived count
+    // line was removed at the same time (it didn't add value with one
+    // status group, and miscounted coming-soon as archived under the
+    // old logic). Restore both when the project set diversifies.
+    expect(html).toMatch(/<h1[^>]*>Work<\/h1>/);
   });
 });
 
@@ -239,43 +242,26 @@ describe.skip("E-3 — conditional repo link", () => {
   });
 });
 
-describe("ProjectCard — reused on home and /work/ index without divergence", () => {
-  test("home page renders ProjectCard markup for featured work", () => {
-    const html = read(HOME);
-    expect(html).toMatch(/<article[^>]*class="project-card"/);
-    // butverify and c3p are both active and appear among the featured set.
-    // Card titles link out to marketing sites now — assert by external href.
-    expect(html).toMatch(/href="https:\/\/butverify\.dev"/);
-    expect(html).toMatch(/href="https:\/\/getc3p\.dev"/);
-  });
+describe("ProjectCard — rendered on /work/ index", () => {
+  // The home page no longer lists projects; it shows two big landing
+  // links (about + work) instead. ProjectCard is therefore exercised
+  // only on /work/ for now. When project cards return to the home page,
+  // restore the cross-route divergence assertion from git history.
 
-  test("/work/ index renders the same ProjectCard markup", () => {
+  test("/work/ index renders ProjectCard markup with the coming-soon badge", () => {
     const html = read(WORK_INDEX);
     expect(html).toMatch(/<article[^>]*class="project-card"/);
-  });
-
-  test("ProjectCard markup is structurally identical across both routes", () => {
-    const home = read(HOME);
-    const index = read(WORK_INDEX);
-    // Anchor on the butverify card region (its marketing URL is unique).
-    // Title now links externally; the comparison shifts from internal
-    // /work/<slug>/ href to the marketing href.
-    const cardOn = (html: string) =>
-      html.match(
-        /<article[^>]*class="project-card"[^>]*>(?:(?!<\/article>)[\s\S])*?href="https:\/\/butverify\.dev"[\s\S]*?<\/article>/,
-      )?.[0] ?? "";
-    const homeCard = cardOn(home);
-    const indexCard = cardOn(index);
-    expect(homeCard).not.toBe("");
-    expect(indexCard).not.toBe("");
-    for (const region of [homeCard, indexCard]) {
-      expect(region).toMatch(/class="project-card-status"[^>]*data-status="active"/);
-      expect(region).toMatch(/class="project-card-title"/);
-      expect(region).toMatch(/class="project-card-oneliner"/);
-      // butverify has a separate repo URL → secondary repo button renders.
-      expect(region).toMatch(/data-repo-link/);
-      expect(region).toMatch(/href="https:\/\/github\.com\/htxryan\/butverify"/);
-    }
+    // Status badge currently shows "coming soon" while the projects
+    // are pre-launch. Update this assertion when projects flip to
+    // status: active.
+    expect(html).toMatch(/class="project-card-status"[^>]*data-status="coming-soon"/);
+    // Cards carry title, oneliner, and external repo button (butverify
+    // / c3p / pearl all have repoUrl distinct from marketingUrl).
+    expect(html).toMatch(/class="project-card-title"/);
+    expect(html).toMatch(/class="project-card-oneliner"/);
+    expect(html).toMatch(/data-repo-link/);
+    // Anchor on butverify's external URL to confirm the title link.
+    expect(html).toMatch(/href="https:\/\/butverify\.dev"/);
   });
 });
 

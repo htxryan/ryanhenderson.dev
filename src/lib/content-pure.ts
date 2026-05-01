@@ -20,10 +20,14 @@ export type PublishedProjectsOptions = {
   includePrivate?: boolean;
 };
 
-const STATUS_RANK: Record<"active" | "archived" | "private", number> = {
+const STATUS_RANK: Record<
+  "active" | "coming-soon" | "archived" | "private",
+  number
+> = {
   active: 0,
-  archived: 1,
-  private: 2,
+  "coming-soon": 1,
+  archived: 2,
+  private: 3,
 };
 
 /**

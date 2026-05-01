@@ -33,10 +33,13 @@ const primaryUrl = marketingUrl ?? repoUrl ?? "#";
 // Show the secondary repo button only when the title and the repo are
 // pointing at different things — otherwise the button duplicates the title.
 const showRepoButton = !!repoUrl && primaryUrl !== repoUrl;
+// Status enum uses kebab-case (e.g. `coming-soon`); the human-readable
+// badge label substitutes spaces for hyphens.
+const statusLabel = status.replace(/-/g, " ");
 ---
 <article class="project-card" data-status={status}>
   <header class="project-card-header">
-    <span class="project-card-status" data-status={status}>{status}</span>
+    <span class="project-card-status" data-status={status}>{statusLabel}</span>
     <h3 class="project-card-title">
       <a href={primaryUrl} target="_blank" rel="noreferrer">{name} ↗</a>
     </h3>
@@ -81,6 +84,12 @@ const showRepoButton = !!repoUrl && primaryUrl !== repoUrl;
     width: max-content;
   }
   .project-card-status[data-status="active"] {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  /* "coming soon" gets the accent treatment too — these projects aren't
+     live yet, but they ARE the highlight on the page. */
+  .project-card-status[data-status="coming-soon"] {
     color: var(--accent);
     border-color: var(--accent);
   }

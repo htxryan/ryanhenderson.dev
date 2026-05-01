@@ -155,11 +155,14 @@ describe("about page — bio + outbound profile links", () => {
 });
 
 describe("home composition", () => {
-  test("renders the Featured work heading", () => {
+  test("renders two big landing-card links (about + work)", () => {
     const html = read(paths().home);
-    // Recent writing column is gated behind BLOG_VISIBLE; only Featured
-    // work renders while the blog is hidden.
-    expect(html).toMatch(/Featured work/);
+    // The home page replaced the "Featured work" listing with two
+    // landing-style cards pointing at /about/ and /work/. The cards
+    // live in a <nav class="landing"> landmark.
+    expect(html).toMatch(/<nav[^>]*class="landing"/);
+    expect(html).toMatch(/<a[^>]*class="landing-card"[^>]*href="\/about\/"/);
+    expect(html).toMatch(/<a[^>]*class="landing-card"[^>]*href="\/work\/"/);
   });
 
   test("renders the wordmark and primary nav links", () => {
@@ -210,14 +213,17 @@ describe("baseline a11y/SEO", () => {
   });
 });
 
-describe("home empty-state markup", () => {
-  // The home page tolerates 0 projects without throwing — assert either a
-  // ProjectCard list or the empty-state string is present in the work
-  // column. (The Recent writing column is gated behind BLOG_VISIBLE;
-  // restore the recent-list assertion when the blog returns.)
-  test("home has a card list or an empty-state in the work column", () => {
+describe("home landing landmark", () => {
+  // The home page is now a router page: hero + two landing cards. There
+  // is no project listing on home anymore (so no empty-state to assert);
+  // restore the work-column empty-state check when projects move back to
+  // the home page.
+  test("home renders the landing nav landmark with both destinations", () => {
     const html = read(paths().home);
-    const hasWorkList = /aria-labelledby="work-heading"[\s\S]*?<ul class="cards"|aria-labelledby="work-heading"[\s\S]*?No projects yet\./.test(html);
-    expect(hasWorkList).toBe(true);
+    expect(html).toMatch(
+      /<nav[^>]*aria-label="Primary destinations"[^>]*class="landing"|<nav[^>]*class="landing"[^>]*aria-label="Primary destinations"/,
+    );
+    expect(html).toMatch(/href="\/about\/"/);
+    expect(html).toMatch(/href="\/work\/"/);
   });
 });
