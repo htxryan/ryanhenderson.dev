@@ -73,6 +73,9 @@ const ogImageUrl = new URL(ogImage ?? "/og-default.png", site).toString();
 // rather than emitting an unconfigured `data-cf-beacon` attribute.
 const cfAnalyticsToken = process.env.CF_WEB_ANALYTICS_TOKEN ?? "";
 const showCfAnalytics = import.meta.env.PROD && cfAnalyticsToken.length > 0;
+// JSON.stringify guarantees the attribute is well-formed JSON even if the
+// token ever contains a `"` or `\`. Astro still attribute-escapes the result.
+const cfBeaconAttr = JSON.stringify({ token: cfAnalyticsToken });
 ---
 <!doctype html>
 <html lang="en">
@@ -113,7 +116,7 @@ const showCfAnalytics = import.meta.env.PROD && cfAnalyticsToken.length > 0;
         defer
         is:inline
         src="https://static.cloudflareinsights.com/beacon.min.js"
-        data-cf-beacon={`{"token": "${cfAnalyticsToken}"}`}
+        data-cf-beacon={cfBeaconAttr}
       />
     ) : null}
 

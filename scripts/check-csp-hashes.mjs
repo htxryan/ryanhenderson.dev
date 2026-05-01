@@ -96,12 +96,37 @@ function loadHeaders() {
   return raw;
 }
 
-// Parse `script-src` from the `/*` block. We look for the `Content-Security-Policy`
-// header line indented under the global pattern and extract the script-src
-// directive's source list.
+// Find the index range of the `/*` block. CF Pages headers files use
+// "<pattern>\n  <Header>: <value>\n..." — a pattern is an unindented line
+// (no leading whitespace) that is not blank or a comment. The `/*` block
+// runs from its pattern line to the next unindented non-blank line.
+// Returns [start, end) line indices over the block's body (header lines).
+function findGlobalBlockRange(lines) {
+  const start = lines.findIndex((l) => /^\/\*\s*$/.test(l));
+  if (start === -1) {
+    throw new Error("_headers does not contain a `/*` global block");
+  }
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) {
+    const l = lines[i];
+    // Next pattern line: unindented, non-blank, not a comment.
+    if (l.length > 0 && !/^\s/.test(l) && !l.startsWith("#")) {
+      end = i;
+      break;
+    }
+  }
+  return [start + 1, end];
+}
+
+// Parse `script-src` from the `/*` block. We restrict the search to lines
+// between the `/*` pattern and the next unindented URL pattern, so a future
+// per-path CSP header (e.g. on the *.pages.dev block) cannot shadow the
+// global one.
 function extractScriptSrcSources(headersText) {
-  const cspLine = headersText
-    .split(/\r?\n/)
+  const lines = headersText.split(/\r?\n/);
+  const [start, end] = findGlobalBlockRange(lines);
+  const cspLine = lines
+    .slice(start, end)
     .map((l) => l.trim())
     .find((l) => l.toLowerCase().startsWith("content-security-policy:"));
   if (!cspLine) {
@@ -126,12 +151,18 @@ function isHashSource(token) {
 function rewriteScriptSrc(headersText, newHashes) {
   // Preserve the order of non-hash sources; replace existing hash sources
   // with `newHashes` in stable (sorted) order. This keeps diffs minimal and
-  // deterministic.
+  // deterministic. The CSP line must be inside the `/*` block — we never
+  // rewrite per-path CSP headers from this script.
   const lines = headersText.split(/\r?\n/);
-  const idx = lines.findIndex((l) =>
-    /^\s*content-security-policy\s*:/i.test(l),
-  );
-  if (idx === -1) throw new Error("CSP line not found while applying --fix");
+  const [start, end] = findGlobalBlockRange(lines);
+  let idx = -1;
+  for (let i = start; i < end; i++) {
+    if (/^\s*content-security-policy\s*:/i.test(lines[i])) {
+      idx = i;
+      break;
+    }
+  }
+  if (idx === -1) throw new Error("CSP line not found in /* block while applying --fix");
   const cspLine = lines[idx];
   const leadingMatch = cspLine.match(/^(\s*)/);
   const leading = leadingMatch ? leadingMatch[1] : "";

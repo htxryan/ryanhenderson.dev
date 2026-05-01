@@ -207,10 +207,18 @@ describe("C-6 — BaseLayout composition on post route", () => {
   });
 });
 
-describe("W-1 — no external client JS on post route", () => {
-  test("post HTML has no external <script src=…> bundle", () => {
+describe("W-1 — no external client JS bundles on post route", () => {
+  // The W-1 contract bans first-party JS bundles, not the sanctioned CF
+  // Web Analytics beacon (W-2). In production builds with
+  // CF_WEB_ANALYTICS_TOKEN set, BaseLayout emits exactly one external
+  // <script src="https://static.cloudflareinsights.com/beacon.min.js">.
+  // Strip that single sanctioned tag before asserting "no external src".
+  const CF_BEACON_TAG_RE =
+    /<script\b[^>]*\bsrc=["']https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js["'][^>]*>\s*<\/script>/g;
+
+  test("post HTML has no external <script src=…> bundle (CF beacon excluded)", () => {
     for (const file of listPostHtml()) {
-      const html = read(file);
+      const html = read(file).replace(CF_BEACON_TAG_RE, "");
       expect(html).not.toMatch(/<script[^>]+src=["'][^"']+["']/);
     }
   });

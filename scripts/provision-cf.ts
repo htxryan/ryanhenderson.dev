@@ -303,7 +303,7 @@ async function main(): Promise<void> {
 
 main().catch((e) => {
   // Any unhandled rejection that escapes the structured exit-code paths
-  // above lands here and gets exit code 1.
-  console.error("[provision-cf] unexpected error:", e?.message ?? e);
-  process.exit(1);
+  // above lands here. Route through die() so the `[provision-cf]` prefix
+  // is consistent with every other error path in CI logs.
+  die(1, `unexpected error: ${e?.message ?? e}`);
 });
