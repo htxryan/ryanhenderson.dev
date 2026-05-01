@@ -1,0 +1,26 @@
+# Cloudflare Pages redirect rules for legacy Jekyll URL shapes.
+#
+# Format: <source>  <destination>  <status>
+# Reference: https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Audit source: docs/migration/legacy-urls.txt — every REDIRECT row in that
+# file MUST appear here, and every rule here MUST trace back to a row in
+# that file. The retirement commit (E8) ships this file in the same commit
+# as the Jekyll deletions — no window where legacy URLs return 404 (STPA B3).
+
+# --- Canonical legacy post URL ---
+/hello-blog/        /posts/hello-blog/     301
+
+# --- Theme taxonomy index pages (no analog on new site) ---
+/tags/              /posts/                301
+/categories/        /posts/                301
+
+# --- Legacy theme HTML routes ---
+/posts.html         /posts/                301
+/search.html        /search/               301
+/categories.html    /posts/                301
+/tags.html          /posts/                301
+/index.html         /                      301
+
+# --- Sitemap (legacy single file → Astro sitemap index) ---
+/sitemap.xml        /sitemap-index.xml     301
