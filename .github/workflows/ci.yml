@@ -20,14 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: ${{ env.PNPM_VERSION }}
           run_install: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -45,7 +45,7 @@ jobs:
         run: pnpm test
 
       - name: upload dist
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist
@@ -57,14 +57,14 @@ jobs:
     timeout-minutes: 15
     needs: verify
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: ${{ env.PNPM_VERSION }}
           run_install: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -73,13 +73,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: download dist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
 
       - name: cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -94,7 +94,7 @@ jobs:
 
       - name: upload Playwright traces on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: test-results
@@ -106,14 +106,14 @@ jobs:
     timeout-minutes: 15
     needs: verify
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           version: ${{ env.PNPM_VERSION }}
           run_install: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -122,7 +122,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: download dist
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist
