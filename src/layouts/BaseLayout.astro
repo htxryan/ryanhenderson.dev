@@ -61,6 +61,18 @@ const ogType = articleType ? "article" : "website";
 // (Twitter/Slack/iMessage) reject relative URLs and silently drop the
 // preview, so we always resolve against `Astro.site`.
 const ogImageUrl = new URL(ogImage ?? "/og-default.png", site).toString();
+
+// E9 — Cloudflare Web Analytics (W-2 — only sanctioned tracker).
+// Render the beacon in production builds only. `import.meta.env.PROD` is
+// statically replaced at build time, so dev builds emit literal `false`
+// here and the beacon is dead-code-eliminated. The token is sourced from
+// `CF_WEB_ANALYTICS_TOKEN`; CF Web Analytics tokens are designed to ship
+// in HTML so we read it via process.env (build-time) without the PUBLIC_
+// prefix to keep .env.example aligned with the spec's variable name.
+// If the token is unset (e.g. local prod build), the beacon is suppressed
+// rather than emitting an unconfigured `data-cf-beacon` attribute.
+const cfAnalyticsToken = process.env.CF_WEB_ANALYTICS_TOKEN ?? "";
+const showCfAnalytics = import.meta.env.PROD && cfAnalyticsToken.length > 0;
 ---
 <!doctype html>
 <html lang="en">
@@ -95,6 +107,15 @@ const ogImageUrl = new URL(ogImage ?? "/og-default.png", site).toString();
     <link rel="alternate" type="application/rss+xml" title="ryanhenderson.dev" href="/feed.xml" />
     <link rel="alternate" type="application/atom+xml" title="ryanhenderson.dev" href="/atom.xml" />
     {/* favicon ships in E7 (assets) — don't reference one before public/ exists. */}
+
+    {showCfAnalytics ? (
+      <script
+        defer
+        is:inline
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={`{"token": "${cfAnalyticsToken}"}`}
+      />
+    ) : null}
 
     <slot name="head" />
   </head>

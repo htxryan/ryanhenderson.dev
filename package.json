@@ -8,13 +8,16 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "pnpm check:content-source && pnpm check:content-slugs && pnpm gen:tokens && astro build && pagefind --site dist",
+    "build": "pnpm check:content-source && pnpm check:content-slugs && pnpm gen:tokens && astro build && pagefind --site dist && pnpm check:csp-hashes",
+    "deploy": "pnpm install --frozen-lockfile && pnpm build",
     "gen:tokens": "node scripts/generate-tokens-css.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
     "check:content-source": "node scripts/check-content-helpers.mjs",
     "check:content-slugs": "node scripts/check-content-slugs.mjs",
+    "check:csp-hashes": "node scripts/check-csp-hashes.mjs",
+    "provision:cf": "node --experimental-strip-types scripts/provision-cf.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "astro check"
