@@ -84,6 +84,7 @@ describe("RSS 2.0 (/feed.xml) — structural validation", () => {
     expect(items.length).toBeGreaterThan(0);
     for (const item of items) {
       expect(typeof item.title).toBe("string");
+      expect(item.title.length).toBeGreaterThan(0);
       expect(item.link).toMatch(/^https:\/\/ryanhenderson\.dev\/posts\/[a-z0-9-]+\/$/);
       // guid is required and should be a permalink.
       const guid = typeof item.guid === "string" ? item.guid : item.guid["#text"];
@@ -103,6 +104,12 @@ describe("RSS 2.0 (/feed.xml) — structural validation", () => {
     for (let i = 1; i < items.length; i++) {
       const prev = new Date(items[i - 1].pubDate).getTime();
       const cur = new Date(items[i].pubDate).getTime();
+      // Guard against silent NaN propagation if the RFC-822 regex regresses
+      // — `NaN >= NaN` is false but the failure message would hide the cause.
+      expect(
+        Number.isFinite(prev) && Number.isFinite(cur),
+        `unparseable pubDate(s): prev=${items[i - 1].pubDate}, cur=${items[i].pubDate}`,
+      ).toBe(true);
       expect(prev).toBeGreaterThanOrEqual(cur);
     }
   });

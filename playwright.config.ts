@@ -14,8 +14,10 @@ import { defineConfig, devices } from "@playwright/test";
  * tiny Node server that emulates CF Pages's `_redirects` semantics — see
  * tests/iv/redirect-server.ts.
  *
- * Vitest globalSetup builds dist/ for the unit suite. This config triggers
- * a build via the `webServer.command` (idempotent — fast on a warm tree).
+ * Vitest globalSetup builds `dist/` for the unit suite. This config does
+ * NOT build — `webServer.command` only serves what's already on disk, so
+ * the caller is responsible for running `pnpm build` (or invoking the
+ * Playwright suite via `pnpm test:iv`, which builds first).
  */
 export default defineConfig({
   testDir: "./tests/iv",

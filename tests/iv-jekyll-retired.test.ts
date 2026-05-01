@@ -15,6 +15,10 @@ import { resolve } from "node:path";
 
 const ROOT = resolve(__dirname, "..");
 
+// `_site/` is intentionally omitted: it's gitignored, so a contributor
+// experimenting locally with Jekyll would fail this gate even though no
+// commit could re-introduce the directory. The remaining entries are all
+// trackable artefacts whose presence at HEAD would indicate a regression.
 const JEKYLL_REMNANTS = [
   "_config.yml",
   "_config.yaml",
@@ -24,7 +28,6 @@ const JEKYLL_REMNANTS = [
   "_layouts",
   "_includes",
   "_sass",
-  "_site",
   "Gemfile",
   "Gemfile.lock",
   ".jekyll-metadata",

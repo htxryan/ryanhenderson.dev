@@ -20,8 +20,9 @@ module.exports = {
   ci: {
     collect: {
       startServerCommand: "node tests/iv/preview-server.mjs",
-      startServerReadyPattern: "listening|^$",
-      // Server prints nothing in normal mode; LHCI also waits on the URL.
+      startServerReadyPattern: "listening",
+      // The server prints `[iv-preview] listening on …` once it's bound;
+      // matching on that string is the explicit readiness signal.
       url: [
         "http://127.0.0.1:4321/",
         "http://127.0.0.1:4321/posts/hello-world/",

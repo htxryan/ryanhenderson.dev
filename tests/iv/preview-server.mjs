@@ -105,6 +105,11 @@ function tryFile(urlPath) {
     join(DIST, clean.replace(/^\//, "") + ".html"),
   ];
   for (const c of candidates) {
+    // Guard against path traversal (e.g. /../etc/passwd) — `join` normalises
+    // `..` segments, so a candidate that escapes DIST is rejected before
+    // touching the filesystem. statSync would 404 today, but the guard makes
+    // the contract explicit and survives future refactors.
+    if (c !== DIST && !c.startsWith(DIST + "/")) continue;
     try {
       const st = statSync(c);
       if (st.isFile()) return c;
@@ -160,8 +165,11 @@ const server = createServer((req, res) => {
 });
 
 server.listen(PORT, "127.0.0.1", () => {
-  // Quiet by default; uncomment for debug.
-  // console.log(`[iv-preview] listening on http://127.0.0.1:${PORT}`);
+  // Emit an explicit readiness line so LHCI's `startServerReadyPattern`
+  // ("listening") has something concrete to match against. Playwright
+  // doesn't rely on stdout (it polls the URL), so the extra line is
+  // harmless there.
+  console.log(`[iv-preview] listening on http://127.0.0.1:${PORT}`);
 });
 
 // Graceful shutdown on SIGTERM (Playwright sends this).

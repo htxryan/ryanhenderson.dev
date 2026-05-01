@@ -272,9 +272,13 @@ async function main(): Promise<void> {
   const project = await ensurePagesProject();
   console.log(`  ✓ pages project: ${project.name} (subdomain=${project.subdomain})`);
 
-  // 2. Custom domains
+  // 2. Custom domains — capture results so the final summary reflects
+  //    whether a domain was newly bound (otherwise a fresh-bind run with
+  //    pre-existing DNS would mis-report as "no changes").
+  const domainResults: ("created" | "ok")[] = [];
   for (const host of [APEX, WWW]) {
     const r = await ensureCustomDomain(host);
+    domainResults.push(r);
     console.log(`  ${r === "ok" ? "✓" : "+"} domain bound: ${host}${r === "ok" ? " (already)" : ""}`);
   }
 
@@ -297,7 +301,9 @@ async function main(): Promise<void> {
   console.log(`  ${wwwResult === "ok" ? "✓" : wwwResult === "updated" ? "~" : "+"} ${WWW} CNAME -> ${APEX} ${wwwResult === "ok" ? "(already)" : `(${wwwResult})`}`);
 
   const wrote =
-    apexResult !== "ok" || wwwResult !== "ok";
+    apexResult !== "ok" ||
+    wwwResult !== "ok" ||
+    domainResults.some((r) => r !== "ok");
   console.log(
     `[provision-cf] done${DRY ? " (dry-run)" : ""}; ${wrote ? "changes applied" : "no changes (idempotent no-op)"}.`,
   );
