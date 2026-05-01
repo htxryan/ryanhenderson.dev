@@ -155,3 +155,25 @@ jobs:
         run: pnpm test:lhci
         env:
           CI: "true"
+
+  links:
+    name: broken-link sweep (lychee)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: verify
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --root-dir must be absolute; resolves root-relative hrefs like
+          # /posts/foo/ against dist/. Action runs from the workspace root.
+          args: --no-progress --root-dir ${{ github.workspace }}/dist 'dist/**/*.html'
+          fail: true
