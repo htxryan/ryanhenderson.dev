@@ -75,8 +75,8 @@ describe("RSS feed (/feed.xml)", () => {
   test("emits an <item> per published post and uses pubDate + guid", () => {
     const xml = read(FEED);
     const items = xml.match(/<item>/g) ?? [];
-    // 3 published fixtures (hello-world, mid-post, early-post).
-    expect(items.length).toBe(3);
+    // 4 published after E8: hello-world, mid-post, early-post, hello-blog.
+    expect(items.length).toBe(4);
     expect(xml).toMatch(/<pubDate>[A-Z][a-z]{2},\s\d{2}\s[A-Z][a-z]{2}\s\d{4}/);
     expect(xml).toMatch(
       /<guid[^>]*>https:\/\/ryanhenderson\.dev\/posts\/[a-z0-9-]+\/<\/guid>/,
@@ -103,11 +103,11 @@ describe("RSS feed (/feed.xml)", () => {
 
   test("CROSS-CUTTING P1 #4 — feed contains zero draft-slugged links", () => {
     const xml = read(FEED);
-    // The draft fixture is `draft-fixture.mdx`. Drafts must never appear
-    // in the published feed. This is the smoke test the epic acceptance
-    // criteria explicitly call for.
+    // Drafts must never appear in the published feed. This is the smoke
+    // test the epic acceptance criteria explicitly call for.
     expect(xml).not.toMatch(/\/posts\/draft-fixture\//);
     expect(xml).not.toMatch(/Draft Fixture/);
+    expect(xml).not.toMatch(/\/posts\/the-cost-of-estimation\//);
   });
 
   test("emits each post's pubDate in chronological-desc order", () => {
@@ -140,7 +140,7 @@ describe("Atom feed (/atom.xml)", () => {
   test("emits one <entry> per published post", () => {
     const xml = read(ATOM);
     const entries = xml.match(/<entry>/g) ?? [];
-    expect(entries.length).toBe(3);
+    expect(entries.length).toBe(4);
   });
 
   test("each entry carries id, link, updated, published, content[type=html]", () => {
@@ -164,6 +164,7 @@ describe("Atom feed (/atom.xml)", () => {
     const xml = read(ATOM);
     expect(xml).not.toMatch(/\/posts\/draft-fixture\//);
     expect(xml).not.toMatch(/Draft Fixture/);
+    expect(xml).not.toMatch(/\/posts\/the-cost-of-estimation\//);
   });
 
   test("entry content uses CDATA-wrapped rendered HTML (full content)", () => {
@@ -193,6 +194,7 @@ describe("Sitemap (sitemap-index.xml + sitemap-0.xml)", () => {
       "https://ryanhenderson.dev/posts/hello-world/",
       "https://ryanhenderson.dev/posts/mid-post/",
       "https://ryanhenderson.dev/posts/early-post/",
+      "https://ryanhenderson.dev/posts/hello-blog/",
       "https://ryanhenderson.dev/work/",
       "https://ryanhenderson.dev/work/alpha/",
       "https://ryanhenderson.dev/work/bravo/",
@@ -207,6 +209,7 @@ describe("Sitemap (sitemap-index.xml + sitemap-0.xml)", () => {
   test("sitemap excludes drafts and private projects", () => {
     const xml = read(SITEMAP_0);
     expect(xml).not.toMatch(/\/posts\/draft-fixture\//);
+    expect(xml).not.toMatch(/\/posts\/the-cost-of-estimation\//);
     expect(xml).not.toMatch(/\/work\/delta\//);
   });
 });
@@ -245,9 +248,10 @@ describe("Tag archives (/tags/<tag>/)", () => {
 
   test("/tags/meta/ lists posts using #meta", () => {
     const html = read(join(DIST, "tags", "meta", "index.html"));
-    // hello-world and early-post both carry the 'meta' tag.
+    // hello-world, early-post, and hello-blog all carry the 'meta' tag.
     expect(html).toMatch(/href="\/posts\/hello-world\/"/);
     expect(html).toMatch(/href="\/posts\/early-post\/"/);
+    expect(html).toMatch(/href="\/posts\/hello-blog\/"/);
     expect(html).toMatch(/<h1[^>]*>#meta<\/h1>/);
   });
 

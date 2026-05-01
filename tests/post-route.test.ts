@@ -217,12 +217,22 @@ describe("W-1 — no external client JS on post route", () => {
 });
 
 describe("prev/next contract", () => {
-  // Three published posts in the fixture set: hello-world (newest),
-  // mid-post, early-post (oldest). One draft fixture (draft-fixture.mdx)
-  // must NEVER appear on any prev/next link, in any rendered post, or in
-  // the archive — drafts are excluded by `getPublishedPosts()` in prod.
-  const publishedSlugs = ["hello-world", "mid-post", "early-post"] as const;
-  const draftSlug = "draft-fixture";
+  // Four published posts after E8 migration:
+  //   hello-world  (2026-04-30, newest)
+  //   mid-post     (2026-02-20)
+  //   early-post   (2026-01-15)
+  //   hello-blog   (2020-03-21, oldest — ported legacy post)
+  // One draft fixture (draft-fixture.mdx) and one draft port
+  // (the-cost-of-estimation.mdx) must NEVER appear on any prev/next link,
+  // in any rendered post, or in the archive — drafts are excluded by
+  // `getPublishedPosts()` in prod.
+  const publishedSlugs = [
+    "hello-world",
+    "mid-post",
+    "early-post",
+    "hello-blog",
+  ] as const;
+  const draftSlugs = ["draft-fixture", "the-cost-of-estimation"] as const;
 
   test("each published post has its own /posts/<slug>/index.html", () => {
     for (const slug of publishedSlugs) {
@@ -231,9 +241,11 @@ describe("prev/next contract", () => {
     }
   });
 
-  test("draft post is excluded from the build (no /posts/draft-fixture/)", () => {
-    const draftFile = join(DIST, "posts", draftSlug, "index.html");
-    expect(existsSync(draftFile)).toBe(false);
+  test("draft posts are excluded from the build", () => {
+    for (const draftSlug of draftSlugs) {
+      const draftFile = join(DIST, "posts", draftSlug, "index.html");
+      expect(existsSync(draftFile), `draft ${draftSlug} must not be built`).toBe(false);
+    }
   });
 
   test("middle post links to newer (next) and older (prev) neighbours", () => {
@@ -252,19 +264,30 @@ describe("prev/next contract", () => {
   });
 
   test("oldest post has no `prev` link (placeholder rendered instead)", () => {
-    const html = read(join(DIST, "posts", "early-post", "index.html"));
-    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/mid-post\/"/);
+    // hello-blog (2020-03-21) is now the oldest published post.
+    const html = read(join(DIST, "posts", "hello-blog", "index.html"));
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/early-post\/"/);
     expect(html).not.toMatch(/<a[^>]*class="post-nav-link prev"/);
   });
 
-  test("no rendered post links to the draft via prev/next", () => {
+  test("early-post (second-oldest) prev points to hello-blog, next to mid-post", () => {
+    const html = read(join(DIST, "posts", "early-post", "index.html"));
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/mid-post\/"/);
+    expect(html).toMatch(/<a[^>]*class="post-nav-link prev"[^>]*href="\/posts\/hello-blog\/"/);
+  });
+
+  test("no rendered post links to a draft via prev/next", () => {
     for (const slug of publishedSlugs) {
       const html = read(join(DIST, "posts", slug, "index.html"));
       // Constrain the search to the post-nav landmark to avoid catching
       // unrelated link text that might happen to contain the slug.
       const navMatch = html.match(/<nav class="post-nav"[\s\S]*?<\/nav>/);
       expect(navMatch).not.toBeNull();
-      expect(navMatch?.[0] ?? "").not.toMatch(new RegExp(`href="/posts/${draftSlug}/"`));
+      for (const draftSlug of draftSlugs) {
+        expect(navMatch?.[0] ?? "").not.toMatch(
+          new RegExp(`href="/posts/${draftSlug}/"`),
+        );
+      }
     }
   });
 });
@@ -339,7 +362,13 @@ describe("posts archive (/posts/)", () => {
 
   test("archive count matches the number of published posts", () => {
     const html = read(archive);
-    // Three fixtures are published; count should read "3 posts".
-    expect(html).toMatch(/<p[^>]*class="archive-count"[^>]*>\s*3\s*posts\s*<\/p>/);
+    // Four published after E8: hello-world, mid-post, early-post, hello-blog.
+    // (draft-fixture and the-cost-of-estimation are drafts → excluded.)
+    expect(html).toMatch(/<p[^>]*class="archive-count"[^>]*>\s*4\s*posts\s*<\/p>/);
+  });
+
+  test("archive does NOT include the cost-of-estimation draft", () => {
+    const html = read(archive);
+    expect(html).not.toMatch(/href="\/posts\/the-cost-of-estimation\//);
   });
 });

@@ -55,8 +55,13 @@ describe("E7 — fallback og-default.png", () => {
 });
 
 describe("E7 — per-post OG cards (acceptance criterion #1)", () => {
-  // Authored posts in this repo at the time of E7.
-  const publishedPostSlugs = ["hello-world", "early-post", "mid-post"] as const;
+  // Authored posts in this repo after E8 cutover.
+  const publishedPostSlugs = [
+    "hello-world",
+    "early-post",
+    "mid-post",
+    "hello-blog",
+  ] as const;
 
   for (const slug of publishedPostSlugs) {
     test(`/og/${slug}.png exists and is a valid PNG`, () => {
@@ -99,6 +104,12 @@ describe("E7 — per-project OG cards (acceptance criterion #2)", () => {
 describe("E7 — drafts and private projects produce no OG card (single filter authority)", () => {
   test("draft post 'draft-fixture' has no /og/draft-fixture.png", () => {
     expect(existsSync(resolve(DIST, "og", "draft-fixture.png"))).toBe(false);
+  });
+
+  test("draft post 'the-cost-of-estimation' has no /og/the-cost-of-estimation.png", () => {
+    expect(
+      existsSync(resolve(DIST, "og", "the-cost-of-estimation.png")),
+    ).toBe(false);
   });
 
   test("private project 'delta' has no /og/delta.png", () => {
