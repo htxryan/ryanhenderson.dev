@@ -38,6 +38,9 @@ jobs:
       - name: lockfile dedupe check
         run: pnpm dedupe --check
 
+      - name: pnpm audit (high+critical)
+        run: pnpm audit --audit-level=high
+
       - name: type-check
         run: pnpm check
 
