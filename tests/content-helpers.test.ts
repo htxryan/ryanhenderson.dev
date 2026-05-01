@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   filterAndSortPosts,
   filterAndSortProjects,
+  getPostNeighbours,
 } from "../src/lib/content-pure";
 
 type AnyEntry = {
@@ -92,6 +93,47 @@ describe("filterAndSortPosts", () => {
     const before = entries.map((e) => e.id);
     filterAndSortPosts(entries as never, { includeDrafts: true });
     expect(entries.map((e) => e.id)).toEqual(before);
+  });
+});
+
+describe("getPostNeighbours", () => {
+  // Build a list shaped like the output of `getPublishedPosts()`: sorted
+  // newest → oldest. The helper must NOT re-sort.
+  const sorted = [
+    postEntry("newest", "2026-03-01"),
+    postEntry("middle", "2026-02-01"),
+    postEntry("oldest", "2026-01-01"),
+  ];
+
+  test("middle post returns both newer and older neighbours", () => {
+    const { prev, next } = getPostNeighbours(sorted as never, "middle");
+    expect(next?.id).toBe("newest");
+    expect(prev?.id).toBe("oldest");
+  });
+
+  test("newest post has no `next` (newer) neighbour", () => {
+    const { prev, next } = getPostNeighbours(sorted as never, "newest");
+    expect(next).toBeUndefined();
+    expect(prev?.id).toBe("middle");
+  });
+
+  test("oldest post has no `prev` (older) neighbour", () => {
+    const { prev, next } = getPostNeighbours(sorted as never, "oldest");
+    expect(prev).toBeUndefined();
+    expect(next?.id).toBe("middle");
+  });
+
+  test("unknown slug returns undefined for both sides", () => {
+    const { prev, next } = getPostNeighbours(sorted as never, "ghost");
+    expect(prev).toBeUndefined();
+    expect(next).toBeUndefined();
+  });
+
+  test("single-post list returns undefined neighbours", () => {
+    const single = [postEntry("solo", "2026-01-01")];
+    const { prev, next } = getPostNeighbours(single as never, "solo");
+    expect(prev).toBeUndefined();
+    expect(next).toBeUndefined();
   });
 });
 

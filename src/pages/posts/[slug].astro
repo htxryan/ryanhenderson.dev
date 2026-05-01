@@ -1,0 +1,33 @@
+---
+/**
+ * E4 — Dynamic post route.
+ *
+ * `getStaticPaths` enumerates posts via `getPublishedPosts()` (C-2) — the
+ * single filter authority. Same call returns the array used to compute
+ * prev/next, so the route ordering and the navigation never disagree.
+ *
+ * The `<Content />` rendered here is the MDX body; layout components
+ * (Callout, Figure, Footnote) are passed via the `components` prop so
+ * authors can write `<Callout>` without an explicit import inside MDX.
+ */
+import { getPublishedPosts } from "~/lib/content";
+import { getPostNeighbours } from "~/lib/content-pure";
+import { render } from "astro:content";
+import PostLayout from "~/layouts/PostLayout.astro";
+import { Callout, Figure, Footnote } from "~/components/mdx";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, posts },
+  }));
+}
+
+const { post, posts } = Astro.props;
+const neighbours = getPostNeighbours(posts, post.id);
+const { Content } = await render(post);
+---
+<PostLayout post={post} neighbours={neighbours}>
+  <Content components={{ Callout, Figure, Footnote }} />
+</PostLayout>

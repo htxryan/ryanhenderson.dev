@@ -173,6 +173,85 @@ article {
   max-width: var(--measure);
 }
 
+/* ---------- Prose typography (E4 — post body) ---------- */
+
+/* Inline code inside prose: visually distinct from token-highlighted
+   code blocks but still mono. Use the accent for color signal — it's
+   the same hue as link text, which keeps the prose two-color (ink + accent). */
+.prose :not(pre) > code,
+article :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border: var(--rule-hairline) solid var(--rule-color);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.9em;
+  word-break: break-word;
+}
+
+/* Shiki-rendered code block wrapper. Astro emits `<pre class="astro-code">`
+   with inline `style="background-color:var(--shiki-bg)"`. Override the
+   inline style precedence with our token-based background and matching
+   foreground; padding/border picked up from the global `pre` rule. */
+.prose pre.astro-code,
+article pre.astro-code {
+  background: var(--shiki-bg) !important;
+  color: var(--shiki-fg);
+  border: var(--rule-hairline) solid var(--rule-color);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* Vertical rhythm inside posts: paragraphs hug a consistent baseline,
+   headings carry extra space above to break sections clearly. */
+.prose h2,
+article h2 {
+  margin-top: calc(var(--space-unit) * 5);
+}
+.prose h3,
+article h3 {
+  margin-top: calc(var(--space-unit) * 4);
+}
+.prose h4,
+article h4 {
+  margin-top: calc(var(--space-unit) * 3);
+}
+
+/* Lists inside prose get bullet markers but stay within the measure. */
+.prose ul,
+.prose ol,
+article ul,
+article ol {
+  padding-left: calc(var(--space-unit) * 3);
+}
+.prose li,
+article li {
+  margin-bottom: calc(var(--space-unit) * 0.5);
+}
+
+/* Tables: hairline rules, no zebra-stripe. Brutalist. */
+.prose table,
+article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.prose th,
+.prose td,
+article th,
+article td {
+  text-align: left;
+  padding: calc(var(--space-unit) * 0.75) var(--space-unit);
+  border-bottom: var(--rule-hairline) solid var(--rule-color);
+  vertical-align: top;
+}
+.prose th,
+article th {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+}
+
 /* ---------- Reduced motion (U-17) ---------- */
 
 @media (prefers-reduced-motion: reduce) {

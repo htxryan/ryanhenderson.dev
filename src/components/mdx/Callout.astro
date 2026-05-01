@@ -1,12 +1,68 @@
 ---
+/**
+ * E4 — Callout (MDX component).
+ *
+ * Brutalist treatment: hairline-bordered block with an uppercase mono label
+ * derived from the variant. Three variants — note (default), warn, info —
+ * differentiated by the rule color (`--rule-color` for note/info, `--accent`
+ * for warn) without resorting to colored backgrounds (paper stays paper).
+ *
+ * Authored from MDX as:
+ *   <Callout variant="warn" title="Heads up">…</Callout>
+ */
 type Variant = "note" | "warn" | "info";
 interface Props {
   variant?: Variant;
   title?: string;
 }
 const { variant = "note", title } = Astro.props;
+const variantLabel: Record<Variant, string> = {
+  note: "note",
+  warn: "warning",
+  info: "info",
+};
 ---
-<aside class="callout" data-variant={variant} role="note">
+<aside class="callout" data-variant={variant} role="note" aria-label={variantLabel[variant]}>
+  <p class="callout-label">{variantLabel[variant]}</p>
   {title ? <p class="callout-title">{title}</p> : null}
   <div class="callout-body"><slot /></div>
 </aside>
+
+<style>
+  .callout {
+    border: var(--rule-hairline) solid var(--rule-color);
+    border-left-width: 4px;
+    padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 2.5);
+    margin: calc(var(--space-unit) * 3) 0;
+    background: var(--paper);
+  }
+  .callout[data-variant="warn"] {
+    border-left-color: var(--accent);
+  }
+  .callout[data-variant="info"] {
+    border-left-style: dashed;
+  }
+  .callout-label {
+    margin: 0 0 calc(var(--space-unit) * 0.5);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .callout[data-variant="warn"] .callout-label {
+    color: var(--accent);
+  }
+  .callout-title {
+    margin: 0 0 var(--space-unit);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .callout-body :global(:first-child) {
+    margin-top: 0;
+  }
+  .callout-body :global(:last-child) {
+    margin-bottom: 0;
+  }
+</style>

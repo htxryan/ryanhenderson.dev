@@ -1,0 +1,248 @@
+---
+/**
+ * E4 — PostLayout.
+ *
+ * Wraps an MDX post body with the article chrome the spec mandates (U-4):
+ *   - title, pubDate, optional `updated`, reading time, word count, tags
+ *   - prev/next links that consume the SAME ordering as `getPublishedPosts()`
+ *
+ * Composition contract C-6: this layout sits inside BaseLayout and supplies
+ * the per-post `title`/`description`/`canonicalPath`/`pubDate`/`articleType`
+ * inputs. The body slot (the rendered MDX) goes inside an `<article>` so the
+ * 60–75ch measure declared in `base.css` (`.prose, article`) applies.
+ *
+ * Implicit contract enforcement:
+ *   - W-1: zero client JS shipped from this layout. Theme toggle lives in
+ *     the global header.
+ *   - U-19: dates and metadata are above the body in source order so the
+ *     fold height is stable as MDX content streams in.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import type { CollectionEntry } from "astro:content";
+import type { PostNeighbours } from "~/lib/content-pure";
+import { readingMetrics } from "~/lib/reading";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  /** Pre-resolved by the route via `getPostNeighbours()`. */
+  neighbours: PostNeighbours;
+}
+
+const { post, neighbours } = Astro.props;
+const { title, pubDate, updated, summary, tags } = post.data;
+
+const { words, minutes } = readingMetrics(post.body ?? "");
+
+// Force UTC: pubDate strings (YYYY-MM-DD) coerce to midnight UTC; rendering
+// with the visitor's local TZ would shift the displayed day for negative
+// offsets and disagree with what the home page shows.
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+  timeZone: "UTC",
+});
+
+const canonicalPath = `/posts/${post.id}/`;
+const description = summary;
+---
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalPath={canonicalPath}
+  pubDate={pubDate}
+  articleType="post"
+>
+  <article class="post prose">
+    <header class="post-header">
+      <p class="post-eyebrow">writing</p>
+      <h1 class="post-title">{title}</h1>
+      <dl class="post-meta" aria-label="Post metadata">
+        <div class="meta-row">
+          <dt>published</dt>
+          <dd>
+            <time datetime={pubDate.toISOString()}>{dateFmt.format(pubDate)}</time>
+          </dd>
+        </div>
+        {updated ? (
+          <div class="meta-row">
+            <dt>updated</dt>
+            <dd>
+              <time datetime={updated.toISOString()}>{dateFmt.format(updated)}</time>
+            </dd>
+          </div>
+        ) : null}
+        <div class="meta-row">
+          <dt>read</dt>
+          <dd>
+            <span data-reading-minutes>{minutes} min</span>
+            <span class="meta-sep" aria-hidden="true"> · </span>
+            <span data-reading-words>{words} words</span>
+          </dd>
+        </div>
+        {tags.length > 0 ? (
+          <div class="meta-row">
+            <dt>tags</dt>
+            <dd>
+              <ul class="tag-list">
+                {tags.map((tag: string) => (
+                  <li><a href={`/tags/${tag}/`} rel="tag">#{tag}</a></li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        ) : null}
+      </dl>
+    </header>
+
+    <div class="post-body">
+      <slot />
+    </div>
+
+    <nav class="post-nav" aria-label="Adjacent posts">
+      {neighbours.prev ? (
+        <a class="post-nav-link prev" href={`/posts/${neighbours.prev.id}/`} rel="prev">
+          <span class="post-nav-label">← previous</span>
+          <span class="post-nav-title">{neighbours.prev.data.title}</span>
+        </a>
+      ) : <span class="post-nav-placeholder" aria-hidden="true"></span>}
+      {neighbours.next ? (
+        <a class="post-nav-link next" href={`/posts/${neighbours.next.id}/`} rel="next">
+          <span class="post-nav-label">next →</span>
+          <span class="post-nav-title">{neighbours.next.data.title}</span>
+        </a>
+      ) : <span class="post-nav-placeholder" aria-hidden="true"></span>}
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    /* Inherits max-width: var(--measure) from `article` rule in base.css. */
+    margin: 0 auto;
+  }
+  .post-header {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding-bottom: calc(var(--space-unit) * 3);
+    margin-bottom: calc(var(--space-unit) * 4);
+  }
+  .post-eyebrow {
+    margin: 0 0 var(--space-unit);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .post-title {
+    margin: 0 0 calc(var(--space-unit) * 3);
+    font-size: clamp(2rem, 4.5vw + 1rem, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .post-meta {
+    margin: 0;
+    display: grid;
+    gap: calc(var(--space-unit) * 0.75);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .meta-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: var(--space-unit);
+    align-items: baseline;
+  }
+  .meta-row dt {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .meta-row dd {
+    margin: 0;
+    color: var(--ink);
+  }
+  .meta-sep {
+    color: var(--muted);
+  }
+  .tag-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-unit);
+  }
+  .tag-list a {
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .tag-list a:hover,
+  .tag-list a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .post-body {
+    /* Body block establishes typographic rhythm; component-level prose styles
+       live in base.css. Anything article-specific stays here. */
+    margin: 0 0 calc(var(--space-unit) * 6);
+  }
+
+  .post-nav {
+    border-top: var(--rule-hairline) solid var(--rule-color);
+    padding-top: calc(var(--space-unit) * 3);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--space-unit) * 0.5);
+    text-decoration: none;
+    color: var(--ink);
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 2);
+  }
+  .post-nav-link:hover,
+  .post-nav-link:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .post-nav-link.next {
+    text-align: right;
+  }
+  .post-nav-label {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: lowercase;
+    color: var(--muted);
+  }
+  .post-nav-link:hover .post-nav-label,
+  .post-nav-link:focus-visible .post-nav-label {
+    color: var(--accent);
+  }
+  .post-nav-title {
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+  .post-nav-placeholder {
+    /* Reserves the column so the remaining link doesn't expand or shift. */
+    display: block;
+  }
+
+  @media (max-width: 40rem) {
+    .meta-row {
+      grid-template-columns: 5rem 1fr;
+    }
+    .post-nav {
+      grid-template-columns: 1fr;
+    }
+    .post-nav-link.next {
+      text-align: left;
+    }
+  }
+</style>

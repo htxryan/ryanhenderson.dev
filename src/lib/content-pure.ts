@@ -56,6 +56,44 @@ export function filterAndSortPosts(
   return sorted;
 }
 
+export type PostNeighbours = {
+  /**
+   * The post chronologically before this one (older). Undefined for the
+   * oldest post in the published set.
+   */
+  prev: CollectionEntry<"blog"> | undefined;
+  /**
+   * The post chronologically after this one (newer). Undefined for the
+   * newest post.
+   */
+  next: CollectionEntry<"blog"> | undefined;
+};
+
+/**
+ * Pure prev/next neighbour lookup over the same ordering returned by
+ * `getPublishedPosts()`. The input array MUST already be the
+ * `getPublishedPosts()` output (sorted `pubDate` desc, drafts excluded);
+ * doing the sort here would let prev/next drift from the route ordering.
+ *
+ * Convention:
+ *   - posts are sorted newest → oldest, so index 0 is the newest.
+ *   - `next` (newer post) is the entry at `i - 1`.
+ *   - `prev` (older post) is the entry at `i + 1`.
+ *
+ * Returns `{ prev: undefined, next: undefined }` if `slug` is not present.
+ */
+export function getPostNeighbours(
+  posts: ReadonlyArray<CollectionEntry<"blog">>,
+  slug: string,
+): PostNeighbours {
+  const i = posts.findIndex((p) => p.id === slug);
+  if (i === -1) return { prev: undefined, next: undefined };
+  return {
+    prev: posts[i + 1],
+    next: posts[i - 1],
+  };
+}
+
 /**
  * Pure filter+sort for projects.
  *

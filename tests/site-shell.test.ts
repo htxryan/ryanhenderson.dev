@@ -1,5 +1,4 @@
 import { describe, expect, test, beforeAll } from "vitest";
-import { execSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -28,16 +27,15 @@ function paths() {
   };
 }
 
+// The full build is run once via Vitest's globalSetup
+// (see vitest.config.ts → tests/setup/build.ts). Individual suites assert
+// against the already-built dist/ artifacts.
 beforeAll(() => {
-  // Always rebuild — running against stale dist/ silently masks regressions.
-  // The build is fast (≈600ms for 3 routes) so eating it is cheaper than
-  // false-greens on stale HTML.
-  execSync("pnpm build", { cwd: resolve(__dirname, ".."), stdio: "inherit" });
   const p = paths();
   if (!existsSync(p.home) || !existsSync(p.about) || !existsSync(p.notFound)) {
     throw new Error("Expected build to emit home, about, and 404.html");
   }
-}, 60_000);
+});
 
 function read(file: string): string {
   return readFileSync(file, "utf-8");

@@ -1,4 +1,21 @@
 ---
+/**
+ * E4 — Footnote (MDX component).
+ *
+ * Two-piece component: an inline `<sup>` reference at the call site and
+ * the footnote body that lives in-flow at the bottom of the post. Clicking
+ * the ref jumps to the body anchor; the body's back-link returns focus to
+ * the ref. Both ends are bidirectionally identifiable for assistive tech
+ * via matched IDs and aria-describedby.
+ *
+ * Authored from MDX as:
+ *   This is a claim<Footnote id="1">backed up by source X</Footnote>.
+ *
+ * The component renders both the `<sup>` and the `<aside>` body in the
+ * order the author writes them — the body is intentionally not deferred to
+ * a global "footnotes" section in v1; in-flow placement is closer to the
+ * Tufte sidenote tradition and works without server-side reflow.
+ */
 interface Props {
   id: string;
   ref?: string;
@@ -11,6 +28,55 @@ const refId = ref ?? `fnref-${id}`;
   <a href={`#${anchorId}`} aria-describedby={anchorId}><slot name="ref">[{id}]</slot></a>
 </sup>
 <aside class="footnote" id={anchorId} role="note">
-  <slot />
+  <span class="footnote-marker" aria-hidden="true">[{id}]</span>
+  <span class="footnote-body"><slot /></span>
   <a href={`#${refId}`} class="footnote-back" aria-label="Back to reference">↩</a>
 </aside>
+
+<style>
+  .footnote-ref {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    line-height: 0;
+    vertical-align: super;
+  }
+  .footnote-ref a {
+    text-decoration: none;
+    color: var(--accent);
+    padding: 0 0.15em;
+  }
+  .footnote-ref a:hover,
+  .footnote-ref a:focus-visible {
+    text-decoration: underline;
+  }
+
+  .footnote {
+    display: block;
+    margin: calc(var(--space-unit) * 1.5) 0 calc(var(--space-unit) * 2);
+    padding: var(--space-unit) calc(var(--space-unit) * 1.5);
+    border-left: 2px solid var(--rule-color);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .footnote-marker {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--ink);
+    margin-right: var(--space-unit);
+  }
+  .footnote-body :global(:first-child) {
+    margin-top: 0;
+  }
+  .footnote-body :global(:last-child) {
+    margin-bottom: 0;
+  }
+  .footnote-back {
+    margin-left: var(--space-unit);
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .footnote-back:hover,
+  .footnote-back:focus-visible {
+    text-decoration: underline;
+  }
+</style>
