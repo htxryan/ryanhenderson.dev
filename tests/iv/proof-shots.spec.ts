@@ -6,7 +6,6 @@ const OUT = path.resolve(process.cwd(), "docs/proof/ryanhenderson.dev-wwy");
 fs.mkdirSync(OUT, { recursive: true });
 
 const desktop = { width: 1280, height: 900 };
-const mobile = { width: 390, height: 844 };
 
 async function shot(page: any, name: string) {
   await page.screenshot({ path: path.join(OUT, name), fullPage: true });
