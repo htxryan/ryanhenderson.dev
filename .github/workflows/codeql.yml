@@ -5,7 +5,8 @@ on:
     branches: [master]
   pull_request:
   schedule:
-    - cron: "0 6 * * 1"
+    # Off-peak Mondays: top-of-hour is the GHA high-load slot.
+    - cron: "23 6 * * 1"
 
 permissions:
   security-events: write
@@ -25,6 +26,8 @@ jobs:
           languages: javascript-typescript
           queries: security-extended
 
+      # autobuild deliberately omitted: this is a static Astro site; CodeQL
+      # traces JS/TS sources without a tsc-style build step.
       - uses: github/codeql-action/analyze@v3
         with:
           category: "/language:javascript-typescript"

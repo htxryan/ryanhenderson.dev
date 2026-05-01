@@ -100,7 +100,10 @@ jobs:
       - name: install Playwright (chromium + webkit)
         run: pnpm exec playwright install --with-deps chromium webkit
 
-      - name: run IV scenarios
+      - name: run IV scenarios (chromium + webkit)
+        # No --project filter: both projects defined in playwright.config.ts run.
+        # Roughly doubles wall time vs chromium-only; intentional — webkit
+        # catches Safari/iOS-specific regressions chromium can't see.
         run: pnpm exec playwright test tests/iv/scenarios.spec.ts --reporter=list
         env:
           CI: "true"
