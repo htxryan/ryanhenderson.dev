@@ -187,3 +187,57 @@ jobs:
           #     fix. The link itself is fine in real browsers.
           args: --no-progress --root-dir ${{ github.workspace }}/dist --exclude 'linkedin\.com' 'dist/**/*.html'
           fail: true
+
+  deploy:
+    name: deploy to Cloudflare Pages (production)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Production gate: only runs after every gating job is green AND only
+    # on direct pushes to master (i.e. PR merges). Never runs on PRs
+    # themselves or on the rebuild branch — both of those need to stay
+    # off prod.
+    needs: [verify, e2e, lhci, links]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    concurrency:
+      # Serialize prod deploys: even if two pushes land in quick
+      # succession, only the latest deploys.
+      group: cf-pages-deploy-master
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: deploy via Cloudflare's official wrangler-action
+        # Using the maintained action instead of raw `npx wrangler` — it
+        # handles API-token plumbing (env var names, header injection,
+        # account scoping) without subtle env-var ordering bugs that hit
+        # us on a previous attempt with the same token.
+        #
+        # `packageManager: npm` overrides the action's lockfile-based
+        # auto-detection. Our repo has pnpm-lock.yaml, so the action
+        # would otherwise try to install wrangler via pnpm — but the
+        # deploy job doesn't run `pnpm/action-setup`, so pnpm isn't on
+        # PATH and the install fails. Forcing npm avoids that bootstrap.
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 6e32c58c0c71b7228ddca35c4c466b6c
+          packageManager: npm
+          # Pin wrangler 4. The action's default (3.90.0) failed with HTTP
+          # 400 / code 9106 on `pages deploy` against a valid API token
+          # — verified locally that wrangler 4.x accepts the same token
+          # without complaint.
+          wranglerVersion: "4"
+          # `commit-hash` tags the CF deployment with the producing git
+          # commit so the dashboard history matches. We omit
+          # `--commit-message` to avoid escaping problems with multi-line
+          # squash messages.
+          command: pages deploy dist --project-name=ryanhenderson-dev --branch=master --commit-hash=${{ github.sha }}
