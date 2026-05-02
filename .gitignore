@@ -28,6 +28,14 @@ pnpm-debug.log*
 # compound-agent managed
 .compound-agent/
 
+# Codex CLI per-machine config — .codex/hooks.json contains absolute
+# /Users paths to node_modules so it's not portable. (The compound-agent
+# skills tree under .agents/ IS portable and stays tracked.)
+.codex/
+
+# Serena agent local state (per-machine cache)
+.serena/
+
 # IDE
 .idea/
 .vscode/
