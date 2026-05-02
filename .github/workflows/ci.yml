@@ -176,16 +176,9 @@ jobs:
       - name: lychee
         uses: lycheeverse/lychee-action@v1.10.0
         with:
-          # --root-dir must be absolute; resolves root-relative hrefs like
-          # /posts/foo/ against dist/. Action runs from the workspace root.
-          #
-          # Excluded hosts:
-          #   - linkedin.com  → returns 999 (anti-bot) or 404 to CI runner
-          #     IPs depending on edge cache. Profile is verified manually
-          #     and lives in the footer of every page, so a CI failure here
-          #     would block every push for an external service we can't
-          #     fix. The link itself is fine in real browsers.
-          args: --no-progress --root-dir ${{ github.workspace }}/dist --exclude 'linkedin\.com' 'dist/**/*.html'
+          # Pin lychee-action to v1.10.0 until v2 binary download is fixed.
+          # Arguments: --exclude linkedin.com, then the directory/pattern.
+          args: --no-progress --exclude 'linkedin\.com' 'dist/**/*.html'
           fail: true
 
   deploy:
