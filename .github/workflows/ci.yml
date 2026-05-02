@@ -231,6 +231,11 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 6e32c58c0c71b7228ddca35c4c466b6c
           packageManager: npm
+          # Pin wrangler 4. The action's default (3.90.0) failed with HTTP
+          # 400 / code 9106 on `pages deploy` against a valid API token
+          # — verified locally that wrangler 4.x accepts the same token
+          # without complaint.
+          wranglerVersion: "4"
           # `commit-hash` tags the CF deployment with the producing git
           # commit so the dashboard history matches. We omit
           # `--commit-message` to avoid escaping problems with multi-line
