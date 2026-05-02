@@ -174,7 +174,7 @@ jobs:
           path: dist
 
       - name: lychee
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@v1.10.0
         with:
           # --root-dir must be absolute; resolves root-relative hrefs like
           # /posts/foo/ against dist/. Action runs from the workspace root.
