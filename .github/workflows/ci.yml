@@ -199,6 +199,11 @@ jobs:
     permissions:
       contents: read
       deployments: write
+    env:
+      # cloudflare/wrangler-action@v3 still declares a Node 20 runtime.
+      # Opt the deploy job into GitHub's Node 24 action runner now so
+      # production deploys stop emitting the Node 20 deprecation warning.
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@v6
 
