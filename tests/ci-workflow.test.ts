@@ -22,9 +22,12 @@ function workflowJob(source: string, jobName: string): string {
 describe("ci workflow", () => {
   const ci = read(join(ROOT, ".github", "workflows", "ci.yml"));
 
-  test("Cloudflare deploy opts JavaScript actions into Node 24", () => {
+  test("Cloudflare deploy runs Wrangler directly instead of the Node 20 action", () => {
     const deploy = workflowJob(ci, "deploy");
-    expect(deploy).toMatch(/uses:\s*cloudflare\/wrangler-action@v3/);
-    expect(deploy).toMatch(/FORCE_JAVASCRIPT_ACTIONS_TO_NODE24:\s*"?true"?/);
+    expect(deploy).not.toMatch(/uses:\s*cloudflare\/wrangler-action@v3/);
+    expect(deploy).not.toMatch(/FORCE_JAVASCRIPT_ACTIONS_TO_NODE24/);
+    expect(deploy).toMatch(/run:\s*npx --yes wrangler@4 pages deploy dist/);
+    expect(deploy).toMatch(/CLOUDFLARE_API_TOKEN:\s*\$\{\{ secrets\.CLOUDFLARE_API_TOKEN \}\}/);
+    expect(deploy).toMatch(/CLOUDFLARE_ACCOUNT_ID:\s*6e32c58c0c71b7228ddca35c4c466b6c/);
   });
 });

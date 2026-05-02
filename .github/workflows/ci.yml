@@ -199,13 +199,12 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    env:
-      # cloudflare/wrangler-action@v3 still declares a Node 20 runtime.
-      # Opt the deploy job into GitHub's Node 24 action runner now so
-      # production deploys stop emitting the Node 20 deprecation warning.
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: download dist
         uses: actions/download-artifact@v8
@@ -213,29 +212,12 @@ jobs:
           name: dist
           path: dist
 
-      - name: deploy via Cloudflare's official wrangler-action
-        # Using the maintained action instead of raw `npx wrangler` — it
-        # handles API-token plumbing (env var names, header injection,
-        # account scoping) without subtle env-var ordering bugs that hit
-        # us on a previous attempt with the same token.
-        #
-        # `packageManager: npm` overrides the action's lockfile-based
-        # auto-detection. Our repo has pnpm-lock.yaml, so the action
-        # would otherwise try to install wrangler via pnpm — but the
-        # deploy job doesn't run `pnpm/action-setup`, so pnpm isn't on
-        # PATH and the install fails. Forcing npm avoids that bootstrap.
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 6e32c58c0c71b7228ddca35c4c466b6c
-          packageManager: npm
-          # Pin wrangler 4. The action's default (3.90.0) failed with HTTP
-          # 400 / code 9106 on `pages deploy` against a valid API token
-          # — verified locally that wrangler 4.x accepts the same token
-          # without complaint.
-          wranglerVersion: "4"
-          # `commit-hash` tags the CF deployment with the producing git
-          # commit so the dashboard history matches. We omit
-          # `--commit-message` to avoid escaping problems with multi-line
-          # squash messages.
-          command: pages deploy dist --project-name=ryanhenderson-dev --branch=master --commit-hash=${{ github.sha }}
+      - name: deploy via Wrangler CLI
+        # Avoid cloudflare/wrangler-action@v3 because it still declares
+        # a Node 20 action runtime and GitHub annotates every deploy.
+        # Pin the CLI itself to Wrangler 4, which was already verified
+        # against this project's Cloudflare Pages API-token path.
+        run: npx --yes wrangler@4 pages deploy dist --project-name=ryanhenderson-dev --branch=master --commit-hash=${{ github.sha }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 6e32c58c0c71b7228ddca35c4c466b6c
