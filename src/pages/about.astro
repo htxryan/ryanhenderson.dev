@@ -12,7 +12,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
 ---
 <BaseLayout
-  title={`About — ${SITE_NAME}`}
+  title={SITE_NAME}
   description={`${SITE_NAME} — ${SITE_TAGLINE}. Generalist, problem solver, builder of small useful things.`}
   canonicalPath="/about/"
 >
@@ -61,11 +61,11 @@ import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
 <style>
   .about-header {
     border-bottom: var(--rule-hairline) solid var(--rule-color);
-    padding-bottom: calc(var(--space-unit) * 2);
-    margin-bottom: calc(var(--space-unit) * 4);
+    padding-bottom: calc(var(--space-unit));
+    margin-bottom: calc(var(--space-unit) * 2);
   }
   .about-eyebrow {
-    margin: 0 0 calc(var(--space-unit));
+    margin: 0 0 calc(var(--space-unit) * 0.5);
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     text-transform: uppercase;
@@ -74,12 +74,12 @@ import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
   }
   .about h1 {
     margin: 0;
-    font-size: clamp(2rem, 4vw + 1rem, 3rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
   }
   .about-tag {
-    margin: calc(var(--space-unit) * 1.5) 0 0;
+    margin: calc(var(--space-unit) * 0.75) 0 0;
     color: var(--muted);
     max-width: var(--measure);
   }

@@ -269,6 +269,69 @@ article th {
   letter-spacing: 0.04em;
 }
 
+/* ---------- Motion (subtle, brutalist-friendly) ----------
+ *
+ * Three categories:
+ *   1. Theme swap: body bg/color cross-fade so flipping light/dark feels
+ *      mechanical instead of a hard cut.
+ *   2. Hover transitions: every interactive element shares the same 150ms
+ *      ease for color/border so the cursor produces predictable feedback.
+ *   3. Entrance: <main> drifts up + fades in once on first paint. Cheap,
+ *      one-shot, no JS.
+ *
+ * All of the above are zeroed out by the `prefers-reduced-motion` block
+ * below — durations collapse to 0.01ms so the rules are still parsed (no
+ * cascade surprises) but the user sees no movement.
+ */
+
+body {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+a,
+button,
+.theme-toggle,
+.landing-card,
+.project-card-status,
+.project-card-action,
+.project-card-title a,
+.nav-list a,
+.footer-nav a,
+.links a {
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    text-decoration-thickness 150ms ease,
+    transform 200ms ease;
+}
+
+/* Landing cards are big call-to-action targets — a 2px lift on hover
+   gives them tactile feedback without the theatrics of a full card
+   shadow (we don't do shadows). */
+.landing-card:hover,
+.landing-card:focus-visible {
+  transform: translateY(-2px);
+}
+
+/* Page entrance: <main> fades in and drifts up by a few pixels on first
+   paint. Once-only (`both` retains the `to` state); no JS required. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+main {
+  animation: page-enter 320ms ease-out both;
+}
+
 /* ---------- Reduced motion (U-17) ---------- */
 
 @media (prefers-reduced-motion: reduce) {

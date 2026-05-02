@@ -52,18 +52,68 @@ bd close <id>         # Complete work
 
 ## Build & Test
 
-_Add your build and test commands here_
+```bash
+pnpm dev          # local dev server with HMR — see "Running locally" below
+pnpm build        # full production build (content checks + tokens + astro + pagefind + CSP hashes)
+pnpm test         # vitest run
+pnpm exec playwright test tests/iv/scenarios.spec.ts   # e2e (CI also runs this)
+pnpm gen:tokens   # regenerate src/styles/tokens.css from src/styles/tokens.ts
+```
+
+## Running locally
+
+**Always use `pnpm dev` for local preview.** It runs `astro dev` on port 4321
+with hot module reload, so content + style edits show up in the browser
+without a manual restart.
 
 ```bash
-# Example:
-# npm install
-# npm test
+pkill -f "astro preview|astro dev|preview-server" 2>/dev/null
+lsof -ti:4321 -sTCP:LISTEN | xargs -r kill 2>/dev/null
+pnpm dev > /tmp/astro-dev.log 2>&1 &
 ```
+
+Then point the user at `http://localhost:4321/`.
+
+**Do NOT use `pnpm preview` for iterative review** — it serves the built
+`dist/` and requires a full rebuild + server restart for every change. Reserve
+preview-mode for the final pre-push smoke check.
+
+There is a known harmless esbuild warning during dev startup about a JSDoc
+comment in `src/components/ThemeBoot.astro` (vite's dependency scanner trips
+on a `<meta charset>` token inside the comment). The page still serves —
+ignore the stack trace.
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+Astro static site (v5, `output: static`, `trailingSlash: "always"`). Brutalist
+mono-driven design system with a single set of tokens in
+`src/styles/tokens.ts` → generated `tokens.css`. Light + dark theme via a
+`data-theme` attribute on `<html>` set pre-paint by an inline boot script.
+
+- Routes live in `src/pages/`. Files/dirs prefixed with `_` are excluded
+  from the build by Astro — currently used to hide the blog
+  (`src/pages/_blog/`) and the project detail route
+  (`src/pages/work/_[slug].astro`).
+- Content collections in `src/content/` (`blog`, `projects`) loaded via
+  `astro:content` and consumed exclusively through helpers in
+  `src/lib/content.ts` (single filter authority — enforced by
+  `pnpm check:content-source`).
+- Identity strings (site name, tagline) live in `src/lib/site-meta.ts` —
+  edit there to update titles + meta descriptions everywhere.
+- `BLOG_VISIBLE` flag in `src/lib/content.ts` short-circuits
+  `getPublishedPosts()` to `[]` while the blog is hidden.
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- All external links use `target="_blank"` and `rel="noreferrer"` (add
+  `me` to the rel list for identity profiles like Twitter/LinkedIn/GitHub).
+- Project cards show no internal detail page — title links straight to the
+  marketing site (or repo if no marketing site).
+- Tagline + name come from `src/lib/site-meta.ts`. Don't hard-code them in
+  pages.
+- After editing `src/styles/tokens.ts`, always run `pnpm gen:tokens` —
+  there's a `tests/tokens.test.ts` round-trip assertion that fails if
+  `tokens.css` drifts.
+- WCAG: every accent/muted/ink/rule color is contrast-asserted in
+  `tests/tokens.test.ts`. Picking a new accent? Both light and dark
+  variants must pass AA (4.5:1) against their respective `paper`.

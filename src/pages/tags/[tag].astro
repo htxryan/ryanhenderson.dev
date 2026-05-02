@@ -21,6 +21,7 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ProjectCard from "~/components/ProjectCard.astro";
 import { getPublishedPosts, getPublishedProjects } from "~/lib/content";
+import { SITE_NAME } from "~/lib/site-meta";
 import type { CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
@@ -70,7 +71,7 @@ const fmt = new Intl.DateTimeFormat("en-US", {
 const totalCount = posts.length + projects.length;
 ---
 <BaseLayout
-  title={`#${tag} — Ryan Henderson`}
+  title={SITE_NAME}
   description={`Posts and projects tagged #${tag}.`}
   canonicalPath={`/tags/${tag}/`}
 >

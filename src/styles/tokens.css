@@ -14,17 +14,17 @@
   --ink: #111111;
   --paper: #f5f5f5;
   --muted: #4a4a4a;
-  --accent: #b1240b;
+  --accent: #1a5fcc;
   --rule-color: #111111;
 
   /* Shiki cssVariables surface (E4 contract). Reserved by E2. */
   --shiki-fg: var(--ink);
   --shiki-bg: var(--paper);
-  --shiki-token-keyword: #b1240b;
+  --shiki-token-keyword: #1a5fcc;
   --shiki-token-string: #4a4a4a;
   --shiki-token-comment: #4a4a4a;
   --shiki-token-function: #111111;
-  --shiki-token-constant: #b1240b;
+  --shiki-token-constant: #1a5fcc;
   --shiki-token-punctuation: #4a4a4a;
 }
 
@@ -32,13 +32,13 @@
   --ink: #cdd9e5;
   --paper: #22272e;
   --muted: #909dab;
-  --accent: #ff8a80;
+  --accent: #5c9ce6;
   --rule-color: #768390;
 
-  --shiki-token-keyword: #ff8a80;
+  --shiki-token-keyword: #5c9ce6;
   --shiki-token-string: #909dab;
   --shiki-token-comment: #909dab;
   --shiki-token-function: #cdd9e5;
-  --shiki-token-constant: #ff8a80;
+  --shiki-token-constant: #5c9ce6;
   --shiki-token-punctuation: #909dab;
 }

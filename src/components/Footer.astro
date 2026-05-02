@@ -22,8 +22,8 @@ const path = Astro.url.pathname;
 type Link = { href: string; label: string; matchPrefix?: string };
 const navLinks: Link[] = [
   { href: "/", label: "home" },
-  { href: "/work/", label: "work", matchPrefix: "/work/" },
   { href: "/about/", label: "about" },
+  { href: "/work/", label: "work", matchPrefix: "/work/" },
 ];
 function isActive(link: Link): boolean {
   if (link.matchPrefix) return path.startsWith(link.matchPrefix);
@@ -82,12 +82,12 @@ function isActive(link: Link): boolean {
 <style>
   .site-footer {
     border-top: var(--rule-hairline) solid var(--rule-color);
-    margin-top: calc(var(--space-unit) * 6);
+    margin-top: calc(var(--space-unit) * 3);
   }
   .site-footer-inner {
     max-width: 80rem;
     margin: 0 auto;
-    padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 3);
+    padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 3);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -129,7 +129,7 @@ function isActive(link: Link): boolean {
   }
   @media (max-width: 40rem) {
     .site-footer-inner {
-      padding: calc(var(--space-unit) * 3) calc(var(--space-unit) * 2);
+      padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 2);
     }
   }
 </style>

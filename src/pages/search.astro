@@ -23,9 +23,10 @@
  * so a failed index step fails the deploy.
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE_NAME } from "~/lib/site-meta";
 ---
 <BaseLayout
-  title="Search — Ryan Henderson"
+  title={SITE_NAME}
   description="Search posts and projects on ryanhenderson.dev."
   canonicalPath="/search/"
 >

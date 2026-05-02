@@ -17,7 +17,7 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
 import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
 ---
 <BaseLayout
-  title="ryanhenderson.dev"
+  title={SITE_NAME}
   description={`${SITE_NAME} — ${SITE_TAGLINE}.`}
   canonicalPath="/"
 >
@@ -29,12 +29,12 @@ import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
   <nav class="landing" aria-label="Primary destinations">
     <a class="landing-card" href="/about/">
       <span class="landing-card-eyebrow">about</span>
-      <span class="landing-card-tag">Who I am, what I do, how to reach me.</span>
+      <span class="landing-card-tag">... me.</span>
       <span class="landing-card-arrow" aria-hidden="true">→</span>
     </a>
     <a class="landing-card" href="/work/">
       <span class="landing-card-eyebrow">work</span>
-      <span class="landing-card-tag">Projects I'm building.</span>
+      <span class="landing-card-tag">I'm ... working on.</span>
       <span class="landing-card-arrow" aria-hidden="true">→</span>
     </a>
   </nav>
@@ -42,16 +42,15 @@ import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
 
 <style>
   .hero {
-    border-top: var(--rule-hairline) solid var(--rule-color);
     border-bottom: var(--rule-hairline) solid var(--rule-color);
-    padding: calc(var(--space-unit) * 6) 0;
-    margin-bottom: calc(var(--space-unit) * 4);
+    padding: calc(var(--space-unit) * 3) 0;
+    margin-bottom: calc(var(--space-unit) * 2);
   }
   .hero-name {
-    margin: 0 0 calc(var(--space-unit) * 2);
-    font-size: clamp(2.5rem, 6vw + 1rem, 4.5rem);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
+    margin: 0 0 calc(var(--space-unit));
+    font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
   }
   .hero-tag {
     margin: 0;
@@ -62,23 +61,23 @@ import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
   .landing {
     display: grid;
     grid-template-columns: 1fr;
-    gap: calc(var(--space-unit) * 2);
+    gap: calc(var(--space-unit) * 1.5);
   }
   @media (min-width: 56rem) {
     .landing {
       grid-template-columns: 1fr 1fr;
-      gap: calc(var(--space-unit) * 3);
+      gap: calc(var(--space-unit) * 1.5);
     }
   }
   .landing-card {
     display: grid;
-    gap: calc(var(--space-unit) * 1.5);
+    gap: calc(var(--space-unit) * 0.75);
     border: var(--rule-hairline) solid var(--rule-color);
-    padding: calc(var(--space-unit) * 4);
+    padding: calc(var(--space-unit) * 2);
     background: var(--paper);
     color: var(--ink);
     text-decoration: none;
-    min-height: 14rem;
+    min-height: 6rem;
     align-content: start;
     position: relative;
   }
@@ -105,13 +104,13 @@ import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
   }
   .landing-card-arrow {
     font-family: var(--font-mono);
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     color: var(--muted);
     align-self: end;
     justify-self: end;
     position: absolute;
-    right: calc(var(--space-unit) * 4);
-    bottom: calc(var(--space-unit) * 3);
+    right: calc(var(--space-unit) * 2);
+    bottom: calc(var(--space-unit) * 1.5);
   }
   .landing-card:hover .landing-card-arrow,
   .landing-card:focus-visible .landing-card-arrow {

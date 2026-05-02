@@ -7,9 +7,10 @@
  * the legacy 404: dry, mono, no apology theatre.
  */
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE_NAME } from "~/lib/site-meta";
 ---
 <BaseLayout
-  title="404 — not found"
+  title={SITE_NAME}
   description="The requested page could not be found."
   canonicalPath="/404/"
   noindex

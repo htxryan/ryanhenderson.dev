@@ -71,14 +71,18 @@ export type Tokens = {
  * Light palette (soft off-white canvas, not pure white):
  *   ink     #111111 on #f5f5f5 = 17.3:1   (AAA)
  *   muted   #4a4a4a on #f5f5f5 =  8.1:1   (AAA)
- *   accent  #b1240b on #f5f5f5 =  6.2:1   (AA normal, AAA large)
+ *   accent  #1a5fcc on #f5f5f5 =  5.4:1   (AA normal — azul blue)
  *   rule    #111111 on #f5f5f5 = 17.3:1   (structural, used at 1px)
  *
  * Dark palette (GitHub "dark dimmed" — soft canvas, not pure black):
  *   ink     #cdd9e5 on #22272e = 10.3:1   (AAA)
  *   muted   #909dab on #22272e =  5.4:1   (AA)
- *   accent  #ff8a80 on #22272e =  6.5:1   (AA)
+ *   accent  #5c9ce6 on #22272e =  5.2:1   (AA — lighter azul, same hue family)
  *   rule    #768390 on #22272e =  3.8:1   (structural, used at 1px — soft border)
+ *
+ * Why two accent values: a single blue can't satisfy AA body-text contrast
+ * (4.5:1) against BOTH paper colors — the required luminance ranges don't
+ * overlap. Same approach the previous red palette used.
  *
  * Contrast ratios are verified by `tests/tokens.test.ts` — any change to a
  * color must keep the AA threshold for body text (4.5:1) and link/accent (3:1
@@ -106,14 +110,14 @@ export const tokens: Tokens = {
     ink: "#111111",
     paper: "#f5f5f5",
     muted: "#4a4a4a",
-    accent: "#b1240b",
+    accent: "#1a5fcc",
     rule: "#111111",
   },
   dark: {
     ink: "#cdd9e5",
     paper: "#22272e",
     muted: "#909dab",
-    accent: "#ff8a80",
+    accent: "#5c9ce6",
     rule: "#768390",
   },
 };

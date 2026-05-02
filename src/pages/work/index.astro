@@ -17,17 +17,20 @@
 import BaseLayout from "~/layouts/BaseLayout.astro";
 import ProjectCard from "~/components/ProjectCard.astro";
 import { getPublishedProjects } from "~/lib/content";
+import { SITE_NAME } from "~/lib/site-meta";
 
 const projects = await getPublishedProjects();
 ---
 <BaseLayout
-  title="Work — Ryan Henderson"
-  description="Projects I'm building — solo OSS and SaaS work."
+  title={SITE_NAME}
+  description="Work I'm ... working on"
   canonicalPath="/work/"
 >
   <section class="archive" aria-labelledby="archive-heading">
     <header class="archive-header">
+      <p class="archive-eyebrow">work</p>
       <h1 id="archive-heading">Work</h1>
+      <p class="archive-tag">I'm ... working on.</p>
     </header>
     {projects.length === 0 ? (
       <p class="empty">No projects yet.</p>
@@ -45,15 +48,28 @@ const projects = await getPublishedProjects();
 
 <style>
   .archive-header {
-    border-bottom: calc(var(--rule-hairline) * 2) solid var(--rule-color);
-    padding-bottom: calc(var(--space-unit) * 2);
-    margin-bottom: calc(var(--space-unit) * 4);
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding-bottom: calc(var(--space-unit));
+    margin-bottom: calc(var(--space-unit) * 2);
+  }
+  .archive-eyebrow {
+    margin: 0 0 calc(var(--space-unit) * 0.5);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
   }
   .archive-header h1 {
     margin: 0;
-    font-size: clamp(2rem, 4vw + 1rem, 3rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
+    font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .archive-tag {
+    margin: calc(var(--space-unit) * 0.75) 0 0;
+    color: var(--muted);
+    max-width: var(--measure);
   }
   .cards {
     list-style: none;

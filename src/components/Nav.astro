@@ -12,8 +12,8 @@ const path = Astro.url.pathname;
 type Link = { href: string; label: string; matchPrefix?: string };
 const links: Link[] = [
   { href: "/", label: "home" },
-  { href: "/work/", label: "work", matchPrefix: "/work/" },
   { href: "/about/", label: "about" },
+  { href: "/work/", label: "work", matchPrefix: "/work/" },
 ];
 
 function isActive(link: Link): boolean {
