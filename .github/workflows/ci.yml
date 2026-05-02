@@ -1,0 +1,189 @@
+name: ci
+
+on:
+  push:
+    branches: [master, rebuild]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PNPM_VERSION: "10.33.0"
+
+jobs:
+  verify:
+    name: type-check + unit + build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: install (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: lockfile dedupe check
+        run: pnpm dedupe --check
+
+      - name: pnpm audit (high+critical)
+        run: pnpm audit --audit-level=high
+
+      - name: type-check
+        run: pnpm check
+
+      - name: build (content checks + tokens + astro + pagefind + CSP hashes)
+        run: pnpm build
+
+      - name: unit tests (vitest) + coverage
+        run: pnpm test --coverage
+
+      - name: upload coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 7
+
+      - name: upload dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
+
+  e2e:
+    name: Playwright IV scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: verify
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: install (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: install Playwright (chromium + webkit)
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: run IV scenarios (chromium + webkit)
+        # No --project filter: both projects defined in playwright.config.ts run.
+        # Roughly doubles wall time vs chromium-only; intentional — webkit
+        # catches Safari/iOS-specific regressions chromium can't see.
+        run: pnpm exec playwright test tests/iv/scenarios.spec.ts --reporter=list
+        env:
+          CI: "true"
+
+      - name: upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: test-results
+          retention-days: 7
+
+  lhci:
+    name: Lighthouse-CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: verify
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: install (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: locate Chrome
+        id: chrome
+        run: |
+          CHROME_PATH=$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium)
+          if [ -z "$CHROME_PATH" ]; then
+            echo "::error::No Chrome/Chromium binary found on the runner"
+            exit 1
+          fi
+          echo "CHROME_PATH=$CHROME_PATH" >> "$GITHUB_ENV"
+          echo "Using $CHROME_PATH"
+
+      - name: run Lighthouse-CI
+        run: pnpm test:lhci
+        env:
+          CI: "true"
+
+  links:
+    name: broken-link sweep (lychee)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: verify
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # --root-dir must be absolute; resolves root-relative hrefs like
+          # /posts/foo/ against dist/. Action runs from the workspace root.
+          #
+          # Excluded hosts:
+          #   - linkedin.com  → returns 999 (anti-bot) or 404 to CI runner
+          #     IPs depending on edge cache. Profile is verified manually
+          #     and lives in the footer of every page, so a CI failure here
+          #     would block every push for an external service we can't
+          #     fix. The link itself is fine in real browsers.
+          args: --no-progress --root-dir ${{ github.workspace }}/dist --exclude 'linkedin\.com' 'dist/**/*.html'
+          fail: true

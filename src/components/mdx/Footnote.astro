@@ -1,0 +1,77 @@
+---
+/**
+ * E4 — Footnote (MDX component).
+ *
+ * Two-piece component: an inline `<sup>` reference at the call site and
+ * a sidenote body rendered inline immediately after it. Both ends are
+ * bidirectionally linked for assistive tech via matched IDs and
+ * `aria-describedby`.
+ *
+ * Why both pieces are inline (not `<aside>`):
+ *   MDX authors invariably write footnotes inside paragraphs. Emitting
+ *   block-level elements (`<aside>`, `<section>`) inside a `<p>` causes
+ *   the HTML parser to auto-close the paragraph, producing a stray
+ *   `</p>` and breaking the surrounding prose flow. The body is
+ *   therefore a `<span>` styled as a sidenote — closer to the Tufte
+ *   tradition and HTML-valid in any context.
+ *
+ * Authored from MDX as:
+ *   This is a claim<Footnote id="1">backed up by source X</Footnote>.
+ */
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+const anchorId = `fn-${id}`;
+const refId = `fnref-${id}`;
+---
+<sup class="footnote-ref" id={refId}>
+  <a href={`#${anchorId}`} aria-describedby={anchorId}>[{id}]</a>
+</sup>
+<span class="footnote" id={anchorId} role="note">
+  <span class="footnote-marker" aria-hidden="true">[{id}]</span>
+  <span class="footnote-body"><slot /></span>
+  <a href={`#${refId}`} class="footnote-back" aria-label="Back to reference">↩</a>
+</span>
+
+<style>
+  .footnote-ref {
+    font-family: var(--font-mono);
+    font-size: 0.75em;
+    line-height: 0;
+    vertical-align: super;
+  }
+  .footnote-ref a {
+    text-decoration: none;
+    color: var(--accent);
+    padding: 0 0.15em;
+  }
+  .footnote-ref a:hover,
+  .footnote-ref a:focus-visible {
+    text-decoration: underline;
+  }
+
+  .footnote {
+    display: inline;
+    margin: 0 calc(var(--space-unit) * 0.5);
+    padding: 0 calc(var(--space-unit) * 0.75);
+    border-left: 2px solid var(--rule-color);
+    font-size: 0.875em;
+    color: var(--muted);
+  }
+  .footnote-marker {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--ink);
+    margin-right: 0.4em;
+  }
+  .footnote-back {
+    margin-left: 0.4em;
+    text-decoration: none;
+    color: var(--accent);
+  }
+  .footnote-back:hover,
+  .footnote-back:focus-visible {
+    text-decoration: underline;
+  }
+</style>

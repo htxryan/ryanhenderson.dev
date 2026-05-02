@@ -1,0 +1,72 @@
+---
+/**
+ * E3 — 404.
+ *
+ * Wrapped in BaseLayout so the chrome (theme, header, footer) survives error
+ * routes. `noindex` keeps unknown URLs out of search engines. Tone matches
+ * the legacy 404: dry, mono, no apology theatre.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE_NAME } from "~/lib/site-meta";
+---
+<BaseLayout
+  title={SITE_NAME}
+  description="The requested page could not be found."
+  canonicalPath="/404/"
+  noindex
+>
+  <article class="notfound">
+    <p class="eyebrow">404</p>
+    <h1>not found</h1>
+    <p class="lede">
+      The requested page could not be found, but there's always money in the
+      banana stand.
+    </p>
+    <nav aria-label="Page not found — exits">
+      <ul class="exits">
+        <li><a href="/">home</a></li>
+        <li><a href="/work/">work</a></li>
+        <li><a href="/about/">about</a></li>
+      </ul>
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  .notfound {
+    border-top: var(--rule-hairline) solid var(--rule-color);
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 6) 0;
+    text-align: left;
+  }
+  .eyebrow {
+    margin: 0 0 calc(var(--space-unit));
+    font-family: var(--font-mono);
+    font-size: 4rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--accent);
+  }
+  .notfound h1 {
+    margin: 0 0 calc(var(--space-unit) * 2);
+    font-size: clamp(2rem, 5vw + 1rem, 3.5rem);
+    text-transform: lowercase;
+  }
+  .lede {
+    max-width: var(--measure);
+    color: var(--muted);
+    margin: 0 0 calc(var(--space-unit) * 4);
+  }
+  .exits {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space-unit) * 2);
+    font-family: var(--font-mono);
+  }
+  .exits a {
+    text-transform: lowercase;
+  }
+</style>

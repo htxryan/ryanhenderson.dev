@@ -1,0 +1,17 @@
+# Lychee URL ignore list (regex per line).
+# Used by .github/workflows/ci.yml `links` job to suppress known-noisy
+# externals (e.g. rate-limited LinkedIn, archive.org, social hosts) so
+# they don't fail the run. Internal 4xx/5xx still fail.
+
+# Self-references in canonical URLs / OG tags / sitemap / RSS / Atom.
+# These are absolute URLs to the production host; pre-deploy the site
+# isn't live, and post-deploy lychee resolves them against dist/ via
+# --root-dir already. Skipping the network round-trip avoids both
+# false-negatives pre-deploy and rate-limited self-hits post-deploy.
+^https://ryanhenderson\.dev/
+
+# Test-fixture projects with intentionally-fake repoUrls. alpha exercises
+# the active-project repo-button path; charlie exercises the archived
+# variant. Real projects (butverify, c3p, pearl) point at real repos and
+# are checked normally.
+^https://github\.com/htxryan/(alpha|charlie)$

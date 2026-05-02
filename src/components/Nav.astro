@@ -1,0 +1,66 @@
+---
+/**
+ * Primary navigation.
+ *
+ * Writing/blog is currently hidden — its routes live under `src/pages/_blog/`
+ * (Astro excludes `_`-prefixed directories from the build) and the link is
+ * removed here. To re-enable: move `_blog/` back to `posts/` + `feed.xml.ts`
+ * + `atom.xml.ts` and restore the `writing` link below.
+ */
+const path = Astro.url.pathname;
+
+type Link = { href: string; label: string; matchPrefix?: string };
+const links: Link[] = [
+  { href: "/", label: "home" },
+  { href: "/about/", label: "about" },
+  { href: "/work/", label: "work", matchPrefix: "/work/" },
+];
+
+function isActive(link: Link): boolean {
+  if (link.matchPrefix) return path.startsWith(link.matchPrefix);
+  return path === link.href;
+}
+---
+<nav aria-label="Primary" class="nav">
+  <ul class="nav-list">
+    {links.map((link) => (
+      <li>
+        <a
+          href={link.href}
+          aria-current={isActive(link) ? "page" : undefined}
+        >
+          {link.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .nav {
+    font-family: var(--font-mono);
+  }
+  .nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .nav-list a {
+    text-transform: lowercase;
+    text-decoration: none;
+    color: var(--ink);
+    border-bottom: var(--rule-hairline) solid transparent;
+    padding-bottom: 2px;
+  }
+  .nav-list a:hover,
+  .nav-list a:focus-visible {
+    border-bottom-color: var(--ink);
+  }
+  .nav-list a[aria-current="page"] {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

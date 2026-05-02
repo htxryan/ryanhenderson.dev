@@ -1,0 +1,93 @@
+# E8 — Legacy URL Audit (Jekyll → Astro cutover)
+#
+# Source-of-truth list of every URL on the legacy Jekyll site that may have
+# inbound links. Each row is one of:
+#
+#   PRESERVE    — same path resolves on the new site (no redirect needed)
+#   REDIRECT    — covered by a `/old → /new 301` rule in `public/_redirects`
+#   404-OK      — acceptable to 404 (theme-internal URL, never had backlinks)
+#
+# Generated 2026-05-01. Audit informed by:
+#   - `_config.yml` (permalink: /:title/, paginate_path: /page:num/,
+#     category_archive_path: /categories/#, tag_archive_path: /tags/#)
+#   - `_posts/2020-03-21-hello-blog.markdown` (permalink → /hello-blog/)
+#   - `_drafts/the-cost-of-estimation.markdown` (draft, never published; the
+#     `permalink: /estimates-vs-no-estimates-is-a-false-dichotomy` was
+#     never deployed)
+#   - `about.markdown` (permalink: /about/)
+#   - `_data/navigation.yml` (theme nav)
+#   - so-simple theme conventions (categories.html, tags.html, search.html,
+#     posts.html, 404.html, index.html — root pages)
+#
+# Inbound traffic for this 2020-era personal blog is minimal; the audit is
+# treated as exhaustive on the basis of one published post + theme defaults.
+# If Search Console or analytics surface additional referrers later, append
+# new rows + matching `_redirects` entries.
+
+# === Real published content ===
+
+/hello-blog/                                      REDIRECT  /posts/hello-blog/
+                                                  # 2020-03-21 post — only known inbound legacy URL
+/about/                                           PRESERVE
+                                                  # /about/ resolves on the new site (Astro route)
+/                                                 PRESERVE
+                                                  # home page
+
+# === Theme taxonomy URLs (so-simple) ===
+# The so-simple theme used hash-fragment URLs for tag/category archives
+# (`/tags/#meta`, `/categories/#consulting`). Hash fragments are never sent
+# to the server, so these effectively land on `/tags/` and `/categories/`
+# pages (lists). On the new site, /tags/<tag>/ pages exist, but these are a
+# different URL shape — redirect the index pages to a sane destination.
+
+/tags/                                            REDIRECT  /posts/
+                                                  # legacy tags index → posts archive (no canonical /tags/ index in new site)
+/categories/                                      REDIRECT  /posts/
+                                                  # legacy categories index → posts archive
+
+# === Legacy theme HTML files (never had stable inbound links) ===
+
+/posts.html                                       REDIRECT  /posts/
+                                                  # legacy theme route — fold into new posts archive
+/search.html                                      REDIRECT  /search/
+                                                  # legacy theme route — fold into new search page
+/categories.html                                  REDIRECT  /posts/
+                                                  # legacy theme route — no analogous index on new site
+/tags.html                                        REDIRECT  /posts/
+                                                  # legacy theme route — no analogous index on new site
+/index.html                                       REDIRECT  /
+                                                  # explicit /index.html → / canonical
+/404.html                                         404-OK
+                                                  # 404 page reference; new site has its own 404 (Astro route)
+
+# === Pagination paths (so-simple: /page:num/) ===
+# The legacy site only had one published post, so /page2/ etc never resolved.
+# No pagination redirects required.
+
+# === Feed / sitemap ===
+
+/feed.xml                                         PRESERVE
+                                                  # Astro emits /feed.xml at the same path
+/sitemap.xml                                      REDIRECT  /sitemap-index.xml
+                                                  # legacy single-file sitemap → @astrojs/sitemap index
+
+# === Assets ===
+# The legacy `assets/images/*` folder hosted three images. None are referenced
+# from any current MDX content (the cost-of-estimation draft references
+# `/assets/images/the-cost-of-estimation-header-small.jpg`, but the draft is
+# `draft: true` so the URL is unpublished). The asset paths can therefore be
+# allowed to 404 after retirement.
+
+/assets/images/the-cost-of-estimation-header-small.jpg   404-OK
+                                                  # only referenced by the still-draft post; fine to 404
+/assets/images/the-cost-of-estimation-header.jpg         404-OK
+/assets/images/the-cost-of-estimation.jpg                404-OK
+/assets/images/hello-world.png                           404-OK
+/assets/images/htxryan-logo-square.png                   404-OK
+/assets/images/htxryan-logo-full.png                     404-OK
+
+# === Webmaster verification ===
+# `_config.yml` declares google_site_verification: DsFgK79hz_6WqUgWwfIc7nq1izXaeFJuPaWHzQdCtx4
+# Search Console site ownership re-verification is an E9 task (DNS cutover);
+# E8 does not change DNS. Existing Search Console data continues to flow
+# while CF Pages serves both old and new shapes via _redirects.

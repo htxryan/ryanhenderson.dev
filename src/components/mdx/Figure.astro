@@ -1,0 +1,50 @@
+---
+/**
+ * E4 — Figure (MDX component).
+ *
+ * Hairline-bordered image block with an optional caption set in mono. The
+ * width/height props are required-ish: if the author supplies them the
+ * browser reserves layout space and CLS stays at 0 (U-19); if omitted the
+ * intrinsic image size is used (CLS risk on the post route).
+ *
+ * Lazy-loads (`loading="lazy"`) so an image far below the fold doesn't
+ * compete with the LCP candidate.
+ */
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  width?: number;
+  height?: number;
+}
+const { src, alt, caption, width, height } = Astro.props;
+---
+<figure class="figure">
+  <div class="figure-frame">
+    <img src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+  </div>
+  {caption ? <figcaption class="figure-caption">{caption}</figcaption> : null}
+</figure>
+
+<style>
+  .figure {
+    margin: calc(var(--space-unit) * 4) 0;
+  }
+  .figure-frame {
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 0.5);
+    background: var(--paper);
+  }
+  .figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .figure-caption {
+    margin: var(--space-unit) 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    text-align: left;
+  }
+</style>

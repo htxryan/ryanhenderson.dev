@@ -1,0 +1,119 @@
+---
+/**
+ * Home (S-1).
+ *
+ * Brutalist composition:
+ *   - Hairline-ruled hero block with name + one-line tagline
+ *   - Two big landing-style cards: about + work. Whole card is a link;
+ *     this is the page's job — point at one of two destinations.
+ *
+ * Used to list featured projects under the hero, but that duplicated the
+ * content of /work/. Restoring that grid is a one-import change (see git
+ * history for the prior version). Writing/blog is also currently hidden.
+ *
+ * Performance: zero client JS shipped from this page (W-1).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
+---
+<BaseLayout
+  title={SITE_NAME}
+  description={`${SITE_NAME} — ${SITE_TAGLINE}.`}
+  canonicalPath="/"
+>
+  <section class="hero" aria-labelledby="hero-name">
+    <h1 id="hero-name" class="hero-name">{SITE_NAME}</h1>
+    <p class="hero-tag">{SITE_TAGLINE}.</p>
+  </section>
+
+  <nav class="landing" aria-label="Primary destinations">
+    <a class="landing-card" href="/about/">
+      <span class="landing-card-eyebrow">about</span>
+      <span class="landing-card-tag">... me.</span>
+      <span class="landing-card-arrow" aria-hidden="true">→</span>
+    </a>
+    <a class="landing-card" href="/work/">
+      <span class="landing-card-eyebrow">work</span>
+      <span class="landing-card-tag">I'm ... working on.</span>
+      <span class="landing-card-arrow" aria-hidden="true">→</span>
+    </a>
+  </nav>
+</BaseLayout>
+
+<style>
+  .hero {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 3) 0;
+    margin-bottom: calc(var(--space-unit) * 2);
+  }
+  .hero-name {
+    margin: 0 0 calc(var(--space-unit));
+    font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .hero-tag {
+    margin: 0;
+    max-width: var(--measure);
+    color: var(--muted);
+  }
+
+  .landing {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--space-unit) * 1.5);
+  }
+  @media (min-width: 56rem) {
+    .landing {
+      grid-template-columns: 1fr 1fr;
+      gap: calc(var(--space-unit) * 1.5);
+    }
+  }
+  .landing-card {
+    display: grid;
+    gap: calc(var(--space-unit) * 0.75);
+    border: var(--rule-hairline) solid var(--rule-color);
+    padding: calc(var(--space-unit) * 2);
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    min-height: 6rem;
+    align-content: start;
+    position: relative;
+  }
+  .landing-card:hover,
+  .landing-card:focus-visible {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .landing-card-eyebrow {
+    font-family: var(--font-mono);
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 2.5rem);
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .landing-card-tag {
+    color: var(--muted);
+    font-size: 0.9375rem;
+    max-width: var(--measure);
+  }
+  .landing-card:hover .landing-card-tag,
+  .landing-card:focus-visible .landing-card-tag {
+    color: var(--accent);
+  }
+  .landing-card-arrow {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    color: var(--muted);
+    align-self: end;
+    justify-self: end;
+    position: absolute;
+    right: calc(var(--space-unit) * 2);
+    bottom: calc(var(--space-unit) * 1.5);
+  }
+  .landing-card:hover .landing-card-arrow,
+  .landing-card:focus-visible .landing-card-arrow {
+    color: var(--accent);
+  }
+</style>

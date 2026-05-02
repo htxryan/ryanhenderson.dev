@@ -1,0 +1,13 @@
+---
+name: "Delta"
+oneLiner: "Private project fixture — must be hidden from /work/ and the home page."
+status: private
+marketingUrl: "https://delta.example"
+repoUrl: "https://github.com/htxryan/delta"
+tags: ["internal"]
+pubDate: "2026-03-01"
+---
+
+Delta is the canonical "should not appear" fixture. `getPublishedProjects()`
+filters `status: private` by default; this body must NOT show up in any
+rendered route, RSS feed, sitemap, or OG image generator.

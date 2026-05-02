@@ -1,0 +1,26 @@
+---
+name: "C3P"
+oneLiner: "Profile-based configuration manager for Claude Code that hot-swaps settings without trashing uncommitted edits."
+status: coming-soon
+marketingUrl: "https://getc3p.dev"
+repoUrl: "https://github.com/htxryan/claude-code-config-profiles"
+tags: ["developer-tools", "cli", "ai", "oss"]
+pubDate: "2026-05-01"
+---
+
+C3P is a CLI for managing Claude Code configuration as named, hot-swappable
+profiles. Switch between work and personal setups, or experiment with new
+hooks and permissions, without editing `settings.json` by hand and without
+clobbering changes you haven't committed yet.
+
+## What it is
+
+A small, scriptable layer over the Claude Code settings surface. Profiles are
+plain files; switching is a single command; uncommitted edits to the live
+configuration are detected and preserved before any swap happens.
+
+## Why it exists
+
+Tinkering with agent configuration is risky — it's easy to lose a working
+state to a mid-session change. C3P treats configuration the way a careful
+engineer treats a working tree: snapshot first, switch second.

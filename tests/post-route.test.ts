@@ -1,0 +1,384 @@
+import { describe, expect, test } from "vitest";
+import { gzipSync } from "node:zlib";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { resolve, join } from "node:path";
+
+/**
+ * E4 — Post route acceptance tests.
+ *
+ * Covers (per epic acceptance criteria):
+ *   - U-4: title, pubDate, reading time, word count, tags, body, prev/next
+ *     all present on a rendered post HTML
+ *   - U-5: code blocks highlighted at build time via Shiki using the
+ *     cssVariables surface — single theme, no second bundle
+ *   - U-6: body measure is 60–75ch (verified via the CSS rule presence)
+ *   - U-20: post route HTML <50KB gzipped
+ *   - C-6: BaseLayout composition still applies on the post route
+ *   - W-1: no external <script src=…> bundles on the post route
+ *   - Implicit: prev/next never includes drafts (uses the same helper as
+ *     the route enumerator)
+ */
+
+const ROOT = resolve(__dirname, "..");
+const DIST = resolve(ROOT, "dist");
+
+// The build runs once via Vitest's globalSetup (see vitest.config.ts).
+
+function read(file: string): string {
+  return readFileSync(file, "utf-8");
+}
+
+function gzipBytes(s: string): number {
+  return gzipSync(Buffer.from(s, "utf-8")).length;
+}
+
+function listPostHtml(): string[] {
+  const postsDir = join(DIST, "posts");
+  if (!existsSync(postsDir)) return [];
+  // Each post is dist/posts/<slug>/index.html. Skip dist/posts/index.html
+  // (the archive page).
+  return readdirSync(postsDir)
+    .filter((entry) => {
+      const p = join(postsDir, entry);
+      try {
+        return statSync(p).isDirectory();
+      } catch {
+        return false;
+      }
+    })
+    .map((slug) => join(postsDir, slug, "index.html"))
+    .filter((p) => existsSync(p));
+}
+
+// SKIP: blog is currently hidden — /posts/<slug>/ pages are not built. See
+// BLOG_VISIBLE in src/lib/content.ts and src/pages/_blog/ to restore.
+describe.skip("post route — at least one post exists", () => {
+  test("build produced posts/<slug>/index.html files", () => {
+    const files = listPostHtml();
+    expect(files.length).toBeGreaterThan(0);
+  });
+});
+
+describe.skip("U-4 — post metadata required on every rendered post", () => {
+  test("title rendered as <h1>", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      expect(html).toMatch(/<h1[^>]*class="post-title"[^>]*>[^<]+<\/h1>/);
+    }
+  });
+
+  test("pubDate rendered as a <time> with ISO datetime attr", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      // Within the published row of post-meta.
+      expect(html).toMatch(/<time datetime="\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z"/);
+    }
+  });
+
+  test("reading time minutes are present (data-reading-minutes)", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      // Stable hook the layout exposes: <span data-reading-minutes>N min</span>
+      expect(html).toMatch(/data-reading-minutes[^>]*>\s*\d+\s*min\s*</);
+    }
+  });
+
+  test("word count is present (data-reading-words)", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      expect(html).toMatch(/data-reading-words[^>]*>\s*\d+\s*words?\s*</);
+    }
+  });
+
+  test("tags render as #-prefixed links into /tags/<tag>/", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      // Tag list may be empty for posts with no tags; only assert when
+      // the rendered post contains a `tags` <dt>.
+      if (/<dt[^>]*>tags<\/dt>/.test(html)) {
+        expect(html).toMatch(/href="\/tags\/[a-z0-9-]+\/"[^>]*rel="tag"/);
+        expect(html).toMatch(/>#[a-z0-9-]+</);
+      }
+    }
+  });
+
+  test("post body wraps in an <article> so the prose measure applies", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      expect(html).toMatch(/<article[^>]*class="[^"]*\bpost\b[^"]*\bprose\b/);
+    }
+  });
+
+  test("post-nav landmark is present (prev/next)", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      expect(html).toMatch(/<nav[^>]*class="post-nav"[^>]*aria-label="Adjacent posts"/);
+    }
+  });
+});
+
+describe.skip("U-5 — Shiki cssVariables surface", () => {
+  test("post route emits Shiki-rendered <pre class=\"astro-code\"> block", () => {
+    // The seed post includes a code fence so we can verify Shiki output;
+    // every post route must inherit the same renderer config.
+    const files = listPostHtml();
+    const hasShikiBlock = files.some((f) =>
+      /<pre[^>]*\bastro-code\b/.test(read(f)),
+    );
+    expect(hasShikiBlock).toBe(true);
+  });
+
+  test("Shiki blocks paint via --shiki-* CSS variables, not a hardcoded theme", () => {
+    const files = listPostHtml();
+    const blocks = files
+      .map(read)
+      .filter((html) => /<pre[^>]*\bastro-code\b/.test(html));
+    expect(blocks.length).toBeGreaterThan(0);
+
+    for (const html of blocks) {
+      // Wrapper <pre> is painted by --shiki-bg / --shiki-fg.
+      expect(html).toMatch(/style="[^"]*background-color:var\(--shiki-bg\)/);
+      expect(html).toMatch(/style="[^"]*color:var\(--shiki-fg\)/);
+      // At least one token-level color routes through --shiki-token-*.
+      expect(html).toMatch(/color:var\(--shiki-token-[a-z]+\)/);
+    }
+  });
+
+  test("no second theme bundle: theme name reference appears once per block", () => {
+    // Brutalist theme name appears as a class on the wrapper <pre>; we
+    // shouldn't see a parallel light/dark class pair (Shiki dual-theme
+    // mode adds e.g. `data-theme="light"` containers).
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      // No dual-theme `data-theme` attributes leaking into the post body.
+      const dualThemeMatches = html.match(/<pre[^>]*data-theme="[^"]+"/g) ?? [];
+      expect(dualThemeMatches.length).toBe(0);
+    }
+  });
+});
+
+describe.skip("U-6 — reading measure declared in CSS", () => {
+  test("the prose/article rule exists in a build CSS asset and uses --measure", () => {
+    // Walk the dist/_astro CSS files and check at least one carries the
+    // `max-width:var(--measure)` rule — the source of the 60–75ch measure.
+    const cssRoot = join(DIST, "_astro");
+    if (!existsSync(cssRoot)) {
+      throw new Error("dist/_astro not found — Astro build layout changed?");
+    }
+    const cssFiles = readdirSync(cssRoot).filter((f) => f.endsWith(".css"));
+    expect(cssFiles.length).toBeGreaterThan(0);
+    const concatenated = cssFiles
+      .map((f) => readFileSync(join(cssRoot, f), "utf-8"))
+      .join("\n");
+    expect(concatenated).toMatch(/max-width:var\(--measure\)/);
+    // And the measure token resolves to a value in the 60–75ch band.
+    expect(concatenated).toMatch(/--measure:\s*7\dch/);
+  });
+});
+
+describe.skip("U-20 — first-load HTML budget on post route", () => {
+  test("each post HTML <50KB gzipped", () => {
+    for (const file of listPostHtml()) {
+      const bytes = gzipBytes(read(file));
+      expect(bytes).toBeLessThan(50_000);
+    }
+  });
+});
+
+describe.skip("C-6 — BaseLayout composition on post route", () => {
+  const expectedAttrs: Array<[string, RegExp]> = [
+    ["charset utf-8", /<meta charset="utf-8">/i],
+    ["viewport meta", /<meta name="viewport"/i],
+    ["theme boot inline script", /dataset\.theme/],
+    ["canonical link", /<link rel="canonical" href="https:\/\/ryanhenderson\.dev\/posts\//],
+    ["og:title", /property="og:title"/],
+    ["og:type article", /property="og:type" content="article"/],
+    ["article:published_time", /property="article:published_time"/],
+    ["skip-link", /<a[^>]*class="skip-link"[^>]*href="#main"/],
+    ["main landmark", /<main[^>]*id="main"/],
+    ["header banner", /<header[^>]*role="banner"/],
+    ["footer contentinfo", /<footer[^>]*role="contentinfo"/],
+    ["theme toggle", /data-theme-toggle/],
+  ];
+
+  test.each(expectedAttrs)("post route emits %s", (_label, pattern) => {
+    for (const file of listPostHtml()) {
+      const html = read(file);
+      expect(html).toMatch(pattern);
+    }
+  });
+});
+
+describe.skip("W-1 — no external client JS bundles on post route", () => {
+  // The W-1 contract bans first-party JS bundles, not the sanctioned CF
+  // Web Analytics beacon (W-2). In production builds with
+  // CF_WEB_ANALYTICS_TOKEN set, BaseLayout emits exactly one external
+  // <script src="https://static.cloudflareinsights.com/beacon.min.js">.
+  // Strip that single sanctioned tag before asserting "no external src".
+  const CF_BEACON_TAG_RE =
+    /<script\b[^>]*\bsrc=["']https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js["'][^>]*>\s*<\/script>/g;
+
+  test("post HTML has no external <script src=…> bundle (CF beacon excluded)", () => {
+    for (const file of listPostHtml()) {
+      const html = read(file).replace(CF_BEACON_TAG_RE, "");
+      expect(html).not.toMatch(/<script[^>]+src=["'][^"']+["']/);
+    }
+  });
+});
+
+describe.skip("prev/next contract", () => {
+  // Four published posts after E8 migration:
+  //   hello-world  (2026-04-30, newest)
+  //   mid-post     (2026-02-20)
+  //   early-post   (2026-01-15)
+  //   hello-blog   (2020-03-21, oldest — ported legacy post)
+  // One draft fixture (draft-fixture.mdx) and one draft port
+  // (the-cost-of-estimation.mdx) must NEVER appear on any prev/next link,
+  // in any rendered post, or in the archive — drafts are excluded by
+  // `getPublishedPosts()` in prod.
+  const publishedSlugs = [
+    "hello-world",
+    "mid-post",
+    "early-post",
+    "hello-blog",
+  ] as const;
+  const draftSlugs = ["draft-fixture", "the-cost-of-estimation"] as const;
+
+  test("each published post has its own /posts/<slug>/index.html", () => {
+    for (const slug of publishedSlugs) {
+      const file = join(DIST, "posts", slug, "index.html");
+      expect(existsSync(file), `expected ${file}`).toBe(true);
+    }
+  });
+
+  test("draft posts are excluded from the build", () => {
+    for (const draftSlug of draftSlugs) {
+      const draftFile = join(DIST, "posts", draftSlug, "index.html");
+      expect(existsSync(draftFile), `draft ${draftSlug} must not be built`).toBe(false);
+    }
+  });
+
+  test("middle post links to newer (next) and older (prev) neighbours", () => {
+    const html = read(join(DIST, "posts", "mid-post", "index.html"));
+    // next = newer = hello-world
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/hello-world\/"[^>]*rel="next"/);
+    // prev = older = early-post
+    expect(html).toMatch(/<a[^>]*class="post-nav-link prev"[^>]*href="\/posts\/early-post\/"[^>]*rel="prev"/);
+  });
+
+  test("newest post has no `next` link (placeholder rendered instead)", () => {
+    const html = read(join(DIST, "posts", "hello-world", "index.html"));
+    // Newest in fixture set: hello-world has prev = mid-post, no next.
+    expect(html).toMatch(/<a[^>]*class="post-nav-link prev"[^>]*href="\/posts\/mid-post\/"/);
+    expect(html).not.toMatch(/<a[^>]*class="post-nav-link next"/);
+  });
+
+  test("oldest post has no `prev` link (placeholder rendered instead)", () => {
+    // hello-blog (2020-03-21) is now the oldest published post.
+    const html = read(join(DIST, "posts", "hello-blog", "index.html"));
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/early-post\/"/);
+    expect(html).not.toMatch(/<a[^>]*class="post-nav-link prev"/);
+  });
+
+  test("early-post (second-oldest) prev points to hello-blog, next to mid-post", () => {
+    const html = read(join(DIST, "posts", "early-post", "index.html"));
+    expect(html).toMatch(/<a[^>]*class="post-nav-link next"[^>]*href="\/posts\/mid-post\/"/);
+    expect(html).toMatch(/<a[^>]*class="post-nav-link prev"[^>]*href="\/posts\/hello-blog\/"/);
+  });
+
+  test("no rendered post links to a draft via prev/next", () => {
+    for (const slug of publishedSlugs) {
+      const html = read(join(DIST, "posts", slug, "index.html"));
+      // Constrain the search to the post-nav landmark to avoid catching
+      // unrelated link text that might happen to contain the slug.
+      const navMatch = html.match(/<nav class="post-nav"[\s\S]*?<\/nav>/);
+      expect(navMatch).not.toBeNull();
+      for (const draftSlug of draftSlugs) {
+        expect(navMatch?.[0] ?? "").not.toMatch(
+          new RegExp(`href="/posts/${draftSlug}/"`),
+        );
+      }
+    }
+  });
+});
+
+describe.skip("optional `updated` date rendering", () => {
+  test("post with `updated` frontmatter renders the updated meta row", () => {
+    // mid-post fixture carries `updated: 2026-03-05`.
+    const html = read(join(DIST, "posts", "mid-post", "index.html"));
+    expect(html).toMatch(/<dt[^>]*>updated<\/dt>/);
+    // Both pubDate and updated render as <time datetime=…>.
+    const times = html.match(/<time datetime="[^"]+"/g) ?? [];
+    expect(times.length).toBeGreaterThanOrEqual(2);
+  });
+
+  test("post without `updated` omits the updated meta row entirely", () => {
+    // hello-world fixture has no `updated`.
+    const html = read(join(DIST, "posts", "hello-world", "index.html"));
+    expect(html).not.toMatch(/<dt[^>]*>updated<\/dt>/);
+  });
+});
+
+describe.skip("MDX components render with brutalist styling hooks", () => {
+  test("Callout component emits .callout root with data-variant", () => {
+    // hello-world contains <Callout variant="note" title="Placeholder">…
+    const html = read(join(DIST, "posts", "hello-world", "index.html"));
+    expect(html).toMatch(/<aside[^>]*class="[^"]*\bcallout\b[^"]*"[^>]*data-variant="note"/);
+    expect(html).toMatch(/class="callout-label"/);
+    expect(html).toMatch(/class="callout-title"/);
+  });
+});
+
+describe.skip("posts archive (/posts/)", () => {
+  const archive = join(DIST, "posts", "index.html");
+
+  test("archive page exists", () => {
+    expect(existsSync(archive)).toBe(true);
+  });
+
+  test("archive lists posts with title and date", () => {
+    const html = read(archive);
+    expect(html).toMatch(/<h1[^>]*>All posts<\/h1>/);
+    // Each post row has a <time datetime=…> and a row-title span.
+    expect(html).toMatch(/<time[^>]*datetime="\d{4}-\d{2}-\d{2}/);
+    expect(html).toMatch(/class="row-title"/);
+  });
+
+  test("archive links resolve to /posts/<slug>/", () => {
+    const html = read(archive);
+    expect(html).toMatch(/href="\/posts\/[a-z0-9-]+\/"/);
+  });
+
+  test("archive uses BaseLayout chrome", () => {
+    const html = read(archive);
+    expect(html).toMatch(/<header[^>]*role="banner"/);
+    expect(html).toMatch(/<footer[^>]*role="contentinfo"/);
+    expect(html).toMatch(/<link rel="canonical" href="https:\/\/ryanhenderson\.dev\/posts\/"/);
+  });
+
+  test("archive nav marks /posts/ as current", () => {
+    const html = read(archive);
+    const navAnchors = (html.match(/<a\b[^>]*>/g) ?? []).filter(
+      (tag) => /href="\/posts\/"/.test(tag) && /aria-current="page"/.test(tag),
+    );
+    expect(navAnchors.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("archive does NOT include the draft fixture", () => {
+    const html = read(archive);
+    expect(html).not.toMatch(/href="\/posts\/draft-fixture\//);
+    expect(html).not.toMatch(/Draft Fixture/);
+  });
+
+  test("archive count matches the number of published posts", () => {
+    const html = read(archive);
+    // Four published after E8: hello-world, mid-post, early-post, hello-blog.
+    // (draft-fixture and the-cost-of-estimation are drafts → excluded.)
+    expect(html).toMatch(/<p[^>]*class="archive-count"[^>]*>\s*4\s*posts\s*<\/p>/);
+  });
+
+  test("archive does NOT include the cost-of-estimation draft", () => {
+    const html = read(archive);
+    expect(html).not.toMatch(/href="\/posts\/the-cost-of-estimation\//);
+  });
+});

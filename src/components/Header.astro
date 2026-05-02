@@ -1,0 +1,63 @@
+---
+/**
+ * E3 — Global header.
+ *
+ * Contains the wordmark (home link), primary <Nav />, and the SINGLE
+ * <ThemeToggle /> instance for the site (implicit contract — one toggle, one
+ * place). Keeping the toggle inside the header keeps the theme state machine
+ * (E2 C-5) trivially scoped: any page that uses BaseLayout gets the toggle
+ * for free.
+ */
+import Nav from "./Nav.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+---
+<header class="site-header" role="banner">
+  <div class="site-header-inner">
+    <a href="/" class="wordmark" aria-label="ryanhenderson.dev — home">
+      ryanhenderson.dev
+    </a>
+    <div class="site-header-controls">
+      <Nav />
+      <ThemeToggle class="site-toggle" />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+  }
+  .site-header-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .wordmark {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .wordmark:hover,
+  .wordmark:focus-visible {
+    color: var(--accent);
+  }
+  .site-header-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--space-unit) * 2);
+  }
+  @media (max-width: 40rem) {
+    .site-header-inner {
+      padding: calc(var(--space-unit) * 2);
+    }
+  }
+</style>

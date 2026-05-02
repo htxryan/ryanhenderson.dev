@@ -1,0 +1,49 @@
+# Cloudflare Pages headers file (E9 — C-12).
+#
+# Format: <pattern>\n  <Header-Name>: <value>\n  ...\n
+# Reference: https://developers.cloudflare.com/pages/configuration/headers/
+#
+# Two concerns live here, deliberately kept in one file:
+#
+# 1. Baseline hardening for every response (CSP, nosniff, referrer policy).
+# 2. Branch-conditional noindex for non-prod CF Pages preview deploys
+#    (advisory P1 #1, P2 #12). Production stays indexable.
+#
+# CSP is hash-pinned. Every inline <script> in the built HTML is enumerated
+# below. `scripts/check-csp-hashes.mjs` runs at the end of `pnpm build` and
+# fails the deploy if (a) any inline script in dist/ is not listed here, or
+# (b) any hash listed here no longer corresponds to a script in dist/. Edit
+# the hash list ONLY by re-running `node scripts/check-csp-hashes.mjs --fix`
+# and committing the result.
+#
+# Style hashes are intentionally NOT pinned: Astro emits per-component
+# scoped <style> blocks whose contents vary with content, so style-src uses
+# 'unsafe-inline'. Inline styles are not a meaningful XSS vector for a
+# static site with no untrusted runtime input.
+#
+# `'wasm-unsafe-eval'` (CSP Level 3) is required for Pagefind, which
+# compiles its WebAssembly engine at runtime when the user opens /search/.
+# wasm-unsafe-eval is narrower than 'unsafe-eval': it permits
+# WebAssembly.compile/instantiate but does NOT permit eval() or
+# new Function(). Pagefind's WASM is build-time-fingerprinted (lives at
+# /pagefind/wasm.<lang>.pagefind), so the threat model is unchanged.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://static.cloudflareinsights.com 'sha256-7xrQWIERox+JpgxLbDENjEKIzD0/Rh2BvrjbuIVDBdg=' 'sha256-YPBJns7Zs7jQJaAUaZ4u14xAjdubt4FULj+1oCnIRqE=' 'sha256-jOl8mv2VZrXH3kX4vo6dLUYmHHGzdoMtg6AY7YBAOxc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()
+
+# --- Branch-conditional noindex (advisory P1 #1, P2 #12) ---
+# CF Pages serves preview branches at <branch>.<project>.pages.dev and the
+# production branch at <project>.pages.dev. The custom domain only routes
+# to the production branch. We add X-Robots-Tag for any host that is NOT
+# the canonical custom-domain apex/www. Belt and braces: we ALSO emit it on
+# the .pages.dev hostname, so even if a previewer scans the production
+# *.pages.dev URL, search engines still see noindex.
+
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex, nofollow
+
+https://:branch.:project.pages.dev/*
+  X-Robots-Tag: noindex, nofollow

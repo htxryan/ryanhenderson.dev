@@ -1,0 +1,86 @@
+---
+/**
+ * About — bio + contact.
+ *
+ * Bio is hand-authored. The full work history lives on LinkedIn (linked
+ * below); this page is the short version for visitors who want the gist
+ * before clicking out.
+ *
+ * Tagline + name: see `~/lib/site-meta` for the single source of truth.
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import { SITE_NAME, SITE_TAGLINE } from "~/lib/site-meta";
+---
+<BaseLayout
+  title={SITE_NAME}
+  description={`${SITE_NAME} — ${SITE_TAGLINE}. Generalist, problem solver, builder of small useful things.`}
+  canonicalPath="/about/"
+>
+  <article class="about prose">
+    <header class="about-header">
+      <p class="about-eyebrow">about</p>
+      <h1>{SITE_NAME}</h1>
+      <p class="about-tag">{SITE_TAGLINE}.</p>
+    </header>
+    <p>
+      I've been shipping software since 2010 — most of it as a consultant,
+      embedded with product and platform teams to untangle systems and turn
+      vague problems into working code. My background is broad (deepest in
+      the .NET ecosystem, generalist everywhere else), and the focus now is
+      AI engineering: agentic workflows, model integrations, and the small
+      developer tools that make those workflows sharper.
+    </p>
+    <p>
+      I'm drawn to novel problems — the kind that don't have a tidy answer
+      waiting on the first page of search results. A few of the things I've
+      built around that are on the <a href="/work/">work</a> page.
+    </p>
+    <p>
+      For the long version — work history, recommendations, what I'm
+      currently up to — see my
+      <a
+        href="https://www.linkedin.com/in/htxryan/"
+        target="_blank"
+        rel="me noreferrer"
+      >LinkedIn profile</a>. Code lives on
+      <a
+        href="https://github.com/htxryan"
+        target="_blank"
+        rel="me noreferrer"
+      >GitHub</a>; shorter thoughts on
+      <a
+        href="https://twitter.com/htxryan"
+        target="_blank"
+        rel="me noreferrer"
+      >Twitter</a>. Reach me directly at
+      <a href="mailto:contact@redhale.com">contact@redhale.com</a>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .about-header {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding-bottom: calc(var(--space-unit));
+    margin-bottom: calc(var(--space-unit) * 2);
+  }
+  .about-eyebrow {
+    margin: 0 0 calc(var(--space-unit) * 0.5);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .about h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .about-tag {
+    margin: calc(var(--space-unit) * 0.75) 0 0;
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+</style>

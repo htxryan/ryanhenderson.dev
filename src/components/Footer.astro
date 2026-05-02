@@ -1,0 +1,135 @@
+---
+/**
+ * Global footer.
+ *
+ * Brutalist: hairline rule + colophon. No client JS. Provides:
+ *   - copyright with a stable "current year" computed at build time
+ *   - secondary nav mirroring the header (home / work / about). Kept
+ *     inline (rather than reusing Nav.astro) because the footer styling
+ *     is muted vs. the header's ink-on-paper treatment.
+ *   - external profiles (twitter / linkedin)
+ *
+ * Blog hidden — `writing` link and rss feed link are suppressed in both
+ * navs. Restore alongside BLOG_VISIBLE.
+ *
+ * All external links open in a new tab with `rel="noreferrer"` (so the
+ * destination cannot read the referrer). The `me` token preserves the
+ * identity-claim relationship for IndieAuth-style discovery.
+ */
+const year = new Date().getFullYear();
+const path = Astro.url.pathname;
+
+type Link = { href: string; label: string; matchPrefix?: string };
+const navLinks: Link[] = [
+  { href: "/", label: "home" },
+  { href: "/about/", label: "about" },
+  { href: "/work/", label: "work", matchPrefix: "/work/" },
+];
+function isActive(link: Link): boolean {
+  if (link.matchPrefix) return path.startsWith(link.matchPrefix);
+  return path === link.href;
+}
+---
+<footer class="site-footer" role="contentinfo">
+  <div class="site-footer-inner">
+    <p class="colophon">© {year} Ryan Henderson</p>
+    <nav class="footer-nav" aria-label="Footer">
+      <ul>
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={isActive(link) ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <ul class="links" aria-label="External profiles">
+      <li>
+        <a
+          href="https://github.com/htxryan"
+          target="_blank"
+          rel="me noreferrer"
+        >
+          github
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://twitter.com/htxryan"
+          target="_blank"
+          rel="me noreferrer"
+        >
+          twitter
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://www.linkedin.com/in/htxryan/"
+          target="_blank"
+          rel="me noreferrer"
+        >
+          linkedin
+        </a>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: var(--rule-hairline) solid var(--rule-color);
+    margin-top: calc(var(--space-unit) * 3);
+  }
+  .site-footer-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 3);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--space-unit) * 2);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+  .colophon {
+    margin: 0;
+  }
+  .footer-nav ul,
+  .links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: calc(var(--space-unit) * 2);
+  }
+  .footer-nav a,
+  .links a {
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: lowercase;
+    border-bottom: var(--rule-hairline) solid transparent;
+    padding-bottom: 2px;
+  }
+  .footer-nav a:hover,
+  .footer-nav a:focus-visible,
+  .links a:hover,
+  .links a:focus-visible {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .footer-nav a[aria-current="page"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  @media (max-width: 40rem) {
+    .site-footer-inner {
+      padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 2);
+    }
+  }
+</style>

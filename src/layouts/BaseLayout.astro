@@ -1,0 +1,166 @@
+---
+/**
+ * E3 — BaseLayout (contract C-6).
+ *
+ * The chrome that wraps every route. Establishes:
+ *   - <head> meta budget discipline
+ *   - <ThemeBoot /> as the FIRST executable element after charset/viewport
+ *   - skip-link as the first focusable element after <body>
+ *   - global Header (with single ThemeToggle) and Footer
+ *
+ * Mandatory props (C-6):
+ *   - title          rendered as <title> and og:title
+ *   - description    rendered as meta description and og:description
+ *   - canonicalPath  absolute path on this site (e.g. "/about/"); we compose
+ *                    the canonical URL by joining with `Astro.site`.
+ *
+ * Optional props:
+ *   - ogImage        absolute URL for og:image (E7 fills these per-route)
+ *   - noindex        emits <meta name="robots" content="noindex">
+ *   - pubDate        passed by post layout (E4) to drive article schema
+ *   - articleType    "post" | "project" — opt-in og:type=article
+ *
+ * Slots:
+ *   - default        page body (wrapped in <main>)
+ *   - head           per-route extras inside <head>
+ *   - footer         optional override for footer; defaults to <Footer />
+ *
+ * HTML budget (U-20): keep the static markup terse. The home, about, and 404
+ * routes MUST stay under 50 KB gzipped on first load.
+ */
+import "~/styles/base.css";
+import ThemeBoot from "~/components/ThemeBoot.astro";
+import Header from "~/components/Header.astro";
+import Footer from "~/components/Footer.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  ogImage?: string;
+  noindex?: boolean;
+  pubDate?: Date;
+  articleType?: "post" | "project";
+}
+
+const {
+  title,
+  description,
+  canonicalPath,
+  ogImage,
+  noindex = false,
+  pubDate,
+  articleType,
+} = Astro.props;
+
+const site = Astro.site?.toString() ?? "https://ryanhenderson.dev/";
+const canonicalUrl = new URL(canonicalPath, site).toString();
+const ogType = articleType ? "article" : "website";
+// E7 — every route gets an absolute og:image: per-slug card if the route
+// supplied one, otherwise the static `/og-default.png` fallback. Crawlers
+// (Twitter/Slack/iMessage) reject relative URLs and silently drop the
+// preview, so we always resolve against `Astro.site`.
+const ogImageUrl = new URL(ogImage ?? "/og-default.png", site).toString();
+
+// E9 — Cloudflare Web Analytics (W-2 — only sanctioned tracker).
+// Render the beacon in production builds only. `import.meta.env.PROD` is
+// statically replaced at build time, so dev builds emit literal `false`
+// here and the beacon is dead-code-eliminated. The token is sourced from
+// `CF_WEB_ANALYTICS_TOKEN`; CF Web Analytics tokens are designed to ship
+// in HTML so we read it via process.env (build-time) without the PUBLIC_
+// prefix to keep .env.example aligned with the spec's variable name.
+// If the token is unset (e.g. local prod build), the beacon is suppressed
+// rather than emitting an unconfigured `data-cf-beacon` attribute.
+const cfAnalyticsToken = process.env.CF_WEB_ANALYTICS_TOKEN ?? "";
+const showCfAnalytics = import.meta.env.PROD && cfAnalyticsToken.length > 0;
+// JSON.stringify guarantees the attribute is well-formed JSON even if the
+// token ever contains a `"` or `\`. Astro still attribute-escapes the result.
+const cfBeaconAttr = JSON.stringify({ token: cfAnalyticsToken });
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ThemeBoot />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {/* Canonical only on indexable routes — emitting one on a noindex page
+        (e.g. /404/) would tell crawlers to canonicalize that URL. */}
+    {noindex ? null : <link rel="canonical" href={canonicalUrl} />}
+    {noindex ? <meta name="robots" content="noindex" /> : null}
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    {pubDate ? (
+      <meta property="article:published_time" content={pubDate.toISOString()} />
+    ) : null}
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    {/* RSS/Atom alternate links suppressed while the blog is hidden — see
+        Nav.astro for the re-enable note. */}
+    {/* favicon ships in E7 (assets) — don't reference one before public/ exists. */}
+
+    {showCfAnalytics ? (
+      <script
+        defer
+        is:inline
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={cfBeaconAttr}
+      />
+    ) : null}
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">skip to content</a>
+    <Header />
+    <main id="main" class="main">
+      <slot />
+    </main>
+    <slot name="footer">
+      <Footer />
+    </slot>
+  </body>
+</html>
+
+<style>
+  /* Skip-link: absolutely positioned in BOTH states so revealing it on focus
+     does not push the header (zero CLS contribution). */
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-200%);
+    padding: calc(var(--space-unit) * 0.75) var(--space-unit);
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    font-family: var(--font-mono);
+    z-index: 100;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+  .main {
+    /* Page-level container; per-route layouts decide their own grid. */
+    padding: calc(var(--space-unit) * 2) calc(var(--space-unit) * 3);
+    max-width: 80rem;
+    margin: 0 auto;
+  }
+  @media (max-width: 40rem) {
+    .main {
+      padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 2);
+    }
+  }
+</style>

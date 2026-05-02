@@ -1,0 +1,91 @@
+---
+/**
+ * Portfolio index (`/work/`).
+ *
+ * Lists every published project, ordered by status (active → coming-soon
+ * → archived → private). `private` is filtered out by
+ * `getPublishedProjects()` (the single filter authority, C-2). The build
+ * gate `pnpm check:content-source` enforces that this route never bypasses
+ * the helper.
+ *
+ * Card markup is shared with the home page via <ProjectCard />, but the
+ * home page no longer lists projects (it shows only landing-style links to
+ * /about/ and /work/), so this is currently the sole consumer.
+ *
+ * Performance: zero client JS shipped from this route (W-1).
+ */
+import BaseLayout from "~/layouts/BaseLayout.astro";
+import ProjectCard from "~/components/ProjectCard.astro";
+import { getPublishedProjects } from "~/lib/content";
+import { SITE_NAME } from "~/lib/site-meta";
+
+const projects = await getPublishedProjects();
+---
+<BaseLayout
+  title={SITE_NAME}
+  description="Work I'm ... working on"
+  canonicalPath="/work/"
+>
+  <section class="archive" aria-labelledby="archive-heading">
+    <header class="archive-header">
+      <p class="archive-eyebrow">work</p>
+      <h1 id="archive-heading">Work</h1>
+      <p class="archive-tag">I'm ... working on.</p>
+    </header>
+    {projects.length === 0 ? (
+      <p class="empty">No projects yet.</p>
+    ) : (
+      <ul class="cards" role="list">
+        {projects.map((project) => (
+          <li class="cards-item">
+            <ProjectCard project={project} />
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .archive-header {
+    border-bottom: var(--rule-hairline) solid var(--rule-color);
+    padding-bottom: calc(var(--space-unit));
+    margin-bottom: calc(var(--space-unit) * 2);
+  }
+  .archive-eyebrow {
+    margin: 0 0 calc(var(--space-unit) * 0.5);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .archive-header h1 {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .archive-tag {
+    margin: calc(var(--space-unit) * 0.75) 0 0;
+    color: var(--muted);
+    max-width: var(--measure);
+  }
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: calc(var(--space-unit) * 2);
+    max-width: var(--measure);
+  }
+  .cards-item {
+    display: block;
+  }
+  .empty {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+  }
+</style>

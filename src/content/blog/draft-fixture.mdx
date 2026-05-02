@@ -1,0 +1,9 @@
+---
+title: "Draft Fixture"
+pubDate: 2026-04-01
+summary: "Draft used by tests to verify drafts never appear in archive, prev/next, or static paths in prod builds."
+tags: ["fixture"]
+draft: true
+---
+
+This post must NEVER appear in production builds. It is excluded by `getPublishedPosts()` (the single filter authority) which `[slug].astro` and `posts/index.astro` both consume.

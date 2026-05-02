@@ -1,4 +1,45 @@
+# Jekyll (legacy; retired in E8)
 _site/
 .sass-cache/
 .jekyll-cache/
 .jekyll-metadata
+
+# Astro
+dist/
+.astro/
+.output/
+
+# Node
+node_modules/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+
+# compound-agent managed
+.compound-agent/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Playwright
+test-results/
+playwright-report/
+
+# Lighthouse CI
+.lighthouseci/
+
+# Vitest coverage
+coverage/
