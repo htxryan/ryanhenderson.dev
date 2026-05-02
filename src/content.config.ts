@@ -1,6 +1,6 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
-import { blogSchema, projectSchema } from "./schemas";
+import { blogSchema, projectSchema } from "./content/schemas";
 
 /**
  * Slug rule (enforced via filename convention by Astro):
