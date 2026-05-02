@@ -215,17 +215,17 @@ jobs:
           name: dist
           path: dist
 
-      - name: deploy via wrangler
-        # `wrangler pages deploy` is invoked through `npx wrangler@4` so we
-        # don't carry it as a project devDependency just for CI. The
-        # commit-hash + commit-message tag the CF deployment with the
-        # producing GitHub commit so dashboard history matches git.
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: 6e32c58c0c71b7228ddca35c4c466b6c
-        run: |
-          npx --yes wrangler@4 pages deploy dist \
-            --project-name ryanhenderson-dev \
-            --branch master \
-            --commit-hash "$GITHUB_SHA" \
-            --commit-message "$(git log -1 --pretty=%s "$GITHUB_SHA")"
+      - name: deploy via Cloudflare's official wrangler-action
+        # Using the maintained action instead of raw `npx wrangler` — it
+        # handles API-token plumbing (env var names, header injection,
+        # account scoping) without subtle env-var ordering bugs that hit
+        # us on a previous attempt with the same token.
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 6e32c58c0c71b7228ddca35c4c466b6c
+          # `commit-hash` tags the CF deployment with the producing git
+          # commit so the dashboard history matches. We omit
+          # `--commit-message` to avoid escaping problems with multi-line
+          # squash messages (the action sees the message via env anyway).
+          command: pages deploy dist --project-name=ryanhenderson-dev --branch=master --commit-hash=${{ github.sha }}
