@@ -1,12 +1,14 @@
 /**
  * IV-2 — Lighthouse-CI configuration.
  *
- * Mobile-profile gates on five cross-epic routes:
- *   - /                       (home — BaseLayout + ProjectCard + nav)
- *   - /posts/                 (post index)
- *   - /posts/hello-world/     (post route — Shiki + reading time)
+ * Mobile-profile gates on the cross-epic routes that are currently built:
+ *   - /                       (home — landing cards)
+ *   - /about/                 (bio)
  *   - /work/                  (work index)
- *   - /work/alpha/            (project detail — ProjectCard detail surface)
+ *
+ * Disabled (return 404 in current build — restore alongside their routes):
+ *   - /posts/, /posts/<slug>/  (blog hidden — see BLOG_VISIBLE)
+ *   - /work/<slug>/            (project detail page removed)
  *
  * Thresholds: ≥95 for performance, accessibility, best-practices, SEO.
  * Anything <95 fails the run. The numbers track spec §6 S-12 directly.
@@ -35,10 +37,8 @@ module.exports = {
       // matching on that string is the explicit readiness signal.
       url: [
         "http://127.0.0.1:4321/",
-        "http://127.0.0.1:4321/posts/",
-        "http://127.0.0.1:4321/posts/hello-world/",
+        "http://127.0.0.1:4321/about/",
         "http://127.0.0.1:4321/work/",
-        "http://127.0.0.1:4321/work/alpha/",
       ],
       // 3 runs + median aggregation: single-run mobile Lighthouse on
       // GH Actions runners is variance-prone (CPU jitter can drop a 100
