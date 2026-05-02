@@ -187,3 +187,45 @@ jobs:
           #     fix. The link itself is fine in real browsers.
           args: --no-progress --root-dir ${{ github.workspace }}/dist --exclude 'linkedin\.com' 'dist/**/*.html'
           fail: true
+
+  deploy:
+    name: deploy to Cloudflare Pages (production)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Production gate: only runs after every gating job is green AND only
+    # on direct pushes to master (i.e. PR merges). Never runs on PRs
+    # themselves or on the rebuild branch — both of those need to stay
+    # off prod.
+    needs: [verify, e2e, lhci, links]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    concurrency:
+      # Serialize prod deploys: even if two pushes land in quick
+      # succession, only the latest deploys.
+      group: cf-pages-deploy-master
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: download dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: deploy via wrangler
+        # `wrangler pages deploy` is invoked through `npx wrangler@4` so we
+        # don't carry it as a project devDependency just for CI. The
+        # commit-hash + commit-message tag the CF deployment with the
+        # producing GitHub commit so dashboard history matches git.
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 6e32c58c0c71b7228ddca35c4c466b6c
+        run: |
+          npx --yes wrangler@4 pages deploy dist \
+            --project-name ryanhenderson-dev \
+            --branch master \
+            --commit-hash "$GITHUB_SHA" \
+            --commit-message "$(git log -1 --pretty=%s "$GITHUB_SHA")"
