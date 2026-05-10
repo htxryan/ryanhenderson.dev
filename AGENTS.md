@@ -201,3 +201,7 @@ that stack trace.
 - WCAG contrast for accent, muted, ink, and rule colors is asserted in
   `tests/tokens.test.ts`. New light and dark accent variants must pass AA
   contrast, 4.5:1, against their respective `paper` colors.
+
+## Basic Memory
+
+This repository is registered with [Basic Memory](https://docs.basicmemory.com/) under project **`ryanhenderson.dev`** (notes in `docs/`). Use the `basic-memory` MCP server (configured at the user level for Claude Code and Codex CLI) to search, read, and write structured notes for this project.
