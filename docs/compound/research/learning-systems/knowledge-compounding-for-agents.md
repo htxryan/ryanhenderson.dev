@@ -1,3 +1,9 @@
+---
+title: knowledge-compounding-for-agents
+type: note
+permalink: ryanhenderson.dev/compound/research/learning-systems/knowledge-compounding-for-agents
+---
+
 # Knowledge Compounding for AI Agents
 *PhD-Level Survey for Compound Agent Learning Phase*
 

@@ -1,3 +1,9 @@
+---
+title: 01-linter-apis
+type: note
+permalink: ryanhenderson.dev/compound/research/lint-graduation/01-linter-apis
+---
+
 # Linter Custom Rule APIs: Cross-Ecosystem Research
 
 **Research for**: `learning_agent-i72b`

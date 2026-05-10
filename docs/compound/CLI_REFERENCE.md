@@ -1,7 +1,8 @@
 ---
-version: "2.7.2"
-last-updated: "2026-04-30"
-summary: "Complete CLI command reference for compound-agent"
+version: 2.7.2
+last-updated: '2026-04-30'
+summary: Complete CLI command reference for compound-agent
+permalink: ryanhenderson.dev/compound/cli-reference
 ---
 
 # CLI Reference

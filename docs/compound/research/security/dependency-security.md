@@ -1,3 +1,9 @@
+---
+title: dependency-security
+type: note
+permalink: ryanhenderson.dev/compound/research/security/dependency-security
+---
+
 # Dependency Security Reference
 
 *February 23, 2026*

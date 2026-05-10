@@ -1,3 +1,9 @@
+---
+title: 03-compiler-toolchain
+type: note
+permalink: ryanhenderson.dev/compound/research/go-phd/03-compiler-toolchain
+---
+
 # Go's Compiler Toolchain: From Source to Binary in Seconds
 
 *2026-03-09*

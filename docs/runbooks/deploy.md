@@ -1,8 +1,15 @@
 ---
-title: "Deploy runbook — ryanhenderson.dev"
+title: Deploy runbook — ryanhenderson.dev
 epic: E9
-contracts: [C-12, C-13]
-ears: [U-21, U-23, E-4, E-5]
+contracts:
+- C-12
+- C-13
+ears:
+- U-21
+- U-23
+- E-4
+- E-5
+permalink: ryanhenderson.dev/runbooks/deploy
 ---
 
 # Deploy runbook

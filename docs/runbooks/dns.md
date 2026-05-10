@@ -1,8 +1,13 @@
 ---
-title: "DNS & token runbook — ryanhenderson.dev"
+title: DNS & token runbook — ryanhenderson.dev
 epic: E9
-contracts: [C-14]
-ears: [U-22, U-23, S-13]
+contracts:
+- C-14
+ears:
+- U-22
+- U-23
+- S-13
+permalink: ryanhenderson.dev/runbooks/dns
 ---
 
 # DNS & API token runbook

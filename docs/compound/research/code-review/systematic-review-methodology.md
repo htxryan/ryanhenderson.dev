@@ -1,3 +1,9 @@
+---
+title: systematic-review-methodology
+type: note
+permalink: ryanhenderson.dev/compound/research/code-review/systematic-review-methodology
+---
+
 # Systematic Code Review Methodology
 *PhD-Level Survey for Compound Agent Review Phase*
 

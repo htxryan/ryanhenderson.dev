@@ -1,7 +1,8 @@
 ---
-version: "2.7.2"
-last-updated: "2026-04-30"
-summary: "Memory system, hooks, beads integration, and agent guidance"
+version: 2.7.2
+last-updated: '2026-04-30'
+summary: Memory system, hooks, beads integration, and agent guidance
+permalink: ryanhenderson.dev/compound/integration
 ---
 
 # Integration

@@ -1,7 +1,8 @@
 ---
-title: "ryanhenderson.dev — Advisory Fleet Brief"
+title: ryanhenderson.dev — Advisory Fleet Brief
 date: 2026-04-30
 spec: blog-portfolio-site.md
+permalink: ryanhenderson.dev/specs/blog-portfolio-site-advisory-brief
 ---
 
 # Advisory Fleet Brief — ryanhenderson.dev

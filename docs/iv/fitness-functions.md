@@ -1,3 +1,9 @@
+---
+title: fitness-functions
+type: note
+permalink: ryanhenderson.dev/iv/fitness-functions
+---
+
 # IV — Fitness functions and baseline values
 
 This document is the source of truth for the cross-epic invariants the

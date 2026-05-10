@@ -1,3 +1,9 @@
+---
+title: go-migration-feasibility
+type: note
+permalink: ryanhenderson.dev/compound/research/go-migration-feasibility
+---
+
 # Go Migration Feasibility Analysis
 
 *2026-03-09*

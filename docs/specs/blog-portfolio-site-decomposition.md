@@ -1,8 +1,9 @@
 ---
-title: "ryanhenderson.dev — Decomposition (Phase 3 synthesis)"
+title: ryanhenderson.dev — Decomposition (Phase 3 synthesis)
 date: 2026-04-30
 spec: blog-portfolio-site.md
 advisory: blog-portfolio-site-advisory-brief.md
+permalink: ryanhenderson.dev/specs/blog-portfolio-site-decomposition
 ---
 
 # Decomposition Synthesis — ryanhenderson.dev

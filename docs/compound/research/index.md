@@ -1,3 +1,9 @@
+---
+title: index
+type: note
+permalink: ryanhenderson.dev/compound/research/index
+---
+
 # Research Index
 
 > Shipped by compound-agent. Source: `docs/compound/research/` in the compound-agent repo.
