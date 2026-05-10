@@ -1,3 +1,9 @@
+---
+title: injection-patterns
+type: note
+permalink: ryanhenderson.dev/compound/research/security/injection-patterns
+---
+
 # Injection Pattern Reference
 
 *February 23, 2026*

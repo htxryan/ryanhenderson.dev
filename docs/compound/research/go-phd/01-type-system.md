@@ -1,3 +1,9 @@
+---
+title: 01-type-system
+type: note
+permalink: ryanhenderson.dev/compound/research/go-phd/01-type-system
+---
+
 # Go's Type System: Structural Typing, Interfaces, and Generics
 
 *2026-03-09*

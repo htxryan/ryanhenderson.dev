@@ -1,8 +1,9 @@
 ---
-title: "ryanhenderson.dev — Blog + Portfolio System Spec"
+title: ryanhenderson.dev — Blog + Portfolio System Spec
 date: 2026-04-30
 status: draft
 phase: architect-phase-2
+permalink: ryanhenderson.dev/specs/blog-portfolio-site
 ---
 
 # ryanhenderson.dev — System-Level Specification

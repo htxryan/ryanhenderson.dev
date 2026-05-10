@@ -1,3 +1,9 @@
+---
+title: 02-architecture-under-uncertainty
+type: note
+permalink: ryanhenderson.dev/compound/research/software-architecture/02-architecture-under-uncertainty
+---
+
 # Architecture Under Uncertainty: Making Irreversible Structural Decisions with Incomplete Information
 
 *PhD-Level Survey in Software Architecture and Decision Theory*

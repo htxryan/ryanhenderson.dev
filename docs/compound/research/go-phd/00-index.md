@@ -1,3 +1,9 @@
+---
+title: 00-index
+type: note
+permalink: ryanhenderson.dev/compound/research/go-phd/00-index
+---
+
 # Go's Architecture of Deliberate Constraints
 
 *A PhD-Level Survey of the Go Programming Language*

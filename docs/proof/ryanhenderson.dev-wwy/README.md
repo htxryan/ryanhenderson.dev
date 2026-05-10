@@ -1,3 +1,9 @@
+---
+title: README
+type: note
+permalink: ryanhenderson.dev/proof/ryanhenderson.dev-wwy/readme
+---
+
 # Proof — ryanhenderson.dev (meta-epic `ryanhenderson.dev-wwy`)
 
 Captured by `/prove-it remote` after the architect → infinity-loop run that closed all 10 domain epics + the IV epic in **2h 39m**, single-attempt across the board.

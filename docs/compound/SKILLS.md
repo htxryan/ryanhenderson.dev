@@ -1,7 +1,8 @@
 ---
-version: "2.7.2"
-last-updated: "2026-04-30"
-summary: "Phase skills and agent role skills reference"
+version: 2.7.2
+last-updated: '2026-04-30'
+summary: Phase skills and agent role skills reference
+permalink: ryanhenderson.dev/compound/skills
 ---
 
 # Skills Reference

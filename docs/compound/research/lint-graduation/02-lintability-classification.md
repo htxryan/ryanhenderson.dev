@@ -1,3 +1,9 @@
+---
+title: 02-lintability-classification
+type: note
+permalink: ryanhenderson.dev/compound/research/lint-graduation/02-lintability-classification
+---
+
 # LLM-Driven Lintability Classification
 
 **Research for**: `learning_agent-ddky`
