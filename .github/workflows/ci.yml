@@ -174,7 +174,7 @@ jobs:
           path: dist
 
       - name: lychee
-        uses: lycheeverse/lychee-action@v1.10.0
+        uses: lycheeverse/lychee-action@v2.9.0
         with:
           # Pin lychee-action to v1.10.0 until v2 binary download is fixed.
           # Arguments: --exclude linkedin.com, then the directory/pattern.
