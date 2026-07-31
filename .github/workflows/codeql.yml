@@ -21,13 +21,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: github/codeql-action/init@v4
+      - uses: github/codeql-action/init@v4.37.3
         with:
           languages: javascript-typescript
           queries: security-extended
 
       # autobuild deliberately omitted: this is a static Astro site; CodeQL
       # traces JS/TS sources without a tsc-style build step.
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@v4.37.3
         with:
           category: "/language:javascript-typescript"
