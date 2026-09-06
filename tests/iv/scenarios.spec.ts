@@ -142,14 +142,16 @@ test.describe.skip("S-7 — /hello-blog/ legacy URL", () => {
 });
 
 test.describe("S-11 — private repositories stay off public cards", () => {
-  test("both food apps link to their products without repo buttons", async ({ page }) => {
+  test("only the public app has a product link", async ({ page }) => {
     await page.goto("/work/");
     const cards = page.locator(".project-card");
     await expect(cards).toHaveCount(2);
     await expect(cards.locator("[data-repo-link]")).toHaveCount(0);
-    await expect(cards.getByRole("link", { name: "Menu Simplifier" })).toHaveAttribute("href", "https://menusimplifier.com");
+    const menuCard = cards.filter({ has: page.getByRole("heading", { name: "Menu Simplifier", exact: true }) });
+    await expect(menuCard).toContainText("in development");
+    await expect(menuCard.locator("a")).toHaveCount(0);
     await expect(cards.getByRole("link", { name: "Salata Recipe Finder" })).toHaveAttribute("href", "https://saladrecipefinder.com");
-    await expect(cards).toContainText(["Access currently restricted.", "not affiliated with Salata."]);
+    await expect(cards.filter({ hasText: "Salata Recipe Finder" })).toContainText("not affiliated with Salata.");
   });
 });
 

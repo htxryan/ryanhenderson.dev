@@ -48,8 +48,10 @@ export const projectSchema = z
   .object({
     name: z.string().min(1),
     oneLiner: z.string().min(1).max(140),
-    status: z.enum(["coming-soon", "active", "archived", "private"]),
-    marketingUrl: z.string().url(),
+    status: z.enum([
+      "coming-soon", "in-development", "active", "archived", "private",
+    ]),
+    marketingUrl: z.string().url().optional(),
     repoUrl: z.string().url().optional(),
     tags: tagSchema,
     pubDate: z.coerce.date().optional(),

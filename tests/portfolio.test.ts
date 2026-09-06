@@ -47,7 +47,7 @@ function listProjectHtml(): string[] {
 const WORK_INDEX = join(DIST, "work", "index.html");
 const HOME = join(DIST, "index.html");
 
-// The two food apps are active projects with private repositories.
+// The two food apps have private repositories; Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
 const PUBLISHED_SLUGS = ["menu-simplifier", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
@@ -89,12 +89,12 @@ describe("U-7 — status-aware ordering and private hiding", () => {
     // is all-active. Restore when an archived project ships.
   });
 
-  test("active ties are ordered by id", () => {
+  test("the active app appears before the app in development", () => {
     const html = read(WORK_INDEX);
-    const menu = html.indexOf(">Menu Simplifier ↗</a>");
+    const menu = html.indexOf("Menu Simplifier");
     const salad = html.indexOf(">Salata Recipe Finder ↗</a>");
-    expect(menu).toBeGreaterThan(-1);
-    expect(salad).toBeGreaterThan(menu);
+    expect(salad).toBeGreaterThan(-1);
+    expect(menu).toBeGreaterThan(salad);
   });
 
   test("private project (delta) has no marketing-link presence on /work/ index", () => {
@@ -233,14 +233,17 @@ describe("ProjectCard — rendered on /work/ index", () => {
   // only on /work/ for now. When project cards return to the home page,
   // restore the cross-route divergence assertion from git history.
 
-  test("/work/ shows exactly two active food apps with accurate access notes", () => {
+  test("/work/ shows two food apps with accurate status and public links", () => {
     const html = read(WORK_INDEX);
     expect(html.match(/<article[^>]*class="project-card"/g)).toHaveLength(2);
-    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(2);
-    expect(html).toContain("Access currently restricted.");
+    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(1);
+    expect(html).toMatch(/data-status="in-development"[^>]*>in development<\/span>/);
+    const menuCard = html.match(/<article[^>]*class="project-card"[^>]*data-status="in-development"[^>]*>[\s\S]*?<\/article>/)?.[0];
+    expect(menuCard).toContain("Menu Simplifier");
+    expect(menuCard).not.toMatch(/<a\b|↗|data-repo-link/);
     expect(html).toContain("Unofficial; not affiliated with Salata.");
     expect(html).not.toMatch(/data-repo-link|coming soon/);
-    expect(html).toContain('href="https://menusimplifier.com"');
+    expect(html).not.toContain("menusimplifier.com");
     expect(html).toContain('href="https://saladrecipefinder.com"');
   });
 
@@ -249,7 +252,7 @@ describe("ProjectCard — rendered on /work/ index", () => {
     for (const file of files) {
       expect(file).not.toMatch(/butverify|c3p|pearl/i);
       if (/\.(html|xml|json)$/.test(file)) {
-        expect(read(join(DIST, file))).not.toMatch(/butverify|getc3p|C3P|getpearl|Pearl/i);
+        expect(read(join(DIST, file))).not.toMatch(/butverify|getc3p|C3P|getpearl|Pearl|menusimplifier\.com/i);
       }
     }
     expect(listProjectHtml()).toEqual([]);

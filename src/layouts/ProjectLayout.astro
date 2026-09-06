@@ -48,39 +48,43 @@ const ogImage = `/og/${project.id}.png`;
         <div class="meta-row">
           <dt>status</dt>
           <dd>
-            <span class="status-badge" data-status={status}>{status}</span>
+            <span class="status-badge" data-status={status}>{status.replace(/-/g, " ")}</span>
           </dd>
         </div>
-        <div class="meta-row">
-          <dt>links</dt>
-          <dd>
-            <ul class="link-list">
-              <li>
-                <a
-                  class="action primary"
-                  href={marketingUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  visit →
-                </a>
-              </li>
-              {repoUrl ? (
-                <li>
-                  <a
-                    class="action secondary"
-                    href={repoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    data-repo-link
-                  >
-                    repo →
-                  </a>
-                </li>
-              ) : null}
-            </ul>
-          </dd>
-        </div>
+        {marketingUrl || repoUrl ? (
+          <div class="meta-row">
+            <dt>links</dt>
+            <dd>
+              <ul class="link-list">
+                {marketingUrl ? (
+                  <li>
+                    <a
+                      class="action primary"
+                      href={marketingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      visit →
+                    </a>
+                  </li>
+                ) : null}
+                {repoUrl ? (
+                  <li>
+                    <a
+                      class="action secondary"
+                      href={repoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      data-repo-link
+                    >
+                      repo →
+                    </a>
+                  </li>
+                ) : null}
+              </ul>
+            </dd>
+          </div>
+        ) : null}
         {tags.length > 0 ? (
           <div class="meta-row">
             <dt>tags</dt>
