@@ -21,7 +21,7 @@ function postEntry(id: string, pubDate: string, draft = false): AnyEntry {
 
 function projectEntry(
   name: string,
-  status: "active" | "archived" | "private",
+  status: "active" | "in-development" | "archived" | "private",
 ): AnyEntry {
   return {
     id: name.toLowerCase(),
@@ -160,10 +160,11 @@ describe("filterAndSortProjects", () => {
     expect(out.map((e) => e.data.name)).toEqual(["Alpha", "Charlie", "Bravo"]);
   });
 
-  test("orders by status active → archived → private", () => {
+  test("orders by status active → in development → archived → private", () => {
     const entries = [
       projectEntry("Yankee", "private"),
       projectEntry("Mike", "archived"),
+      projectEntry("Beta", "in-development"),
       projectEntry("Alpha", "active"),
     ];
     const out = filterAndSortProjects(entries as never, {
@@ -171,6 +172,7 @@ describe("filterAndSortProjects", () => {
     });
     expect(out.map((e) => e.data.status)).toEqual([
       "active",
+      "in-development",
       "archived",
       "private",
     ]);

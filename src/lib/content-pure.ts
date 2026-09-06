@@ -21,11 +21,12 @@ export type PublishedProjectsOptions = {
 };
 
 const STATUS_RANK: Record<
-  "active" | "coming-soon" | "archived" | "private",
+  "active" | "coming-soon" | "in-development" | "archived" | "private",
   number
 > = {
   active: 0,
   "coming-soon": 1,
+  "in-development": 1,
   archived: 2,
   private: 3,
 };
@@ -101,8 +102,8 @@ export function getPostNeighbours(
 /**
  * Pure filter+sort for projects.
  *
- * Sort: `status` rank (active → archived → private if included), then `name`
- * asc as a deterministic tiebreaker.
+ * Sort: active → in development/coming soon → archived → private if included.
+ * Break ties by `name` ascending.
  */
 export function filterAndSortProjects(
   entries: ReadonlyArray<CollectionEntry<"projects">>,

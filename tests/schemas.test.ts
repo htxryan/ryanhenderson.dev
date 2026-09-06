@@ -90,6 +90,17 @@ describe("projectSchema", () => {
     expect(result.repoUrl).toBeUndefined();
   });
 
+  test("accepts a project in development without public links", () => {
+    const result = projectSchema.parse({
+      name: "Menu Simplifier",
+      oneLiner: "Understand a menu.",
+      status: "in-development",
+    });
+    expect(result.marketingUrl).toBeUndefined();
+    expect(result.repoUrl).toBeUndefined();
+    expect(result.status).toBe("in-development");
+  });
+
   test("accepts every optional field", () => {
     const result = projectSchema.parse({
       name: "Acme",

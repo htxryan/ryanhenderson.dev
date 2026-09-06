@@ -11,6 +11,7 @@
  *   - Title links DIRECTLY to the project's marketing site (or repo, if no
  *     marketing site). Opens in a new tab. There is no `/work/<slug>/`
  *     detail route — see src/pages/work/_[slug].astro for the disabled file.
+ *     Projects without a public URL render a plain title without an arrow.
  *   - One-liner sits inside the card so the row stays self-describing
  *   - A secondary "repo →" button appears only when the project has BOTH a
  *     marketing site (where the title points) AND a repo (separate target).
@@ -26,10 +27,8 @@ interface Props {
 
 const { project } = Astro.props;
 const { name, oneLiner, status, marketingUrl, repoUrl } = project.data;
-// Title prefers the marketing site; falls back to the repo. The schema
-// requires marketingUrl for non-private projects, so the fallback only
-// matters if a future schema change makes marketingUrl optional.
-const primaryUrl = marketingUrl ?? repoUrl ?? "#";
+// Title prefers the marketing site, then a public repo, or remains plain text.
+const primaryUrl = marketingUrl ?? repoUrl;
 // Show the secondary repo button only when the title and the repo are
 // pointing at different things — otherwise the button duplicates the title.
 const showRepoButton = !!repoUrl && primaryUrl !== repoUrl;
@@ -41,7 +40,9 @@ const statusLabel = status.replace(/-/g, " ");
   <header class="project-card-header">
     <span class="project-card-status" data-status={status}>{statusLabel}</span>
     <h3 class="project-card-title">
-      <a href={primaryUrl} target="_blank" rel="noreferrer">{name} ↗</a>
+      {primaryUrl ? (
+        <a href={primaryUrl} target="_blank" rel="noreferrer">{name} ↗</a>
+      ) : name}
     </h3>
   </header>
   <p class="project-card-oneliner">{oneLiner}</p>

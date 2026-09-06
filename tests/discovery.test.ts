@@ -233,11 +233,9 @@ describe("robots.txt", () => {
 
 describe("Tag archives (/tags/<tag>/)", () => {
   test("a /tags/<tag>/ page exists for every tag in the union of collections", () => {
-    // Blog hidden: post tags (meta, fixture) drop out of the union.
-    // Fixtures (alpha/bravo/charlie) removed: software/consulting/archive
-    // also drop out. Real projects contribute: ai, developer-tools, saas,
-    // cli, oss, issue-tracking.
-    const expected = ["ai", "developer-tools", "saas", "cli", "oss"];
+    // Only the two visible food apps contribute tags while the blog is hidden.
+    const expected = ["ai", "food", "recipes"];
+    expect(readdirSync(join(DIST, "tags")).sort()).toEqual(expected);
     for (const tag of expected) {
       const file = join(DIST, "tags", tag, "index.html");
       expect(existsSync(file), `expected /tags/${tag}/ to exist`).toBe(true);
@@ -251,11 +249,8 @@ describe("Tag archives (/tags/<tag>/)", () => {
 
   test("/tags/ai/ lists the projects that use #ai", () => {
     const html = read(join(DIST, "tags", "ai", "index.html"));
-    // ButVerify and C3P both carry the 'ai' tag. Title links go to the
-    // project's marketing site (project detail pages were removed), so we
-    // assert presence by name rather than internal href.
-    expect(html).toMatch(/ButVerify/);
-    expect(html).toMatch(/C3P/);
+    expect(html).toMatch(/Menu Simplifier/);
+    expect(html).not.toMatch(/Salata Recipe Finder/);
     // ProjectCard markup is reused.
     expect(html).toMatch(/<article[^>]*class="project-card"/);
   });
