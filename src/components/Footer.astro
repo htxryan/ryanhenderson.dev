@@ -7,7 +7,7 @@
  *   - secondary nav mirroring the header (home / work / about). Kept
  *     inline (rather than reusing Nav.astro) because the footer styling
  *     is muted vs. the header's ink-on-paper treatment.
- *   - external profiles (twitter / linkedin)
+ *   - external profiles (github / linkedin)
  *
  * Blog hidden — `writing` link and rss feed link are suppressed in both
  * navs. Restore alongside BLOG_VISIBLE.
@@ -55,15 +55,6 @@ function isActive(link: Link): boolean {
           rel="me noreferrer"
         >
           github
-        </a>
-      </li>
-      <li>
-        <a
-          href="https://twitter.com/htxryan"
-          target="_blank"
-          rel="me noreferrer"
-        >
-          twitter
         </a>
       </li>
       <li>
