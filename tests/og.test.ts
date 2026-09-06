@@ -9,7 +9,7 @@ import { resolve } from "node:path";
  *   - every published post gets `/og/<slug>.png` and meta tags pointing at it
  *   - every visible (non-private) project gets `/og/<slug>.png` and meta tags
  *   - fallback `og-default.png` exists at the site root
- *   - og:title, og:description, og:image, twitter:card, twitter:image
+ *   - og:title, og:description, og:image
  *     present on post + project routes
  *   - drafts and private projects produce no OG card
  *
@@ -77,7 +77,6 @@ describe.skip("E7 — per-post OG cards (acceptance criterion #1)", () => {
       const html = read(`posts/${slug}/index.html`);
       const expected = `https://ryanhenderson.dev/og/${slug}.png`;
       expect(html).toContain(`property="og:image" content="${expected}"`);
-      expect(html).toContain(`name="twitter:image" content="${expected}"`);
     });
   }
 });
@@ -102,7 +101,6 @@ describe.skip("E7 — per-project OG cards (acceptance criterion #2)", () => {
       const html = read(`work/${slug}/index.html`);
       const expected = `https://ryanhenderson.dev/og/${slug}.png`;
       expect(html).toContain(`property="og:image" content="${expected}"`);
-      expect(html).toContain(`name="twitter:image" content="${expected}"`);
     });
   }
 });
@@ -149,14 +147,6 @@ describe.skip("E7 — meta tag completeness (acceptance criterion #5)", () => {
         expect(html()).toContain('property="og:image:width" content="1200"');
         expect(html()).toContain('property="og:image:height" content="630"');
       });
-      test("declares twitter:card=summary_large_image", () => {
-        expect(html()).toContain(
-          'name="twitter:card" content="summary_large_image"',
-        );
-      });
-      test("declares twitter:image", () => {
-        expect(html()).toMatch(/name="twitter:image"/);
-      });
     });
   }
 });
@@ -176,9 +166,7 @@ describe("E7 — non-article shell routes use the static fallback card", () => {
       expect(html).toContain(
         'property="og:image" content="https://ryanhenderson.dev/og-default.png"',
       );
-      expect(html).toContain(
-        'name="twitter:image" content="https://ryanhenderson.dev/og-default.png"',
-      );
+      expect(html).not.toMatch(/twitter/i);
     });
   }
 });

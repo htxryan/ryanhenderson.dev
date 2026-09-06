@@ -147,9 +147,10 @@ describe("about page — bio + outbound profile links", () => {
     expect(html).toMatch(/Houston, Texas/);
   });
 
-  test("preserves both outbound profile links", () => {
+  test("preserves GitHub and LinkedIn profile links", () => {
     const html = read(paths().about);
-    expect(html).toMatch(/href="https:\/\/twitter\.com\/htxryan"/);
+    expect(html).toMatch(/href="https:\/\/github\.com\/htxryan"/);
+    expect(html).not.toMatch(/twitter/i);
     expect(html).toMatch(/href="https:\/\/www\.linkedin\.com\/in\/htxryan/);
   });
 });

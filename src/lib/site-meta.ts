@@ -3,7 +3,7 @@
  *
  * Edit `SITE_TAGLINE` here to update every visible tagline + every meta
  * description that derives from it (home hero, /about/ subtitle, both
- * routes' og:description / twitter:description).
+ * routes' og:description).
  */
 
 export const SITE_NAME = "Ryan Henderson";
