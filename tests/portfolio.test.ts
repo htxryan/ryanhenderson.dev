@@ -47,12 +47,9 @@ function listProjectHtml(): string[] {
 const WORK_INDEX = join(DIST, "work", "index.html");
 const HOME = join(DIST, "index.html");
 
-// Fixtures (alpha/bravo/charlie) were removed; the visible portfolio is
-// now butverify, c3p, pearl — all active, all have a repoUrl. Delta
-// (private) remains as the hidden-projects fixture. Project detail pages
-// were also removed (titles now link straight to the marketing site), so
-// many of the U-8/E-3/etc. assertions below are skipped — see notes.
-const PUBLISHED_SLUGS = ["butverify", "c3p", "pearl"] as const;
+// The two food apps are active projects with private repositories.
+// Delta remains the private fixture; internal detail routes remain hidden.
+const PUBLISHED_SLUGS = ["menu-simplifier", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
 
 describe("/work/ index — basic shape", () => {
@@ -92,20 +89,12 @@ describe("U-7 — status-aware ordering and private hiding", () => {
     // is all-active. Restore when an archived project ships.
   });
 
-  test("active ties broken alphabetically by id (butverify, c3p, pearl)", () => {
+  test("active ties are ordered by id", () => {
     const html = read(WORK_INDEX);
-    // Identify card order by the project title text rather than internal
-    // hrefs (titles link out to marketing sites now). Display names:
-    // ButVerify, C3P, Pearl. Ordering is by id (slug), not display name —
-    // ids are butverify < c3p < pearl alphabetically.
-    const idxButverify = html.indexOf(">ButVerify ↗</a>");
-    const idxC3p = html.indexOf(">C3P ↗</a>");
-    const idxPearl = html.indexOf(">Pearl ↗</a>");
-    expect(idxButverify).toBeGreaterThan(-1);
-    expect(idxC3p).toBeGreaterThan(-1);
-    expect(idxPearl).toBeGreaterThan(-1);
-    expect(idxButverify).toBeLessThan(idxC3p);
-    expect(idxC3p).toBeLessThan(idxPearl);
+    const menu = html.indexOf(">Menu Simplifier ↗</a>");
+    const salad = html.indexOf(">Salata Recipe Finder ↗</a>");
+    expect(menu).toBeGreaterThan(-1);
+    expect(salad).toBeGreaterThan(menu);
   });
 
   test("private project (delta) has no marketing-link presence on /work/ index", () => {
@@ -199,11 +188,7 @@ function repoTagsIn(html: string): string[] {
   );
 }
 
-// SKIP: every visible project (butverify/c3p/pearl) has a repoUrl, so
-// the "no repoUrl → no repo UI" contract has no fixture to exercise. The
-// markup-level guard still lives in ProjectCard.astro (`showRepoButton`).
-// Restore when a future project ships without a repoUrl, or re-add the
-// bravo-style fixture.
+// Legacy detail-page repo contracts remain disabled with those routes.
 describe.skip("E-3 — conditional repo link", () => {
   test("project WITH repoUrl renders a repo button on the detail page", () => {
     const html = read(join(DIST, "work", "alpha", "index.html"));
@@ -248,20 +233,26 @@ describe("ProjectCard — rendered on /work/ index", () => {
   // only on /work/ for now. When project cards return to the home page,
   // restore the cross-route divergence assertion from git history.
 
-  test("/work/ index renders ProjectCard markup with the coming-soon badge", () => {
+  test("/work/ shows exactly two active food apps with accurate access notes", () => {
     const html = read(WORK_INDEX);
-    expect(html).toMatch(/<article[^>]*class="project-card"/);
-    // Status badge currently shows "coming soon" while the projects
-    // are pre-launch. Update this assertion when projects flip to
-    // status: active.
-    expect(html).toMatch(/class="project-card-status"[^>]*data-status="coming-soon"/);
-    // Cards carry title, oneliner, and external repo button (butverify
-    // / c3p / pearl all have repoUrl distinct from marketingUrl).
-    expect(html).toMatch(/class="project-card-title"/);
-    expect(html).toMatch(/class="project-card-oneliner"/);
-    expect(html).toMatch(/data-repo-link/);
-    // Anchor on butverify's external URL to confirm the title link.
-    expect(html).toMatch(/href="https:\/\/butverify\.dev"/);
+    expect(html.match(/<article[^>]*class="project-card"/g)).toHaveLength(2);
+    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(2);
+    expect(html).toContain("Access currently restricted.");
+    expect(html).toContain("Unofficial; not affiliated with Salata.");
+    expect(html).not.toMatch(/data-repo-link|coming soon/);
+    expect(html).toContain('href="https://menusimplifier.com"');
+    expect(html).toContain('href="https://saladrecipefinder.com"');
+  });
+
+  test("retired projects are absent from generated public content", () => {
+    const files = readdirSync(DIST, { recursive: true, encoding: "utf8" });
+    for (const file of files) {
+      expect(file).not.toMatch(/butverify|c3p|pearl/i);
+      if (/\.(html|xml|json)$/.test(file)) {
+        expect(read(join(DIST, file))).not.toMatch(/butverify|getc3p|C3P|getpearl|Pearl/i);
+      }
+    }
+    expect(listProjectHtml()).toEqual([]);
   });
 });
 
@@ -296,17 +287,8 @@ describe("outbound links use rel=noreferrer + target=_blank", () => {
     }
   });
 
-  test("repo link on a card opens external in a new tab", () => {
-    const html = read(WORK_INDEX);
-    const tags = (html.match(/<a\b[^>]*>/g) ?? []).filter((t) =>
-      /\bdata-repo-link\b/.test(t),
-    );
-    expect(tags.length).toBeGreaterThanOrEqual(1);
-    for (const tag of tags) {
-      expect(tag).toMatch(/href="https:\/\//);
-      expect(tag).toMatch(/target="_blank"/);
-      expect(tag).toMatch(/rel="noreferrer"/);
-    }
+  test("private repositories have no outbound card links", () => {
+    expect(repoTagsIn(read(WORK_INDEX))).toEqual([]);
   });
 });
 

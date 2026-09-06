@@ -107,13 +107,12 @@ test.describe("S-6 — Pagefind search lazy-loads and returns results", () => {
 
     // Type a query that should match content. While the blog is hidden
     // and project detail pages are removed, the index covers shell pages
-    // (home, work index, about) and tag archives. "butverify" matches
-    // the project card on /work/ and on the home page. When the blog
+    // (home, work index, about) and tag archives. "Menu Simplifier" matches
+    // the project card on /work/ and tag archives. When the blog
     // returns, restore a query like "hello" that exercises post bodies.
-    await liveInput.fill("butverify");
+    await liveInput.fill("Menu Simplifier");
     // Pagefind debounces by 300ms then renders. Wait for any pagefind
-    // result anchor in the UI host (links may point at /work/ or / since
-    // both surfaces show the same card).
+    // result anchor in the UI host (links may point at /work/ or a tag archive).
     const resultLink = page
       .locator('#search .pagefind-ui__result a')
       .first();
@@ -142,20 +141,15 @@ test.describe.skip("S-7 — /hello-blog/ legacy URL", () => {
   });
 });
 
-// SKIP: detail pages removed (`/work/<slug>/` no longer built); the
-// alpha/bravo fixtures it relied on were also deleted. Every visible
-// project (butverify/c3p/pearl) ships with a repoUrl, so the "no repo"
-// half of the contract has no fixture to exercise. The card-level
-// markup guard still lives in ProjectCard.astro.
-test.describe.skip("S-11 — conditional repo button", () => {
-  test("alpha (has repoUrl) shows the repo link; bravo (no repoUrl) does not", async ({ page }) => {
-    await page.goto("/work/alpha/");
-    const alphaRepo = page.locator('a[href*="github.com"]');
-    await expect(alphaRepo.first()).toBeVisible();
-
-    await page.goto("/work/bravo/");
-    const bravoRepoCount = await page.locator('a[href*="github.com"]').count();
-    expect(bravoRepoCount).toBe(0);
+test.describe("S-11 — private repositories stay off public cards", () => {
+  test("both food apps link to their products without repo buttons", async ({ page }) => {
+    await page.goto("/work/");
+    const cards = page.locator(".project-card");
+    await expect(cards).toHaveCount(2);
+    await expect(cards.locator("[data-repo-link]")).toHaveCount(0);
+    await expect(cards.getByRole("link", { name: "Menu Simplifier" })).toHaveAttribute("href", "https://menusimplifier.com");
+    await expect(cards.getByRole("link", { name: "Salata Recipe Finder" })).toHaveAttribute("href", "https://saladrecipefinder.com");
+    await expect(cards).toContainText(["Access currently restricted.", "not affiliated with Salata."]);
   });
 });
 
