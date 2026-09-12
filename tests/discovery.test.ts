@@ -233,8 +233,8 @@ describe("robots.txt", () => {
 
 describe("Tag archives (/tags/<tag>/)", () => {
   test("a /tags/<tag>/ page exists for every tag in the union of collections", () => {
-    // Only the two visible food apps contribute tags while the blog is hidden.
-    const expected = ["ai", "food", "recipes"];
+    // Only visible projects contribute tags while the blog is hidden.
+    const expected = ["ai", "browser-extension", "food", "recipes"];
     expect(readdirSync(join(DIST, "tags")).sort()).toEqual(expected);
     for (const tag of expected) {
       const file = join(DIST, "tags", tag, "index.html");
@@ -250,6 +250,7 @@ describe("Tag archives (/tags/<tag>/)", () => {
   test("/tags/ai/ lists the projects that use #ai", () => {
     const html = read(join(DIST, "tags", "ai", "index.html"));
     expect(html).toMatch(/Menu Simplifier/);
+    expect(html).toMatch(/Briefmark/);
     expect(html).not.toMatch(/Salata Recipe Finder/);
     // ProjectCard markup is reused.
     expect(html).toMatch(/<article[^>]*class="project-card"/);

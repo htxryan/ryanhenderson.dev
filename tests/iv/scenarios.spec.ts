@@ -142,11 +142,14 @@ test.describe.skip("S-7 — /hello-blog/ legacy URL", () => {
 });
 
 test.describe("S-11 — private repositories stay off public cards", () => {
-  test("only the public app has a product link", async ({ page }) => {
+  test("projects link to available brochures and omit private repositories", async ({ page }) => {
     await page.goto("/work/");
     const cards = page.locator(".project-card");
-    await expect(cards).toHaveCount(2);
+    await expect(cards).toHaveCount(3);
     await expect(cards.locator("[data-repo-link]")).toHaveCount(0);
+    const briefmarkCard = cards.filter({ has: page.getByRole("heading", { name: "Briefmark ↗", exact: true }) });
+    await expect(briefmarkCard).toContainText("in development");
+    await expect(briefmarkCard.getByRole("link", { name: "Briefmark" })).toHaveAttribute("href", "https://briefmark.app/");
     const menuCard = cards.filter({ has: page.getByRole("heading", { name: "Menu Simplifier", exact: true }) });
     await expect(menuCard).toContainText("in development");
     await expect(menuCard.locator("a")).toHaveCount(0);
