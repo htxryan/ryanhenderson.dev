@@ -47,7 +47,7 @@ function listProjectHtml(): string[] {
 const WORK_INDEX = join(DIST, "work", "index.html");
 const HOME = join(DIST, "index.html");
 
-// All projects have private repositories; Briefmark and Menu Simplifier are in development.
+// All projects have private repositories; Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
 const PUBLISHED_SLUGS = ["briefmark", "menu-simplifier", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
@@ -89,14 +89,14 @@ describe("U-7 — status-aware ordering and private hiding", () => {
     // is all-active. Restore when an archived project ships.
   });
 
-  test("the active app appears before apps in development, sorted by name", () => {
+  test("active apps appear before apps in development, sorted by name", () => {
     const html = read(WORK_INDEX);
     const briefmark = html.indexOf(">Briefmark ↗</a>");
     const menu = html.indexOf("Menu Simplifier");
     const salad = html.indexOf(">Salata Recipe Finder ↗</a>");
-    expect(salad).toBeGreaterThan(-1);
-    expect(briefmark).toBeGreaterThan(salad);
-    expect(menu).toBeGreaterThan(briefmark);
+    expect(briefmark).toBeGreaterThan(-1);
+    expect(salad).toBeGreaterThan(briefmark);
+    expect(menu).toBeGreaterThan(salad);
   });
 
   test("private project (delta) has no marketing-link presence on /work/ index", () => {
@@ -239,10 +239,10 @@ describe("ProjectCard — rendered on /work/ index", () => {
     const html = read(WORK_INDEX);
     const cards = html.match(/<article[^>]*class="project-card"[^>]*>[\s\S]*?<\/article>/g) ?? [];
     expect(cards).toHaveLength(3);
-    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(1);
-    expect(html.match(/class="project-card-status"[^>]*data-status="in-development"/g)).toHaveLength(2);
+    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(2);
+    expect(html.match(/class="project-card-status"[^>]*data-status="in-development"/g)).toHaveLength(1);
     const briefmarkCard = cards.find((card) => card.includes(">Briefmark ↗</a>"));
-    expect(briefmarkCard).toContain('data-status="in-development"');
+    expect(briefmarkCard).toContain('data-status="active"');
     expect(briefmarkCard).toContain('href="https://briefmark.app/"');
     expect(briefmarkCard).toContain("screenshot regions");
     expect(briefmarkCard).toContain("AI prompt with page context");

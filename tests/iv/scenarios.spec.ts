@@ -148,7 +148,7 @@ test.describe("S-11 — private repositories stay off public cards", () => {
     await expect(cards).toHaveCount(3);
     await expect(cards.locator("[data-repo-link]")).toHaveCount(0);
     const briefmarkCard = cards.filter({ has: page.getByRole("heading", { name: "Briefmark ↗", exact: true }) });
-    await expect(briefmarkCard).toContainText("in development");
+    await expect(briefmarkCard).toHaveAttribute("data-status", "active");
     await expect(briefmarkCard.getByRole("link", { name: "Briefmark" })).toHaveAttribute("href", "https://briefmark.app/");
     const menuCard = cards.filter({ has: page.getByRole("heading", { name: "Menu Simplifier", exact: true }) });
     await expect(menuCard).toContainText("in development");
