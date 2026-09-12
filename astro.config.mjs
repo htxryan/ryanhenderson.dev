@@ -1,5 +1,6 @@
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
+import { unified } from "@astrojs/markdown-remark";
 import sitemap from "@astrojs/sitemap";
 import { cssVariablesTheme } from "./src/lib/shiki-theme.mjs";
 
@@ -14,6 +15,8 @@ export default defineConfig({
   // contract).
   integrations: [mdx(), sitemap()],
   trailingSlash: "always",
+  // Retain HTML-aware whitespace handling when upgrading from Astro 6.
+  compressHTML: true,
   build: {
     format: "directory",
   },
@@ -22,6 +25,8 @@ export default defineConfig({
   // underlying CSS variables under [data-theme="dark"], not by re-running
   // Shiki with a second theme.
   markdown: {
+    // Keep the existing remark/rehype rendering pipeline on Astro 7.
+    processor: unified(),
     shikiConfig: {
       theme: cssVariablesTheme,
     },

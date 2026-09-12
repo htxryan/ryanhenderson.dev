@@ -27,7 +27,7 @@ pnpm gen:tokens      # Regenerate src/styles/tokens.css from src/styles/tokens.t
 
 - Use Node `>=22.18.0`.
 - Use `pnpm@10.33.0`.
-- This is an Astro 5 static site deployed as a static build.
+- This is an Astro 7 static site deployed as a static build.
 
 ## Non-Interactive Shell Commands
 
