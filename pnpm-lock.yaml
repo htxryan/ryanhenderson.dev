@@ -7,6 +7,7 @@ settings:
 overrides:
   fast-xml-builder: '>=1.1.7'
   fast-uri: '>=3.1.2'
+  third-party-web: 0.29.2
   tmp: ^0.2.6
   lighthouse: ^13.4.1
 
