@@ -250,7 +250,7 @@ describe("Tag archives (/tags/<tag>/)", () => {
   test("/tags/ai/ lists the projects that use #ai", () => {
     const html = read(join(DIST, "tags", "ai", "index.html"));
     expect(html).toMatch(/Menu Simplifier/);
-    expect(html).toMatch(/Briefmark/);
+    expect(html).toMatch(/anmerko/);
     expect(html).not.toMatch(/Salata Recipe Finder/);
     // ProjectCard markup is reused.
     expect(html).toMatch(/<article[^>]*class="project-card"/);
