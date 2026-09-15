@@ -49,7 +49,7 @@ const HOME = join(DIST, "index.html");
 
 // All projects have private repositories; Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
-const PUBLISHED_SLUGS = ["briefmark", "menu-simplifier", "salata-recipe-finder"] as const;
+const PUBLISHED_SLUGS = ["anmerko", "menu-simplifier", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
 
 describe("/work/ index — basic shape", () => {
@@ -91,11 +91,11 @@ describe("U-7 — status-aware ordering and private hiding", () => {
 
   test("active apps appear before apps in development, sorted by name", () => {
     const html = read(WORK_INDEX);
-    const briefmark = html.indexOf(">Briefmark ↗</a>");
+    const anmerko = html.indexOf(">anmerko ↗</a>");
     const menu = html.indexOf("Menu Simplifier");
     const salad = html.indexOf(">Salata Recipe Finder ↗</a>");
-    expect(briefmark).toBeGreaterThan(-1);
-    expect(salad).toBeGreaterThan(briefmark);
+    expect(anmerko).toBeGreaterThan(-1);
+    expect(salad).toBeGreaterThan(anmerko);
     expect(menu).toBeGreaterThan(salad);
   });
 
@@ -241,11 +241,11 @@ describe("ProjectCard — rendered on /work/ index", () => {
     expect(cards).toHaveLength(3);
     expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(2);
     expect(html.match(/class="project-card-status"[^>]*data-status="in-development"/g)).toHaveLength(1);
-    const briefmarkCard = cards.find((card) => card.includes(">Briefmark ↗</a>"));
-    expect(briefmarkCard).toContain('data-status="active"');
-    expect(briefmarkCard).toContain('href="https://briefmark.app/"');
-    expect(briefmarkCard).toContain("screenshot regions");
-    expect(briefmarkCard).toContain("AI prompt with page context");
+    const anmerkoCard = cards.find((card) => card.includes(">anmerko ↗</a>"));
+    expect(anmerkoCard).toContain('data-status="active"');
+    expect(anmerkoCard).toContain('href="https://anmerko.com/"');
+    expect(anmerkoCard).toContain("screenshot regions");
+    expect(anmerkoCard).toContain("AI prompt with page context");
     const menuCard = cards.find((card) => card.includes("Menu Simplifier"));
     expect(menuCard).toContain("Menu Simplifier");
     expect(menuCard).toContain('data-status="in-development"');
@@ -253,7 +253,7 @@ describe("ProjectCard — rendered on /work/ index", () => {
     expect(html).toContain("Unofficial; not affiliated with Salata.");
     expect(html).not.toMatch(/data-repo-link|coming soon/);
     expect(html).not.toContain("menusimplifier.com");
-    expect(html).not.toContain("github.com/htxryan/briefmark");
+    expect(html).not.toContain("github.com/htxryan/anmerko");
     expect(html).toContain('href="https://saladrecipefinder.com"');
   });
 
