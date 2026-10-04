@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 /**
  * E7 — OG Image Pipeline acceptance tests.
  *
- * Acceptance criteria from ryanhenderson.dev-x6q:
+ * Acceptance criteria:
  *   - every published post gets `/og/<slug>.png` and meta tags pointing at it
  *   - every visible (non-private) project gets `/og/<slug>.png` and meta tags
  *   - fallback `og-default.png` exists at the site root

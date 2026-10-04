@@ -298,19 +298,10 @@ sequenceDiagram
 
 ## 8. Design profile note
 
-This system is a **user-facing product** where **design quality matters**. Per the architect skill's design-skill detection, applicable epics SHOULD invoke `/compound:build-great-things` during their work phase. The skill covers:
+This system is a **user-facing product** where **design quality matters**. Applicable epics should account for:
 
 - Software design philosophy (Ousterhout: deep modules, complexity management, information hiding) — applies to the **content/build pipeline** epic and the **design system / tokens** epic.
 - The full visual build sequence (IA → typography → color → motion → states → accessibility → conversion) — applies to the **site shell**, **reading experience**, **portfolio surface**, and **home/index** epics.
-
-Reference design research already in repo:
-- `docs/compound/research/design/style/swiss-brutalist-design.md` — primary aesthetic anchor
-- `docs/compound/research/design/style/swiss-international.md`
-- `docs/compound/research/design/web-apps/web-typography-and-reading-ergonomics.md`
-- `docs/compound/research/design/web-apps/accessibility-and-inclusive-design.md`
-- `docs/compound/research/design/web-apps/color-theory-for-digital-interfaces.md`
-- `docs/compound/research/design/web-apps/interaction-design-and-micro-interactions.md`
-- `docs/compound/research/design/frontend-design/award-winning-websites-anatomy.md`
 
 ---
 

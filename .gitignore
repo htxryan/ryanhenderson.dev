@@ -20,17 +20,7 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 
-# Beads / Dolt files (added by bd init)
-.dolt/
-*.db
-.beads-credential-key
-
-# compound-agent managed
-.compound-agent/
-
-# Codex CLI per-machine config — .codex/hooks.json contains absolute
-# /Users paths to node_modules so it's not portable. (The compound-agent
-# skills tree under .agents/ IS portable and stays tracked.)
+# Codex CLI per-machine config
 .codex/
 
 # Serena agent local state (per-machine cache)
@@ -51,3 +41,6 @@ playwright-report/
 
 # Vitest coverage
 coverage/
+
+# Local proof screenshots
+docs/proof/

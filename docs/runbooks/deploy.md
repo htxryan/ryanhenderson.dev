@@ -170,7 +170,7 @@ pnpm install --frozen-lockfile && pnpm build
 pnpm dlx wrangler@latest pages deploy dist --project-name ryanhenderson-dev
 ```
 
-…and file a beads issue to figure out why CI was bypassed.
+…and file an issue to figure out why CI was bypassed.
 
 ## Smoke checks after a release
 

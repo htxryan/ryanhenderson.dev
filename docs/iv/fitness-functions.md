@@ -136,6 +136,5 @@ If any score drifts below threshold:
 
 1. Identify the originating epic via the contract column (or the test
    name's epic prefix).
-2. File a bug bead with `bd create --type=bug` and link it to that
-   epic. Per IV's bug-handling policy, do not patch only the consumer —
+2. File a bug against that epic. Per IV's bug-handling policy, do not patch only the consumer —
    the originating epic owns the broken contract.
