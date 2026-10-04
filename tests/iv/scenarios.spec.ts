@@ -142,11 +142,15 @@ test.describe.skip("S-7 — /hello-blog/ legacy URL", () => {
 });
 
 test.describe("S-11 — private repositories stay off public cards", () => {
-  test("projects link to available brochures and omit private repositories", async ({ page }) => {
+  test("projects link to available brochures and only public repositories", async ({ page }) => {
     await page.goto("/work/");
     const cards = page.locator(".project-card");
-    await expect(cards).toHaveCount(3);
-    await expect(cards.locator("[data-repo-link]")).toHaveCount(0);
+    await expect(cards).toHaveCount(4);
+    await expect(cards.locator("[data-repo-link]")).toHaveCount(1);
+    const nostalgiaCard = cards.filter({ has: page.getByRole("heading", { name: "Nostalgiabuster Video ↗", exact: true }) });
+    await expect(nostalgiaCard).toHaveAttribute("data-status", "active");
+    await expect(nostalgiaCard.getByRole("link", { name: "Nostalgiabuster Video" })).toHaveAttribute("href", "https://nostalgiavideo.app");
+    await expect(nostalgiaCard.locator("[data-repo-link]")).toHaveAttribute("href", "https://github.com/htxryan/nostalgiabuster-video");
     const anmerkoCard = cards.filter({ has: page.getByRole("heading", { name: "anmerko ↗", exact: true }) });
     await expect(anmerkoCard).toHaveAttribute("data-status", "active");
     await expect(anmerkoCard.getByRole("link", { name: "anmerko" })).toHaveAttribute("href", "https://anmerko.com/");
