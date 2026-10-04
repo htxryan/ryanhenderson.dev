@@ -4,18 +4,9 @@ This is the canonical instruction file for AI coding agents working on this
 project. `CLAUDE.md` intentionally contains only `@AGENTS.md` so all agent
 guidance stays in one place.
 
-Run `bd prime` at the start of a session, after compaction, or whenever workflow
-context may be stale.
-
 ## Quick Commands
 
 ```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
-
 pnpm dev             # Local dev server with HMR
 pnpm build           # Production build: content checks, tokens, Astro, Pagefind, CSP hashes
 pnpm test            # Vitest unit/integration tests
@@ -49,85 +40,6 @@ Other commands that may prompt:
 - `ssh`: use `-o BatchMode=yes`
 - `apt-get`: use `-y`
 - `brew`: use `HOMEBREW_NO_AUTO_UPDATE=1`
-
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
-## Beads Issue Tracker
-
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
-
-### Quick Reference
-
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work
-bd close <id>         # Complete work
-```
-
-### Rules
-
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
-- Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
-
-## Session Completion
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
-<!-- END BEADS INTEGRATION -->
-
-<!-- compound-agent:start -->
-## Compound Agent Integration
-
-This project uses compound-agent for lesson memory. Use the repo-local CLI via
-`npx ca` so commands resolve to the package version in this project.
-
-### CLI Commands
-
-```bash
-npx ca search "query"       # Search stored lessons
-npx ca knowledge "keywords" # Search indexed project docs; use keyword phrases
-npx ca learn "insight"      # Capture a verified lesson
-npx ca list                 # List stored lessons
-npx ca show <id>            # Show a lesson
-npx ca wrong <id>           # Mark a lesson incorrect
-```
-
-### Mandatory Recall
-
-Call `npx ca search` and `npx ca knowledge` before:
-
-- Architectural decisions or complex planning
-- Implementing patterns used before in this repo
-- Acting after user corrections such as "actually", "wrong", or "use X instead"
-
-Never edit `.claude/lessons/` or `.claude/lessons/index.jsonl` directly. Use the
-CLI so IDs, schema validation, and SQLite sync stay correct.
-
-Before capturing with `npx ca learn`, verify the lesson is novel, specific, and
-preferably actionable.
-<!-- compound-agent:end -->
 
 ## Build & Test
 

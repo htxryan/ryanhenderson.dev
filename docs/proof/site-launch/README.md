@@ -1,12 +1,12 @@
 ---
 title: README
 type: note
-permalink: ryanhenderson.dev/proof/ryanhenderson.dev-wwy/readme
+permalink: ryanhenderson.dev/proof/site-launch/readme
 ---
 
-# Proof — ryanhenderson.dev (meta-epic `ryanhenderson.dev-wwy`)
+# Proof — ryanhenderson.dev site launch
 
-Captured by `/prove-it remote` after the architect → infinity-loop run that closed all 10 domain epics + the IV epic in **2h 39m**, single-attempt across the board.
+Captured after all 10 domain epics + the IV epic closed.
 
 The site is built from the production output (`pnpm build` → `dist/`) and served by the same `tests/iv/preview-server.mjs` that the IV epic uses for its end-to-end suite. No dev-mode middleware. Screenshots are produced by `tests/iv/proof-shots.spec.ts`.
 
@@ -39,11 +39,9 @@ The site is built from the production output (`pnpm build` → `dist/`) and serv
 | 23 | `23-sitemap.png` | `/sitemap-index.xml` |
 | 24 | `24-og-cards-sample.png` | OG cards rendered: `/og/hello-world.png`, `/og/alpha.png`, `/og-default.png` (fallback) |
 
-## Bug found and fixed during prove-it
+## Bug found and fixed during proof capture
 
 While inspecting `15-search-results-hello-light.png`, Pagefind's drop-in UI was rendering with its default sans-serif theme + yellow highlight, breaking continuity with the brutalist tokens used everywhere else. Fixed by adding scoped `<style is:global>` overrides in `src/pages/search.astro` that bind Pagefind's CSS custom properties + per-element classes to the design system tokens (mono font, ink/paper, hairline rule color, accent for match highlight). Re-shot.
-
-The bug was filed in beads at `ryanhenderson.dev-3wj` (or similar, see `bd list --type=bug`).
 
 ## How to reproduce
 
@@ -51,7 +49,7 @@ The bug was filed in beads at `ryanhenderson.dev-3wj` (or similar, see `bd list 
 pnpm install --frozen-lockfile
 pnpm build
 pnpm exec playwright test tests/iv/proof-shots.spec.ts
-# Output lands in docs/proof/ryanhenderson.dev-wwy/
+# Output lands in docs/proof/site-launch/
 ```
 
 ## Test totals

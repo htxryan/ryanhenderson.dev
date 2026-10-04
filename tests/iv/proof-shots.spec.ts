@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import path from "node:path";
 import fs from "node:fs";
 
-const OUT = path.resolve(process.cwd(), "docs/proof/ryanhenderson.dev-wwy");
+const OUT = path.resolve(process.cwd(), "docs/proof/site-launch");
 fs.mkdirSync(OUT, { recursive: true });
 
 const desktop = { width: 1280, height: 900 };
