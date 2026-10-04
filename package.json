@@ -55,7 +55,8 @@
       "fast-uri": ">=3.1.2",
       "third-party-web": "0.29.2",
       "tmp": "^0.2.6",
-      "lighthouse": "^13.4.1"
+      "lighthouse": "^13.4.1",
+      "basic-ftp": "^6.2.2"
     }
   }
 }

@@ -24,6 +24,13 @@ The following `pnpm.overrides` address dependencies held back by their parents:
 - `lighthouse`: 13.4.1 or later replaces Lighthouse CLI's pinned 12.6.1. Its
   newer Puppeteer browser tooling removes the unpatched `extract-zip`
   dependency ([GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv)).
+- `basic-ftp`: 6.2.2 or later fixes the quadratic-time directory-listing and
+  PASV parsing DoS advisories
+  ([GHSA-c475-qrg2-pj4r](https://github.com/advisories/GHSA-c475-qrg2-pj4r),
+  [GHSA-5rfr-xx34-2xxv](https://github.com/advisories/GHSA-5rfr-xx34-2xxv)).
+  Lighthouse CLI reaches it through `proxy-agent` → `get-uri`, which still
+  pins `basic-ftp@^5`. The 6.0 breaking change only disables separate FTP
+  transfer hosts by default.
 
 These overrides do not suppress advisories or relax CI thresholds. Remove them
 when upstream dependency ranges include the fixes and the same checks pass.
