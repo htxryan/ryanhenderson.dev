@@ -146,7 +146,7 @@ test.describe("S-11 — private repositories stay off public cards", () => {
     await page.goto("/work/");
     const cards = page.locator(".project-card");
     await expect(cards).toHaveCount(4);
-    await expect(cards.locator("[data-repo-link]")).toHaveCount(1);
+    await expect(cards.locator("[data-repo-link]")).toHaveCount(2);
     const nostalgiaCard = cards.filter({ has: page.getByRole("heading", { name: "Nostalgiabuster Video ↗", exact: true }) });
     await expect(nostalgiaCard).toHaveAttribute("data-status", "active");
     await expect(nostalgiaCard.getByRole("link", { name: "Nostalgiabuster Video" })).toHaveAttribute("href", "https://nostalgiavideo.app");
@@ -154,6 +154,7 @@ test.describe("S-11 — private repositories stay off public cards", () => {
     const anmerkoCard = cards.filter({ has: page.getByRole("heading", { name: "anmerko ↗", exact: true }) });
     await expect(anmerkoCard).toHaveAttribute("data-status", "active");
     await expect(anmerkoCard.getByRole("link", { name: "anmerko" })).toHaveAttribute("href", "https://anmerko.com/");
+    await expect(anmerkoCard.locator("[data-repo-link]")).toHaveAttribute("href", "https://github.com/htxryan/anmerko");
     const menuCard = cards.filter({ has: page.getByRole("heading", { name: "Menu Simplifier", exact: true }) });
     await expect(menuCard).toContainText("in development");
     await expect(menuCard.locator("a")).toHaveCount(0);
