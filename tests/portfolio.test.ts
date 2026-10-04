@@ -47,9 +47,10 @@ function listProjectHtml(): string[] {
 const WORK_INDEX = join(DIST, "work", "index.html");
 const HOME = join(DIST, "index.html");
 
-// All projects have private repositories; Menu Simplifier is in development.
+// Nostalgiabuster Video is open source; the other projects have private
+// repositories. Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
-const PUBLISHED_SLUGS = ["anmerko", "menu-simplifier", "salata-recipe-finder"] as const;
+const PUBLISHED_SLUGS = ["anmerko", "menu-simplifier", "nostalgiabuster-video", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
 
 describe("/work/ index — basic shape", () => {
@@ -92,10 +93,12 @@ describe("U-7 — status-aware ordering and private hiding", () => {
   test("active apps appear before apps in development, sorted by name", () => {
     const html = read(WORK_INDEX);
     const anmerko = html.indexOf(">anmerko ↗</a>");
+    const nostalgia = html.indexOf(">Nostalgiabuster Video ↗</a>");
     const menu = html.indexOf("Menu Simplifier");
     const salad = html.indexOf(">Salata Recipe Finder ↗</a>");
     expect(anmerko).toBeGreaterThan(-1);
-    expect(salad).toBeGreaterThan(anmerko);
+    expect(nostalgia).toBeGreaterThan(anmerko);
+    expect(salad).toBeGreaterThan(nostalgia);
     expect(menu).toBeGreaterThan(salad);
   });
 
@@ -235,23 +238,30 @@ describe("ProjectCard — rendered on /work/ index", () => {
   // only on /work/ for now. When project cards return to the home page,
   // restore the cross-route divergence assertion from git history.
 
-  test("/work/ shows three projects with accurate status and brochure links", () => {
+  test("/work/ shows four projects with accurate status and brochure links", () => {
     const html = read(WORK_INDEX);
     const cards = html.match(/<article[^>]*class="project-card"[^>]*>[\s\S]*?<\/article>/g) ?? [];
-    expect(cards).toHaveLength(3);
-    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(2);
+    expect(cards).toHaveLength(4);
+    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(3);
     expect(html.match(/class="project-card-status"[^>]*data-status="in-development"/g)).toHaveLength(1);
     const anmerkoCard = cards.find((card) => card.includes(">anmerko ↗</a>"));
     expect(anmerkoCard).toContain('data-status="active"');
     expect(anmerkoCard).toContain('href="https://anmerko.com/"');
     expect(anmerkoCard).toContain("screenshot regions");
     expect(anmerkoCard).toContain("AI prompt with page context");
+    const nostalgiaCard = cards.find((card) => card.includes(">Nostalgiabuster Video ↗</a>"));
+    expect(nostalgiaCard).toContain('data-status="active"');
+    expect(nostalgiaCard).toContain('href="https://nostalgiavideo.app"');
+    expect(nostalgiaCard).toContain("90s video store stocked from your Plex library");
+    // The public repository gets the secondary repo button.
+    expect(nostalgiaCard).toMatch(/<a[^>]*href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"[^>]*data-repo-link/);
+    expect(html.match(/data-repo-link/g)).toHaveLength(1);
     const menuCard = cards.find((card) => card.includes("Menu Simplifier"));
     expect(menuCard).toContain("Menu Simplifier");
     expect(menuCard).toContain('data-status="in-development"');
     expect(menuCard).not.toMatch(/<a\b|↗|data-repo-link/);
     expect(html).toContain("Unofficial; not affiliated with Salata.");
-    expect(html).not.toMatch(/data-repo-link|coming soon/);
+    expect(html).not.toMatch(/coming soon/);
     expect(html).not.toContain("menusimplifier.com");
     expect(html).not.toContain("github.com/htxryan/anmerko");
     expect(html).toContain('href="https://saladrecipefinder.com"');
@@ -300,8 +310,12 @@ describe("outbound links use rel=noreferrer + target=_blank", () => {
     }
   });
 
-  test("private repositories have no outbound card links", () => {
-    expect(repoTagsIn(read(WORK_INDEX))).toEqual([]);
+  test("only public repositories have outbound card links", () => {
+    const tags = repoTagsIn(read(WORK_INDEX));
+    expect(tags).toHaveLength(1);
+    expect(tags[0]).toMatch(/href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"/);
+    expect(tags[0]).toMatch(/target="_blank"/);
+    expect(tags[0]).toMatch(/rel="noreferrer"/);
   });
 });
 

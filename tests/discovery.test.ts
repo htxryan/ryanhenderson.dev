@@ -234,7 +234,7 @@ describe("robots.txt", () => {
 describe("Tag archives (/tags/<tag>/)", () => {
   test("a /tags/<tag>/ page exists for every tag in the union of collections", () => {
     // Only visible projects contribute tags while the blog is hidden.
-    const expected = ["ai", "browser-extension", "food", "recipes"];
+    const expected = ["ai", "browser-extension", "food", "games", "open-source", "plex", "recipes"];
     expect(readdirSync(join(DIST, "tags")).sort()).toEqual(expected);
     for (const tag of expected) {
       const file = join(DIST, "tags", tag, "index.html");
