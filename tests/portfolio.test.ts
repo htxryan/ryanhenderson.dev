@@ -47,8 +47,8 @@ function listProjectHtml(): string[] {
 const WORK_INDEX = join(DIST, "work", "index.html");
 const HOME = join(DIST, "index.html");
 
-// Nostalgiabuster Video is open source; the other projects have private
-// repositories. Menu Simplifier is in development.
+// anmerko and Nostalgiabuster Video have public repositories; the other
+// projects have private ones. Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
 const PUBLISHED_SLUGS = ["anmerko", "menu-simplifier", "nostalgiabuster-video", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
@@ -249,13 +249,14 @@ describe("ProjectCard — rendered on /work/ index", () => {
     expect(anmerkoCard).toContain('href="https://anmerko.com/"');
     expect(anmerkoCard).toContain("screenshot regions");
     expect(anmerkoCard).toContain("AI prompt with page context");
+    expect(anmerkoCard).toMatch(/<a[^>]*href="https:\/\/github\.com\/htxryan\/anmerko"[^>]*data-repo-link/);
     const nostalgiaCard = cards.find((card) => card.includes(">Nostalgiabuster Video ↗</a>"));
     expect(nostalgiaCard).toContain('data-status="active"');
     expect(nostalgiaCard).toContain('href="https://nostalgiavideo.app"');
     expect(nostalgiaCard).toContain("90s video store stocked from your Plex library");
-    // The public repository gets the secondary repo button.
+    // Public repositories get the secondary repo button.
     expect(nostalgiaCard).toMatch(/<a[^>]*href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"[^>]*data-repo-link/);
-    expect(html.match(/data-repo-link/g)).toHaveLength(1);
+    expect(html.match(/data-repo-link/g)).toHaveLength(2);
     const menuCard = cards.find((card) => card.includes("Menu Simplifier"));
     expect(menuCard).toContain("Menu Simplifier");
     expect(menuCard).toContain('data-status="in-development"');
@@ -263,7 +264,6 @@ describe("ProjectCard — rendered on /work/ index", () => {
     expect(html).toContain("Unofficial; not affiliated with Salata.");
     expect(html).not.toMatch(/coming soon/);
     expect(html).not.toContain("menusimplifier.com");
-    expect(html).not.toContain("github.com/htxryan/anmerko");
     expect(html).toContain('href="https://saladrecipefinder.com"');
   });
 
@@ -312,10 +312,13 @@ describe("outbound links use rel=noreferrer + target=_blank", () => {
 
   test("only public repositories have outbound card links", () => {
     const tags = repoTagsIn(read(WORK_INDEX));
-    expect(tags).toHaveLength(1);
-    expect(tags[0]).toMatch(/href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"/);
-    expect(tags[0]).toMatch(/target="_blank"/);
-    expect(tags[0]).toMatch(/rel="noreferrer"/);
+    expect(tags).toHaveLength(2);
+    expect(tags.some((tag) => /href="https:\/\/github\.com\/htxryan\/anmerko"/.test(tag))).toBe(true);
+    expect(tags.some((tag) => /href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"/.test(tag))).toBe(true);
+    for (const tag of tags) {
+      expect(tag).toMatch(/target="_blank"/);
+      expect(tag).toMatch(/rel="noreferrer"/);
+    }
   });
 });
 
