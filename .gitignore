@@ -41,3 +41,6 @@ playwright-report/
 
 # Vitest coverage
 coverage/
+
+# Local proof screenshots
+docs/proof/
