@@ -1,0 +1,16 @@
+---
+name: "Claude Session Router"
+oneLiner: "A Claude Code plugin that picks the right Claude model and effort for each session, says why, and lets you override."
+status: active
+repoUrl: "https://github.com/htxryan/claude-session-router"
+tags: ["ai", "claude-code", "open-source"]
+pubDate: "2026-10-07"
+---
+
+Claude Session Router reads the first prompt of each Claude Code session and
+recommends the latest Fable, Opus, Sonnet or Haiku model and an effort level.
+It explains its pick, and you confirm or choose something else before the
+prompt is sent. Later prompts in the session are never routed.
+
+Its recommendations come from a skill that condenses Anthropic's published
+guidance on choosing a model and effort level. Open source (MIT).

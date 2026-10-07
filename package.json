@@ -56,7 +56,8 @@
       "third-party-web": "0.29.2",
       "tmp": "^0.2.6",
       "lighthouse": "^13.4.1",
-      "basic-ftp": "^6.2.2"
+      "basic-ftp": "^6.2.2",
+      "tinypool": "^2.1.2"
     }
   }
 }
