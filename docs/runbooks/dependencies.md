@@ -32,5 +32,12 @@ The following `pnpm.overrides` address dependencies held back by their parents:
   pins `basic-ftp@^5`. The 6.0 breaking change only disables separate FTP
   transfer hosts by default.
 
+- `tinypool`: 2.1.2 or later fixes two prototype-pollution advisories
+  ([GHSA-5gmw-xhrv-c9v3](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3),
+  [GHSA-85c8-ppgw-ccpr](https://github.com/advisories/GHSA-85c8-ppgw-ccpr)).
+  Vitest 3 still pins `tinypool@^1`; the unit and coverage suites pass on 2.x.
+  Drop this override when moving to a Vitest release that depends on a
+  patched Tinypool.
+
 These overrides do not suppress advisories or relax CI thresholds. Remove them
 when upstream dependency ranges include the fixes and the same checks pass.
