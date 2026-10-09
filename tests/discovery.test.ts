@@ -252,6 +252,7 @@ describe("Tag archives (/tags/<tag>/)", () => {
     expect(html).toMatch(/Menu Simplifier/);
     expect(html).toMatch(/anmerko/);
     expect(html).toMatch(/Claude Session Router/);
+    expect(html).toMatch(/Claude Cache Compactor/);
     expect(html).not.toMatch(/Salata Recipe Finder/);
     // ProjectCard markup is reused.
     expect(html).toMatch(/<article[^>]*class="project-card"/);

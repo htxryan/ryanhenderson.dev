@@ -50,7 +50,7 @@ const HOME = join(DIST, "index.html");
 // anmerko and Nostalgiabuster Video have public repositories; the other
 // projects have private ones. Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
-const PUBLISHED_SLUGS = ["anmerko", "claude-session-router", "menu-simplifier", "nostalgiabuster-video", "salata-recipe-finder"] as const;
+const PUBLISHED_SLUGS = ["anmerko", "claude-cache-compactor", "claude-session-router", "menu-simplifier", "nostalgiabuster-video", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
 
 describe("/work/ index — basic shape", () => {
@@ -238,11 +238,11 @@ describe("ProjectCard — rendered on /work/ index", () => {
   // only on /work/ for now. When project cards return to the home page,
   // restore the cross-route divergence assertion from git history.
 
-  test("/work/ shows five projects with accurate status and brochure links", () => {
+  test("/work/ shows six projects with accurate status and brochure links", () => {
     const html = read(WORK_INDEX);
     const cards = html.match(/<article[^>]*class="project-card"[^>]*>[\s\S]*?<\/article>/g) ?? [];
-    expect(cards).toHaveLength(5);
-    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(4);
+    expect(cards).toHaveLength(6);
+    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(5);
     expect(html.match(/class="project-card-status"[^>]*data-status="in-development"/g)).toHaveLength(1);
     const anmerkoCard = cards.find((card) => card.includes(">anmerko ↗</a>"));
     expect(anmerkoCard).toContain('data-status="active"');
@@ -263,6 +263,11 @@ describe("ProjectCard — rendered on /work/ index", () => {
     expect(routerCard).toContain('href="https://github.com/htxryan/claude-session-router"');
     expect(routerCard).toContain("picks the right Claude model and effort");
     expect(routerCard).not.toMatch(/data-repo-link/);
+    const compactorCard = cards.find((card) => card.includes(">Claude Cache Compactor ↗</a>"));
+    expect(compactorCard).toContain('data-status="active"');
+    expect(compactorCard).toContain('href="https://github.com/htxryan/claude-cache-compactor"');
+    expect(compactorCard).toContain("just before its prompt cache expires");
+    expect(compactorCard).not.toMatch(/data-repo-link/);
     const menuCard = cards.find((card) => card.includes("Menu Simplifier"));
     expect(menuCard).toContain("Menu Simplifier");
     expect(menuCard).toContain('data-status="in-development"');

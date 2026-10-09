@@ -145,7 +145,7 @@ test.describe("S-11 — private repositories stay off public cards", () => {
   test("projects link to available brochures and only public repositories", async ({ page }) => {
     await page.goto("/work/");
     const cards = page.locator(".project-card");
-    await expect(cards).toHaveCount(5);
+    await expect(cards).toHaveCount(6);
     await expect(cards.locator("[data-repo-link]")).toHaveCount(2);
     const nostalgiaCard = cards.filter({ has: page.getByRole("heading", { name: "Nostalgiabuster Video ↗", exact: true }) });
     await expect(nostalgiaCard).toHaveAttribute("data-status", "active");
@@ -163,6 +163,9 @@ test.describe("S-11 — private repositories stay off public cards", () => {
     const routerCard = cards.filter({ has: page.getByRole("heading", { name: "Claude Session Router ↗", exact: true }) });
     await expect(routerCard.getByRole("link", { name: "Claude Session Router" })).toHaveAttribute("href", "https://github.com/htxryan/claude-session-router");
     await expect(routerCard.locator("[data-repo-link]")).toHaveCount(0);
+    const compactorCard = cards.filter({ has: page.getByRole("heading", { name: "Claude Cache Compactor ↗", exact: true }) });
+    await expect(compactorCard.getByRole("link", { name: "Claude Cache Compactor" })).toHaveAttribute("href", "https://github.com/htxryan/claude-cache-compactor");
+    await expect(compactorCard.locator("[data-repo-link]")).toHaveCount(0);
   });
 });
 
