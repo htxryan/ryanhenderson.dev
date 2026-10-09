@@ -1,0 +1,18 @@
+---
+name: "Claude Cache Compactor"
+oneLiner: "A Claude Code plugin that compacts an idle session just before its prompt cache expires, so coming back costs a summary, not the whole chat."
+status: active
+repoUrl: "https://github.com/htxryan/claude-cache-compactor"
+tags: ["ai", "claude-code", "open-source"]
+pubDate: "2026-10-09"
+---
+
+Claude Code keeps a session in Anthropic's prompt cache for an hour after its
+last request. Step away for longer and the next prompt sends the whole
+conversation again, written back to the cache at twice the input price.
+
+Claude Cache Compactor compacts the session two minutes before the cache
+expires, while compacting is still cheap. It compacts once, skips small
+conversations and headless runs, and can be turned off per session. On a
+500k-token Opus session it cuts the cost of coming back by about 40%. Open
+source (MIT).
