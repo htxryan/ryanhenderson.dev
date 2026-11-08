@@ -145,8 +145,8 @@ test.describe("S-11 — private repositories stay off public cards", () => {
   test("projects link to available brochures and only public repositories", async ({ page }) => {
     await page.goto("/work/");
     const cards = page.locator(".project-card");
-    await expect(cards).toHaveCount(6);
-    await expect(cards.locator("[data-repo-link]")).toHaveCount(2);
+    await expect(cards).toHaveCount(7);
+    await expect(cards.locator("[data-repo-link]")).toHaveCount(3);
     const nostalgiaCard = cards.filter({ has: page.getByRole("heading", { name: "Nostalgiabuster Video ↗", exact: true }) });
     await expect(nostalgiaCard).toHaveAttribute("data-status", "active");
     await expect(nostalgiaCard.getByRole("link", { name: "Nostalgiabuster Video" })).toHaveAttribute("href", "https://nostalgiavideo.app");
@@ -166,6 +166,9 @@ test.describe("S-11 — private repositories stay off public cards", () => {
     const compactorCard = cards.filter({ has: page.getByRole("heading", { name: "Claude Cache Compactor ↗", exact: true }) });
     await expect(compactorCard.getByRole("link", { name: "Claude Cache Compactor" })).toHaveAttribute("href", "https://github.com/htxryan/claude-cache-compactor");
     await expect(compactorCard.locator("[data-repo-link]")).toHaveCount(0);
+    const penmossCard = cards.filter({ has: page.getByRole("heading", { name: "Penmoss ↗", exact: true }) });
+    await expect(penmossCard.getByRole("link", { name: "Penmoss" })).toHaveAttribute("href", "https://penmoss.app/");
+    await expect(penmossCard.locator("[data-repo-link]")).toHaveAttribute("href", "https://github.com/htxryan/penmoss");
   });
 });
 

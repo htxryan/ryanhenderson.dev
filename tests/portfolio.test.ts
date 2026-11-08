@@ -47,10 +47,10 @@ function listProjectHtml(): string[] {
 const WORK_INDEX = join(DIST, "work", "index.html");
 const HOME = join(DIST, "index.html");
 
-// anmerko and Nostalgiabuster Video have public repositories; the other
+// anmerko, Nostalgiabuster Video and Penmoss have public repositories; the other
 // projects have private ones. Menu Simplifier is in development.
 // Delta remains the private fixture; internal detail routes remain hidden.
-const PUBLISHED_SLUGS = ["anmerko", "claude-cache-compactor", "claude-session-router", "menu-simplifier", "nostalgiabuster-video", "salata-recipe-finder"] as const;
+const PUBLISHED_SLUGS = ["anmerko", "claude-cache-compactor", "claude-session-router", "menu-simplifier", "nostalgiabuster-video", "penmoss", "salata-recipe-finder"] as const;
 const HIDDEN_SLUG = "delta";
 
 describe("/work/ index — basic shape", () => {
@@ -95,10 +95,12 @@ describe("U-7 — status-aware ordering and private hiding", () => {
     const anmerko = html.indexOf(">anmerko ↗</a>");
     const nostalgia = html.indexOf(">Nostalgiabuster Video ↗</a>");
     const menu = html.indexOf("Menu Simplifier");
+    const penmoss = html.indexOf(">Penmoss ↗</a>");
     const salad = html.indexOf(">Salata Recipe Finder ↗</a>");
     expect(anmerko).toBeGreaterThan(-1);
     expect(nostalgia).toBeGreaterThan(anmerko);
-    expect(salad).toBeGreaterThan(nostalgia);
+    expect(penmoss).toBeGreaterThan(nostalgia);
+    expect(salad).toBeGreaterThan(penmoss);
     expect(menu).toBeGreaterThan(salad);
   });
 
@@ -238,11 +240,11 @@ describe("ProjectCard — rendered on /work/ index", () => {
   // only on /work/ for now. When project cards return to the home page,
   // restore the cross-route divergence assertion from git history.
 
-  test("/work/ shows six projects with accurate status and brochure links", () => {
+  test("/work/ shows seven projects with accurate status and brochure links", () => {
     const html = read(WORK_INDEX);
     const cards = html.match(/<article[^>]*class="project-card"[^>]*>[\s\S]*?<\/article>/g) ?? [];
-    expect(cards).toHaveLength(6);
-    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(5);
+    expect(cards).toHaveLength(7);
+    expect(html.match(/class="project-card-status"[^>]*data-status="active"/g)).toHaveLength(6);
     expect(html.match(/class="project-card-status"[^>]*data-status="in-development"/g)).toHaveLength(1);
     const anmerkoCard = cards.find((card) => card.includes(">anmerko ↗</a>"));
     expect(anmerkoCard).toContain('data-status="active"');
@@ -256,7 +258,12 @@ describe("ProjectCard — rendered on /work/ index", () => {
     expect(nostalgiaCard).toContain("90s video store stocked from your Plex library");
     // Public repositories get the secondary repo button.
     expect(nostalgiaCard).toMatch(/<a[^>]*href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"[^>]*data-repo-link/);
-    expect(html.match(/data-repo-link/g)).toHaveLength(2);
+    const penmossCard = cards.find((card) => card.includes(">Penmoss ↗</a>"));
+    expect(penmossCard).toContain('data-status="active"');
+    expect(penmossCard).toContain('href="https://penmoss.app/"');
+    expect(penmossCard).toContain("markdown in your own git repository");
+    expect(penmossCard).toMatch(/<a[^>]*href="https:\/\/github\.com\/htxryan\/penmoss"[^>]*data-repo-link/);
+    expect(html.match(/data-repo-link/g)).toHaveLength(3);
     // A public repository with no brochure: the title links to the repo.
     const routerCard = cards.find((card) => card.includes(">Claude Session Router ↗</a>"));
     expect(routerCard).toContain('data-status="active"');
@@ -323,8 +330,9 @@ describe("outbound links use rel=noreferrer + target=_blank", () => {
 
   test("only public repositories have outbound card links", () => {
     const tags = repoTagsIn(read(WORK_INDEX));
-    expect(tags).toHaveLength(2);
+    expect(tags).toHaveLength(3);
     expect(tags.some((tag) => /href="https:\/\/github\.com\/htxryan\/anmerko"/.test(tag))).toBe(true);
+    expect(tags.some((tag) => /href="https:\/\/github\.com\/htxryan\/penmoss"/.test(tag))).toBe(true);
     expect(tags.some((tag) => /href="https:\/\/github\.com\/htxryan\/nostalgiabuster-video"/.test(tag))).toBe(true);
     for (const tag of tags) {
       expect(tag).toMatch(/target="_blank"/);
